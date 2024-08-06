@@ -1,0 +1,54 @@
+<div class="col-sm-1 col-md-4 col-lg-4 mt-5 form-col">
+  <div class="card border-0 shadow p-3">
+    <div class="form-floating mb-3 tetx-center">
+      <h5 class="text-center text-warning">Add Student</h5>
+    </div>
+    <div class="form-floating mb-3">
+      <input
+        type="text"
+        class="form-control"
+        id="firstName"
+        name="firstname"
+        [(ngModel)]="first_name"
+      />
+      <label for="firstname">First name</label>
+    </div>
+    <div class="form-floating mb-3">
+      <input
+        type="text"
+        class="form-control"
+        id="lastName"
+        name="lastName"
+        [(ngModel)]="last_name"
+      />
+      <label for="lastName">Last name</label>
+    </div>
+    <div class="form-floating mb-3">
+      <input
+        type="email"
+        class="form-control"
+        id="email"
+        name="email"
+        [(ngModel)]="email"
+      />
+      <label for="email">Email address</label>
+    </div>
+    <div class="form-floating mb-3">
+      <input
+        type="text"
+        class="form-control"
+        id="mobile"
+        name="mobile"
+        [(ngModel)]="mobile"
+      />
+      <label for="mobile">Mobile</label>
+    </div>
+    <button
+      type="button"
+      class="btn btn-outline-success"
+      (click)="addStudent()"
+    >
+      Add Student
+    </button>
+  </div>
+</div>

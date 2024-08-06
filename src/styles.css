@@ -1,1 +1,154 @@
-/* You can add global styles to this file, and also import other style files */
+body {
+  font-family: "Roboto", sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #212529;
+  text-align: left;
+  background-color: #fff;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.fr-c {
+  justify-content: center;
+}
+
+.fc-c {
+  align-items: center;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.mt-page {
+  margin-top: 145px;
+}
+
+.mt-1 {
+  margin-top: 0.25rem;
+}
+
+.mt-2 {
+  margin-top: 0.5rem;
+}
+
+.mt-3 {
+  margin-top: 1rem;
+}
+
+.mt-4 {
+  margin-top: 1.5rem;
+}
+
+.mt-5 {
+  margin-top: 3rem;
+}
+
+.mt-6 {
+  margin-top: 4rem;
+}
+
+.mt-7 {
+  margin-top: 5rem;
+}
+
+.mt-8 {
+  margin-top: 6rem;
+}
+
+.mb-1 {
+  margin-bottom: 0.25rem;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.pd-1 {
+  padding: 0.25rem;
+}
+
+.pd-2 {
+  padding: 0.5rem;
+}
+
+.pdl-1 {
+  padding-left: 0.25rem;
+}
+
+.pdr-1 {
+  padding-right: 0.25rem;
+}
+
+.stnd-h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+  margin-top: 0;
+}
+
+.hero-h1 {
+  color: #369;
+  font-family: "Roboto", sans-serif;
+  font-size: 250%;
+}
+
+.hero-h2,
+.hero-h3 {
+  color: #444;
+  font-family: "Roboto", sans-serif;
+  font-weight: lighter;
+}
+
+.hero-tour,
+.hero-input[type="text"],
+.hero-btn {
+  color: #333;
+  font-family: "Roboto", sans-serif;
+}
+
+.hero-btn {
+  background-color: #eee;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: black;
+  font-size: 1.2rem;
+  padding: 1rem;
+  margin-right: 1rem;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+}
+
+.hero-btn:hover {
+  background-color: black;
+  color: white;
+}
+
+.hero-btn:disabled {
+  background-color: #eee;
+  color: #aaa;
+  cursor: auto;
+}
+
+.ng-valid[required],
+.ng-valid.required {
+  border-left: 5px solid #42a948; /* green */
+}
+
+.ng-invalid:not(form) {
+  border-left: 5px solid #a94442; /* red */
+}
