@@ -11,7 +11,6 @@ import { AngularFireStorageModule } from '@angular/fire/compat/storage';
 import { environment } from '../environments/environments';
 import { HomeComponent } from './components/home/home.component';
 import { LoginComponent } from './components/login/login.component';
-import { StudentFormComponent } from './components/student-form/student-form.component';
 import { RegFormComponent } from './components/reg-form/reg-form.component';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import { VerifyEmailComponent } from './components/verify-email/verify-email.component';
@@ -23,11 +22,10 @@ import { NavComponent } from './components/nav/nav.component';
     AppComponent,
     HomeComponent,
     LoginComponent,
-    StudentFormComponent,
     RegFormComponent,
     ForgotPasswordComponent,
     VerifyEmailComponent,
-    NavComponent,
+    NavComponent
   ],
   imports: [
     BrowserModule,

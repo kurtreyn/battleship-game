@@ -1,32 +1,32 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { AngularFireStorage } from '@angular/fire/compat/storage';
-
-import { Student } from '../models/student';
+import { v4 as uuidv4 } from 'uuid';
+import { Player } from '../models/game';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
 
-  constructor(private afs: AngularFirestore, private fireStorage: AngularFireStorage) { }
+  constructor(private afs: AngularFirestore) { }
 
-  addStudent(student: Student) {
-    student.id = this.afs.createId()
-    return this.afs.collection('/Students').add(student)
+  addPlayer(player: Player) {
+    player.playerId = uuidv4()
+    player.email = player.email
+    player.name = player.name
+    return this.afs.collection('/players').add(player)
   }
 
-  getAllStudents() {
-    return this.afs.collection('/Students').snapshotChanges()
+  getAllPlayers() {
+    return this.afs.collection('/players').snapshotChanges()
   }
 
-  deleteStudent(student: Student) {
-    return this.afs.doc('/Students/' + student.id).delete()
+  deletePlayer(player: Player) {
+    return this.afs.doc('/players/' + player.playerId).delete()
   }
 
-  updateStudent(student: Student) {
-    this.deleteStudent(student);
-    this.addStudent(student);
-
+  updatePlayer(player: Player) {
+    this.deletePlayer(player);
+    this.addPlayer(player);
   }
 }
