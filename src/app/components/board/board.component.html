@@ -1,0 +1,21 @@
+<section class="battleship-grid">
+  <table>
+    <thead>
+      <tr>
+        <th *ngFor="let char of col">{{ char }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let rowChar of row; let i = index">
+        <th>{{ rowChar.toUpperCase() }}</th>
+        <td
+          *ngFor="let colChar of col; let j = index"
+          [id]="rowChar + colChar"
+          [ngClass]="gridState[rowChar + colChar]"
+          (click)="onCellClick(rowChar + colChar)"
+          class="grid-cell"
+        ></td>
+      </tr>
+    </tbody>
+  </table>
+</section>

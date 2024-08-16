@@ -15,6 +15,8 @@ import { RegFormComponent } from './components/reg-form/reg-form.component';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import { VerifyEmailComponent } from './components/verify-email/verify-email.component';
 import { NavComponent } from './components/nav/nav.component';
+import { BoardComponent } from './components/board/board.component';
+import { GameComponent } from './components/game/game.component';
 
 
 @NgModule({
@@ -25,7 +27,9 @@ import { NavComponent } from './components/nav/nav.component';
     RegFormComponent,
     ForgotPasswordComponent,
     VerifyEmailComponent,
-    NavComponent
+    NavComponent,
+    BoardComponent,
+    GameComponent,
   ],
   imports: [
     BrowserModule,

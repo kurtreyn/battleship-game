@@ -1,0 +1,26 @@
+.battleship-grid table {
+  border-collapse: collapse;
+}
+
+.grid-cell {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #000;
+  cursor: pointer;
+}
+
+.empty {
+  background-color: #fff;
+}
+
+.hit {
+  background-color: #ff0000;
+}
+
+.miss {
+  background-color: #00ffff;
+}
+
+.ship {
+  background-color: #808080;
+}
