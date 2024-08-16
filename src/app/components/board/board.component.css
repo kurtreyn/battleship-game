@@ -1,11 +1,22 @@
-.battleship-grid table {
+.battleship-grid .grid-table {
   border-collapse: collapse;
+}
+
+.grid-label {
+  justify-content: center;
+  font-weight: bold;
+  width: 30px;
+  height: 30px;
+  border: 1px solid #000;
+  text-align: center;
 }
 
 .grid-cell {
   width: 30px;
   height: 30px;
   border: 1px solid #000;
+  text-align: center;
+  font-weight: bold;
   cursor: pointer;
 }
 

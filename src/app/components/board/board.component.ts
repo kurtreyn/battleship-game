@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-
+import { ICell } from 'src/app/models/game';
 
 @Component({
   selector: 'app-board',
@@ -7,15 +7,36 @@ import { Component, Input } from '@angular/core';
   styleUrls: ['./board.component.css']
 })
 export class BoardComponent {
-  @Input() row: string[] = [];
-  @Input() col: string[] = [];
-  @Input() gridState: { [key: string]: string } = {};
-  @Input() boardIds: string[][] = [];
+  @Input() cells: ICell[] = [];
 
-  onCellClick(cellId: string) {
-    // Here you would implement the logic for a move
-    // For now, let's just toggle between 'hit' and 'miss'
-    this.gridState[cellId] = this.gridState[cellId] === 'hit' ? 'miss' : 'hit';
+
+  getRows(): string[] {
+    return Array.from(new Set(this.cells.map(cell => cell.location_row)));
+  }
+
+  getCols(): string[] {
+    return Array.from(new Set(this.cells.map(cell => cell.location_col)));
+  }
+
+  getCell(row: string, col: string): any {
+    return this.cells.find(cell => cell.location_row === row && cell.location_col === col);
+  }
+
+  getClassForCell(row: string, col: string): string {
+    const cell = this.getCell(row, col);
+    if (!cell) return '';
+    return [
+      cell.hit ? 'hit' : '',
+      cell.miss ? 'miss' : '',
+      cell.occupied ? 'occupied' : ''
+    ].join(' ');
+  }
+
+  onCellClick(cell: any) {
+    if (cell) {
+      console.log('Cell clicked:', cell);
+      // Implement the logic for what happens when a cell is clicked.
+    }
   }
 
 

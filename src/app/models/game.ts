@@ -1,4 +1,4 @@
-export interface Player {
+export interface IPlayer {
     playerId: string;
     name: string;
     email: string;
@@ -7,18 +7,26 @@ export interface Player {
     isActive: boolean;
     isReady: boolean;
     score: number;
-    session?: Session;
+    session?: ISession;
     playerNumber: number;
 }
 
-export interface Session {
+export interface ISession {
     sessionId: string;
     date: string;
     time: string;
-    players: Player[];
+    players: IPlayer[];
 }
 
-export interface Layout {
-    a1: string;
-    a2: string;
+export interface ICell {
+    location_row: string,
+    location_col: string,
+    row_label: string,
+    coordinates: string,
+    occupied: boolean,
+    boardOwner: string,
+    playerId: string,
+    opponentId: string,
+    hit: boolean,
+    miss: boolean,
 }

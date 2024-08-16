@@ -3,14 +3,14 @@ import { Router } from '@angular/router';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { DataService } from './data.service';
 
-import { Player } from '../models/game';
+import { IPlayer } from '../models/game';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  player?: Player;
+  player?: IPlayer;
 
   constructor(private fireauth: AngularFireAuth, private dataService: DataService, private router: Router) { }
 
