@@ -21,7 +21,7 @@ export class BoardComponent {
   location: string[] = [];
   isDragging: boolean = false;
 
-  onCellMouseDown(cell: any) {
+  onCellMouseDown(cell: ICell) {
     this.isDragging = true;
     this.addCellToLocation(cell);
   }
@@ -30,7 +30,7 @@ export class BoardComponent {
     this.isDragging = false;
   }
 
-  onCellMouseEnter(cell: any) {
+  onCellMouseEnter(cell: ICell) {
     if (this.isDragging) {
       this.addCellToLocation(cell);
     }
@@ -38,7 +38,7 @@ export class BoardComponent {
     this.updateCell(cell);
   }
 
-  addCellToLocation(cell: any) {
+  addCellToLocation(cell: ICell) {
     if (!this.location.includes(cell.coordinates)) {
       this.location.push(cell.coordinates);
     }
@@ -57,7 +57,7 @@ export class BoardComponent {
     console.log('Cells:', this.cells);
   }
 
-  onCellClick(cell: any) {
+  onCellClick(cell: ICell) {
     if (cell) {
       this.getCellInfo(cell);
       // Implement the logic for what happens when a cell is clicked.
