@@ -8,10 +8,20 @@ import { ICell } from 'src/app/models/game';
 })
 export class BoardComponent {
   @Input() cells: ICell[] = [];
+  @Input() row_A: ICell[] = [];
+  @Input() row_B: ICell[] = [];
+  @Input() row_C: ICell[] = [];
+  @Input() row_D: ICell[] = [];
+  @Input() row_E: ICell[] = [];
+  @Input() row_F: ICell[] = [];
+  @Input() row_G: ICell[] = [];
+  @Input() row_H: ICell[] = [];
+  @Input() row_I: ICell[] = [];
+  @Input() row_J: ICell[] = [];
 
 
-  getRows(): string[] {
-    return Array.from(new Set(this.cells.map(cell => cell.location_row)));
+  getRowLabels(): string[] {
+    return Array.from(new Set(this.cells.map(cell => cell.row_label)));
   }
 
   getCols(): string[] {

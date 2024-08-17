@@ -7,23 +7,35 @@ import { ICell } from 'src/app/models/game';
   styleUrls: ['./game.component.css']
 })
 export class GameComponent implements OnInit {
-  row: string[] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
-  col: string[] = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
   cells: ICell[] = [];
+  rowArr: string[] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
+  colArr: string[] = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+  row_A: ICell[] = []
+  row_B: ICell[] = []
+  row_C: ICell[] = []
+  row_D: ICell[] = []
+  row_E: ICell[] = []
+  row_F: ICell[] = []
+  row_G: ICell[] = []
+  row_H: ICell[] = []
+  row_I: ICell[] = []
+  row_J: ICell[] = []
+
 
   ngOnInit(): void {
     this.initializeCells('Kurt', 'pID', 'oID');
-    console.log('cells', this.cells);
+    this.setRows();
+    // console.log(this.cells);
   }
 
   initializeCells(boardOwner: string, playerId: string, opponentId: string): void {
-    for (let i = 0; i < this.row.length; i++) {
-      for (let j = 0; j < this.col.length; j++) {
+    for (let i = 0; i < this.rowArr.length; i++) {
+      for (let j = 0; j < this.colArr.length; j++) {
         this.cells.push({
-          location_row: this.row[i],
-          location_col: this.col[j],
-          coordinates: `${this.row[i]}${this.col[j]}`,
-          row_label: this.row[i].toUpperCase(),
+          location_row: this.rowArr[i],
+          location_col: this.colArr[j],
+          coordinates: `${this.rowArr[i]}${this.colArr[j]}`,
+          row_label: this.rowArr[i].toUpperCase(),
           occupied: false,
           boardOwner: boardOwner,
           playerId: playerId,
@@ -35,5 +47,49 @@ export class GameComponent implements OnInit {
     }
   }
 
+  setRows(): void {
+    if (!this.cells) return;
+    this.cells.forEach((cell) => {
+      switch (cell.row_label) {
+        case 'A':
+          this.row_A.push(cell);
+          break;
+        case 'B':
+          this.row_B.push(cell);
+          break;
+        case 'C':
+          this.row_C.push(cell);
+          break;
+        case 'D':
+          this.row_D.push(cell);
+          break;
+        case 'E':
+          this.row_E.push(cell);
+          break;
+        case 'F':
+          this.row_F.push(cell);
+          break;
+        case 'G':
+          this.row_G.push(cell);
+          break;
+        case 'H':
+          this.row_H.push(cell);
+          break;
+        case 'I':
+          this.row_I.push(cell);
+          break;
+        case 'J':
+          this.row_J.push(cell);
+          break;
+      }
+      console.log('this.row_A', this.row_A);
 
+
+    });
+
+
+  }
 }
+
+
+

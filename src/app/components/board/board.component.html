@@ -1,160 +1,20 @@
 <section class="battleship-grid">
-  <table class="grid-table">
-    <tbody>
-      <tr class="grid-label-row">
-        <td class="grid-label"></td>
-        <td class="grid-label">1</td>
-        <td class="grid-label">2</td>
-        <td class="grid-label">3</td>
-        <td class="grid-label">4</td>
-        <td class="grid-label">5</td>
-        <td class="grid-label">6</td>
-        <td class="grid-label">7</td>
-        <td class="grid-label">8</td>
-        <td class="grid-label">9</td>
-        <td class="grid-label">10</td>
-      </tr>
+  <div class="row">
+    <div class="label"></div>
+    <div class="label">1</div>
+    <div class="label">2</div>
+    <div class="label">3</div>
+    <div class="label">4</div>
+    <div class="label">5</div>
+    <div class="label">6</div>
+    <div class="label">7</div>
+    <div class="label">8</div>
+    <div class="label">9</div>
+    <div class="label">10</div>
+  </div>
 
-      <tr *ngFor="let row of getRows()" class="grid-row">
-        <td
-          *ngFor="let col of getCols()"
-          [ngClass]="{ 'grid-label': col === '0', 'grid-cell': col !== '0' }"
-          (click)="onCellClick(getCell(row, col))"
-        >
-          {{ getCell(row, col)?.coordinates || "" }}
-        </td>
-      </tr>
-
-      <!-- <tr class="grid-row">
-        <td class="grid-label">A</td>
-        <td class="grid-cell" id="a1"></td>
-        <td class="grid-cell" id="a2"></td>
-        <td class="grid-cell" id="a3"></td>
-        <td class="grid-cell" id="a4"></td>
-        <td class="grid-cell" id="a5"></td>
-        <td class="grid-cell" id="a6"></td>
-        <td class="grid-cell" id="a7"></td>
-        <td class="grid-cell" id="a8"></td>
-        <td class="grid-cell" id="a9"></td>
-        <td class="grid-cell" id="a10"></td>
-      </tr>
-      <tr class="grid-row">
-        <td class="grid-label">B</td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-      </tr>
-      <tr class="grid-row">
-        <td class="grid-label">C</td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-      </tr>
-      <tr class="grid-row">
-        <td class="grid-label">D</td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-      </tr>
-      <tr class="grid-row">
-        <td class="grid-label">E</td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-      </tr>
-      <tr class="grid-row">
-        <td class="grid-label">F</td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-      </tr>
-      <tr class="grid-row">
-        <td class="grid-label">G</td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-      </tr>
-      <tr class="grid-row">
-        <td class="grid-label">H</td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-      </tr>
-      <tr class="grid-row">
-        <td class="grid-label">I</td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-      </tr>
-      <tr class="grid-row">
-        <td class="grid-label">J</td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-        <td class="grid-cell"></td>
-      </tr> -->
-    </tbody>
-  </table>
+  <div class="row" *ngFor="let row of row_A">
+    <div class="label">{{ row.row_label }}</div>
+    <div class="cell"></div>
+  </div>
 </section>
