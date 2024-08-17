@@ -136,9 +136,13 @@ export class BoardComponent implements OnInit {
   }
 
   updateSettingShip() {
+    // Remove the first ship from the array
     this.shipsToSet.shift();
+
+    // Log the current setting ship
     console.log('settingShip: ', this.boardSetup.settingShip);
 
+    // Update the board setup based on the current setting ship
     switch (this.boardSetup.settingShip) {
       case SHIP_NAME.CARRIER:
         this.boardSetup.carrierSet = true;
@@ -157,6 +161,11 @@ export class BoardComponent implements OnInit {
         break;
       default:
         break;
+    }
+
+    // Update the settingShip to the next ship in the array, if any
+    if (this.shipsToSet.length > 0) {
+      this.boardSetup.settingShip = this.shipsToSet[0];
     }
   }
 
