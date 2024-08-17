@@ -23,6 +23,7 @@
             'ship': cell.occupied,
             'hit': cell.hit,
             'miss': cell.miss,
+            'isDragging': isDragging && location.includes(cell.coordinates),
             
           }"
           id="{{ cell.coordinates }}"

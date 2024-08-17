@@ -21,7 +21,7 @@ export class GameComponent implements OnInit {
   row_I: ICell[] = []
   row_J: ICell[] = []
   boardSetup: IBoardSetup = {
-    isSettingUp: false,
+    isSettingUp: true, // TODO: change to false
     carrierSet: false,
     battleshipSet: false,
     cruiserSet: false,
@@ -40,8 +40,8 @@ export class GameComponent implements OnInit {
     for (let i = 0; i < this.rowArr.length; i++) {
       for (let j = 0; j < this.colArr.length; j++) {
         this.cells.push({
-          location_row: this.rowArr[i],
-          location_col: this.colArr[j],
+          x: this.rowArr[i],
+          y: this.colArr[j],
           coordinates: `${this.rowArr[i]}${this.colArr[j]}`,
           row_label: this.rowArr[i].toUpperCase(),
           occupied: false,

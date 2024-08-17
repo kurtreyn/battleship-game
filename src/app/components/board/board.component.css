@@ -17,6 +17,10 @@
   cursor: pointer;
 }
 
+.isDragging {
+  border: 5px solid green;
+}
+
 .empty {
   background-color: #fff;
 }

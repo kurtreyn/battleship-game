@@ -19,8 +19,8 @@ export interface ISession {
 }
 
 export interface ICell {
-    location_row: string,
-    location_col: string,
+    x: string,
+    y: string,
     row_label: string,
     coordinates: string,
     occupied: boolean,

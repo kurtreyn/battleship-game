@@ -31,14 +31,13 @@ export class BoardComponent {
 
   onCellMouseUp() {
     this.isDragging = false;
+    this.updateCell();
   }
 
   onCellMouseEnter(cell: ICell) {
     if (this.isDragging) {
       this.addCellToLocation(cell);
     }
-    console.log('Location:', this.location);
-    this.updateCell(cell);
   }
 
   addCellToLocation(cell: ICell) {
@@ -54,23 +53,21 @@ export class BoardComponent {
         this.location.push(newCoordinate);
       } else {
         const firstCoordinate = this.location[0];
-        const isSameRow = this.location.every((loc) => loc[0] === newCoordinate[0]);
-        const isSameCol = this.location.every((loc) => loc[1] === newCoordinate[1]);
+        const isSameRow = this.location.every((loc) => loc[0] === firstCoordinate[0]);
+        const isSameCol = this.location.every((loc) => loc[1] === firstCoordinate[1]);
 
         if (isSameRow && newCoordinate[0] === firstCoordinate[0]) {
           this.location.push(newCoordinate);
         } else if (isSameCol && newCoordinate[1] === firstCoordinate[1]) {
           this.location.push(newCoordinate);
         } else {
-          this.location = [];
+          console.log('Coordinate is not in a straight line');
         }
       }
     }
   }
 
-
-
-  updateCell(cell: ICell) {
+  updateCell() {
     if (this.location.length === 0) return;
     this.location.forEach((loc) => {
       this.cells.forEach((cell) => {
@@ -80,20 +77,18 @@ export class BoardComponent {
       });
     });
     this.location = [];
-    // console.log('Cells:', this.cells);
   }
 
   onCellClick(cell: ICell) {
     if (cell) {
       this.getCellInfo(cell);
-      // Implement the logic for what happens when a cell is clicked.
     }
   }
 
   getCellInfo(cell: ICell) {
     const cellInfo: ICell = {
-      location_row: cell.location_row,
-      location_col: cell.location_col,
+      x: cell.x,
+      y: cell.y,
       row_label: cell.row_label,
       coordinates: cell.coordinates,
       occupied: cell.occupied,
@@ -111,6 +106,4 @@ export class BoardComponent {
     this.boardSetup.isSettingUp = !this.boardSetup.isSettingUp;
     console.log('boardSetup', this.boardSetup);
   }
-
-
 }
