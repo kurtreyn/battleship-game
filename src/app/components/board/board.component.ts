@@ -18,8 +18,44 @@ export class BoardComponent {
   @Input() row_H: ICell[] = [];
   @Input() row_I: ICell[] = [];
   @Input() row_J: ICell[] = [];
+  location: string[] = [];
+  isDragging: boolean = false;
 
+  onCellMouseDown(cell: any) {
+    this.isDragging = true;
+    this.addCellToLocation(cell);
+  }
 
+  onCellMouseUp() {
+    this.isDragging = false;
+  }
+
+  onCellMouseEnter(cell: any) {
+    if (this.isDragging) {
+      this.addCellToLocation(cell);
+    }
+    console.log('Location:', this.location);
+    this.updateCell(cell);
+  }
+
+  addCellToLocation(cell: any) {
+    if (!this.location.includes(cell.coordinates)) {
+      this.location.push(cell.coordinates);
+    }
+  }
+
+  updateCell(cell: ICell) {
+    if (this.location.length === 0) return;
+    this.location.forEach((loc) => {
+      this.cells.forEach((cell) => {
+        if (cell.coordinates === loc) {
+          cell.occupied = true;
+        }
+      });
+    });
+    this.location = [];
+    console.log('Cells:', this.cells);
+  }
 
   onCellClick(cell: any) {
     if (cell) {
@@ -43,6 +79,10 @@ export class BoardComponent {
     }
     console.log('Cell Info:', cellInfo);
     return cellInfo;
+  }
+
+  setShips() {
+    const location = [];
   }
 
 

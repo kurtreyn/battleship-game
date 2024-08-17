@@ -19,8 +19,17 @@
         <td
           class="grid-cell"
           *ngFor="let cell of row_A"
+          [ngClass]="{
+            'ship': cell.occupied,
+            'hit': cell.hit,
+            'miss': cell.miss,
+            
+          }"
           id="{{ cell.coordinates }}"
           (click)="onCellClick(cell)"
+          (mousedown)="onCellMouseDown(cell)"
+          (mouseup)="onCellMouseUp()"
+          (mouseenter)="onCellMouseEnter(cell)"
         ></td>
       </tr>
       <tr>
@@ -28,8 +37,17 @@
         <td
           class="grid-cell"
           *ngFor="let cell of row_B"
+          [ngClass]="{
+            'ship': cell.occupied,
+            'hit': cell.hit,
+            'miss': cell.miss,
+            
+          }"
           id="{{ cell.coordinates }}"
           (click)="onCellClick(cell)"
+          (mousedown)="onCellMouseDown(cell)"
+          (mouseup)="onCellMouseUp()"
+          (mouseenter)="onCellMouseEnter(cell)"
         ></td>
       </tr>
       <tr>
@@ -37,8 +55,17 @@
         <td
           class="grid-cell"
           *ngFor="let cell of row_C"
+          [ngClass]="{
+            'ship': cell.occupied,
+            'hit': cell.hit,
+            'miss': cell.miss,
+            
+          }"
           id="{{ cell.coordinates }}"
           (click)="onCellClick(cell)"
+          (mousedown)="onCellMouseDown(cell)"
+          (mouseup)="onCellMouseUp()"
+          (mouseenter)="onCellMouseEnter(cell)"
         ></td>
       </tr>
       <tr>
@@ -46,8 +73,17 @@
         <td
           class="grid-cell"
           *ngFor="let cell of row_D"
+          [ngClass]="{
+            'ship': cell.occupied,
+            'hit': cell.hit,
+            'miss': cell.miss,
+            
+          }"
           id="{{ cell.coordinates }}"
           (click)="onCellClick(cell)"
+          (mousedown)="onCellMouseDown(cell)"
+          (mouseup)="onCellMouseUp()"
+          (mouseenter)="onCellMouseEnter(cell)"
         ></td>
       </tr>
       <tr>
@@ -55,8 +91,17 @@
         <td
           class="grid-cell"
           *ngFor="let cell of row_E"
+          [ngClass]="{
+            'ship': cell.occupied,
+            'hit': cell.hit,
+            'miss': cell.miss,
+            
+          }"
           id="{{ cell.coordinates }}"
           (click)="onCellClick(cell)"
+          (mousedown)="onCellMouseDown(cell)"
+          (mouseup)="onCellMouseUp()"
+          (mouseenter)="onCellMouseEnter(cell)"
         ></td>
       </tr>
       <tr>
@@ -64,8 +109,17 @@
         <td
           class="grid-cell"
           *ngFor="let cell of row_F"
+          [ngClass]="{
+            'ship': cell.occupied,
+            'hit': cell.hit,
+            'miss': cell.miss,
+            
+          }"
           id="{{ cell.coordinates }}"
           (click)="onCellClick(cell)"
+          (mousedown)="onCellMouseDown(cell)"
+          (mouseup)="onCellMouseUp()"
+          (mouseenter)="onCellMouseEnter(cell)"
         ></td>
       </tr>
       <tr>
@@ -73,8 +127,17 @@
         <td
           class="grid-cell"
           *ngFor="let cell of row_G"
+          [ngClass]="{
+            'ship': cell.occupied,
+            'hit': cell.hit,
+            'miss': cell.miss,
+            
+          }"
           id="{{ cell.coordinates }}"
           (click)="onCellClick(cell)"
+          (mousedown)="onCellMouseDown(cell)"
+          (mouseup)="onCellMouseUp()"
+          (mouseenter)="onCellMouseEnter(cell)"
         ></td>
       </tr>
       <tr>
@@ -82,8 +145,17 @@
         <td
           class="grid-cell"
           *ngFor="let cell of row_H"
+          [ngClass]="{
+            'ship': cell.occupied,
+            'hit': cell.hit,
+            'miss': cell.miss,
+            
+          }"
           id="{{ cell.coordinates }}"
           (click)="onCellClick(cell)"
+          (mousedown)="onCellMouseDown(cell)"
+          (mouseup)="onCellMouseUp()"
+          (mouseenter)="onCellMouseEnter(cell)"
         ></td>
       </tr>
       <tr>
@@ -91,8 +163,17 @@
         <td
           class="grid-cell"
           *ngFor="let cell of row_I"
+          [ngClass]="{
+            'ship': cell.occupied,
+            'hit': cell.hit,
+            'miss': cell.miss,
+            
+          }"
           id="{{ cell.coordinates }}"
           (click)="onCellClick(cell)"
+          (mousedown)="onCellMouseDown(cell)"
+          (mouseup)="onCellMouseUp()"
+          (mouseenter)="onCellMouseEnter(cell)"
         ></td>
       </tr>
       <tr>
@@ -100,8 +181,17 @@
         <td
           class="grid-cell"
           *ngFor="let cell of row_J"
+          [ngClass]="{
+            'ship': cell.occupied,
+            'hit': cell.hit,
+            'miss': cell.miss,
+            
+          }"
           id="{{ cell.coordinates }}"
           (click)="onCellClick(cell)"
+          (mousedown)="onCellMouseDown(cell)"
+          (mouseup)="onCellMouseUp()"
+          (mouseenter)="onCellMouseEnter(cell)"
         ></td>
       </tr>
     </tbody>
