@@ -82,7 +82,7 @@ export class GameComponent implements OnInit {
           this.row_J.push(cell);
           break;
       }
-      console.log('this.row_A', this.row_A);
+      // console.log('this.row_A', this.row_A);
 
 
     });

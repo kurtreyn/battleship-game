@@ -1,20 +1,109 @@
 <section class="battleship-grid">
-  <div class="row">
-    <div class="label"></div>
-    <div class="label">1</div>
-    <div class="label">2</div>
-    <div class="label">3</div>
-    <div class="label">4</div>
-    <div class="label">5</div>
-    <div class="label">6</div>
-    <div class="label">7</div>
-    <div class="label">8</div>
-    <div class="label">9</div>
-    <div class="label">10</div>
-  </div>
-
-  <div class="row" *ngFor="let row of row_A">
-    <div class="label">{{ row.row_label }}</div>
-    <div class="cell"></div>
-  </div>
+  <table class="grid-table">
+    <tbody>
+      <tr>
+        <td class="grid-cell"></td>
+        <td class="grid-cell">1</td>
+        <td class="grid-cell">2</td>
+        <td class="grid-cell">3</td>
+        <td class="grid-cell">4</td>
+        <td class="grid-cell">5</td>
+        <td class="grid-cell">6</td>
+        <td class="grid-cell">7</td>
+        <td class="grid-cell">8</td>
+        <td class="grid-cell">9</td>
+        <td class="grid-cell">10</td>
+      </tr>
+      <tr>
+        <td class="grid-cell">A</td>
+        <td
+          class="grid-cell"
+          *ngFor="let cell of row_A"
+          id="{{ cell.coordinates }}"
+          (click)="onCellClick(cell)"
+        ></td>
+      </tr>
+      <tr>
+        <td class="grid-cell">B</td>
+        <td
+          class="grid-cell"
+          *ngFor="let cell of row_B"
+          id="{{ cell.coordinates }}"
+          (click)="onCellClick(cell)"
+        ></td>
+      </tr>
+      <tr>
+        <td class="grid-cell">C</td>
+        <td
+          class="grid-cell"
+          *ngFor="let cell of row_C"
+          id="{{ cell.coordinates }}"
+          (click)="onCellClick(cell)"
+        ></td>
+      </tr>
+      <tr>
+        <td class="grid-cell">D</td>
+        <td
+          class="grid-cell"
+          *ngFor="let cell of row_D"
+          id="{{ cell.coordinates }}"
+          (click)="onCellClick(cell)"
+        ></td>
+      </tr>
+      <tr>
+        <td class="grid-cell">E</td>
+        <td
+          class="grid-cell"
+          *ngFor="let cell of row_E"
+          id="{{ cell.coordinates }}"
+          (click)="onCellClick(cell)"
+        ></td>
+      </tr>
+      <tr>
+        <td class="grid-cell">F</td>
+        <td
+          class="grid-cell"
+          *ngFor="let cell of row_F"
+          id="{{ cell.coordinates }}"
+          (click)="onCellClick(cell)"
+        ></td>
+      </tr>
+      <tr>
+        <td class="grid-cell">G</td>
+        <td
+          class="grid-cell"
+          *ngFor="let cell of row_G"
+          id="{{ cell.coordinates }}"
+          (click)="onCellClick(cell)"
+        ></td>
+      </tr>
+      <tr>
+        <td class="grid-cell">H</td>
+        <td
+          class="grid-cell"
+          *ngFor="let cell of row_H"
+          id="{{ cell.coordinates }}"
+          (click)="onCellClick(cell)"
+        ></td>
+      </tr>
+      <tr>
+        <td class="grid-cell">I</td>
+        <td
+          class="grid-cell"
+          *ngFor="let cell of row_I"
+          id="{{ cell.coordinates }}"
+          (click)="onCellClick(cell)"
+        ></td>
+      </tr>
+      <tr>
+        <td class="grid-cell">J</td>
+        <td
+          class="grid-cell"
+          *ngFor="let cell of row_J"
+          id="{{ cell.coordinates }}"
+          (click)="onCellClick(cell)"
+        ></td>
+      </tr>
+    </tbody>
+  </table>
 </section>

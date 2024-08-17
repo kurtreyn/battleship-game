@@ -20,33 +20,29 @@ export class BoardComponent {
   @Input() row_J: ICell[] = [];
 
 
-  getRowLabels(): string[] {
-    return Array.from(new Set(this.cells.map(cell => cell.row_label)));
-  }
-
-  getCols(): string[] {
-    return Array.from(new Set(this.cells.map(cell => cell.location_col)));
-  }
-
-  getCell(row: string, col: string): any {
-    return this.cells.find(cell => cell.location_row === row && cell.location_col === col);
-  }
-
-  getClassForCell(row: string, col: string): string {
-    const cell = this.getCell(row, col);
-    if (!cell) return '';
-    return [
-      cell.hit ? 'hit' : '',
-      cell.miss ? 'miss' : '',
-      cell.occupied ? 'occupied' : ''
-    ].join(' ');
-  }
 
   onCellClick(cell: any) {
     if (cell) {
-      console.log('Cell clicked:', cell);
+      this.getCellInfo(cell);
       // Implement the logic for what happens when a cell is clicked.
     }
+  }
+
+  getCellInfo(cell: ICell) {
+    const cellInfo: ICell = {
+      location_row: cell.location_row,
+      location_col: cell.location_col,
+      row_label: cell.row_label,
+      coordinates: cell.coordinates,
+      occupied: cell.occupied,
+      boardOwner: cell.boardOwner,
+      playerId: cell.playerId,
+      opponentId: cell.opponentId,
+      hit: cell.hit,
+      miss: cell.miss
+    }
+    console.log('Cell Info:', cellInfo);
+    return cellInfo;
   }
 
 
