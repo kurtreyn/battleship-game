@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ICell } from 'src/app/models/game';
+import { ICell, IBoardSetup } from 'src/app/models/game';
 
 @Component({
   selector: 'app-game',
@@ -20,12 +20,20 @@ export class GameComponent implements OnInit {
   row_H: ICell[] = []
   row_I: ICell[] = []
   row_J: ICell[] = []
+  boardSetup: IBoardSetup = {
+    isSettingUp: false,
+    carrierSet: false,
+    battleshipSet: false,
+    cruiserSet: false,
+    submarineSet: false,
+    destroyerSet: false,
+  }
 
 
   ngOnInit(): void {
     this.initializeCells('Kurt', 'pID', 'oID');
     this.setRows();
-    // console.log(this.cells);
+    console.log('initial boardSetup', this.boardSetup);
   }
 
   initializeCells(boardOwner: string, playerId: string, opponentId: string): void {

@@ -197,3 +197,9 @@
     </tbody>
   </table>
 </section>
+
+<section class="staging-area">
+  <button (click)="toggleBoardSetup()">
+    {{ !boardSetup.isSettingUp ? "Start Setup" : "Ready" }}
+  </button>
+</section>

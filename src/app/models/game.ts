@@ -8,7 +8,7 @@ export interface IPlayer {
     isReady: boolean;
     score: number;
     session?: ISession;
-    playerNumber: number;
+    playerNumber: string;
 }
 
 export interface ISession {
@@ -29,4 +29,13 @@ export interface ICell {
     opponentId: string,
     hit: boolean,
     miss: boolean,
+}
+
+export interface IBoardSetup {
+    isSettingUp: boolean;
+    carrierSet: boolean;
+    battleshipSet: boolean;
+    cruiserSet: boolean;
+    submarineSet: boolean;
+    destroyerSet: boolean;
 }

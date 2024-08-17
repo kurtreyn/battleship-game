@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { ICell } from 'src/app/models/game';
+import { ICell, IBoardSetup } from 'src/app/models/game';
+import { SHIP_LEN, SHIP_NAME, SHIP_SETUP } from 'src/app/enums/enums';
 
 @Component({
   selector: 'app-board',
@@ -18,6 +19,8 @@ export class BoardComponent {
   @Input() row_H: ICell[] = [];
   @Input() row_I: ICell[] = [];
   @Input() row_J: ICell[] = [];
+  @Input() boardSetup!: IBoardSetup;
+
   location: string[] = [];
   isDragging: boolean = false;
 
@@ -39,10 +42,33 @@ export class BoardComponent {
   }
 
   addCellToLocation(cell: ICell) {
-    if (!this.location.includes(cell.coordinates)) {
-      this.location.push(cell.coordinates);
+    const conditions = {
+      isOccupied: cell.occupied,
+      not_existing: !this.location.includes(cell.coordinates),
+      isSettingUp: this.boardSetup.isSettingUp
+    }
+    if (!conditions.isOccupied && conditions.not_existing && conditions.isSettingUp) {
+      const newCoordinate = cell.coordinates;
+
+      if (this.location.length === 0) {
+        this.location.push(newCoordinate);
+      } else {
+        const firstCoordinate = this.location[0];
+        const isSameRow = this.location.every((loc) => loc[0] === newCoordinate[0]);
+        const isSameCol = this.location.every((loc) => loc[1] === newCoordinate[1]);
+
+        if (isSameRow && newCoordinate[0] === firstCoordinate[0]) {
+          this.location.push(newCoordinate);
+        } else if (isSameCol && newCoordinate[1] === firstCoordinate[1]) {
+          this.location.push(newCoordinate);
+        } else {
+          this.location = [];
+        }
+      }
     }
   }
+
+
 
   updateCell(cell: ICell) {
     if (this.location.length === 0) return;
@@ -54,7 +80,7 @@ export class BoardComponent {
       });
     });
     this.location = [];
-    console.log('Cells:', this.cells);
+    // console.log('Cells:', this.cells);
   }
 
   onCellClick(cell: ICell) {
@@ -81,8 +107,9 @@ export class BoardComponent {
     return cellInfo;
   }
 
-  setShips() {
-    const location = [];
+  toggleBoardSetup() {
+    this.boardSetup.isSettingUp = !this.boardSetup.isSettingUp;
+    console.log('boardSetup', this.boardSetup);
   }
 
 

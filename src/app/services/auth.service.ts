@@ -41,7 +41,7 @@ export class AuthService {
         score: 0,
         isReady: false,
         isActive: false,
-        playerNumber: 0
+        playerNumber: '0'
       };
       this.dataService.addPlayer(this.player);
       // this.router.navigate(['/login'])
