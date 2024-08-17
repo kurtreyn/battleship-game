@@ -38,4 +38,5 @@ export interface IBoardSetup {
     cruiserSet: boolean;
     submarineSet: boolean;
     destroyerSet: boolean;
+    settingShip: string;
 }

@@ -12,17 +12,9 @@ export enum SHIP_LEN {
 }
 
 export enum SHIP_NAME {
-    CARRIER = 'Carrier',
-    BATTLESHIP = 'Battleship',
-    CRUISER = 'Cruiser',
-    SUBMARINE = 'Submarine',
-    DESTROYER = 'Destroyer',
-}
-
-export enum SHIP_SETUP {
-    CAR,
-    BAT,
-    CRU,
-    SUB,
-    DES,
+    CARRIER = 'carrier',
+    BATTLESHIP = 'battleship',
+    CRUISER = 'cruiser',
+    SUBMARINE = 'submarine',
+    DESTROYER = 'destroyer',
 }

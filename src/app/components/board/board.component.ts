@@ -1,13 +1,14 @@
-import { Component, Input } from '@angular/core';
-import { ICell, IBoardSetup } from 'src/app/models/game';
-import { SHIP_LEN, SHIP_NAME, SHIP_SETUP } from 'src/app/enums/enums';
+import { Component, Input, OnInit } from '@angular/core';
+import { BoardService } from '../../services/board.service';
+import { ICell, IBoardSetup } from '../../models/game';
+import { SHIP_LEN, SHIP_NAME } from '../../enums/enums';
 
 @Component({
   selector: 'app-board',
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.css']
 })
-export class BoardComponent {
+export class BoardComponent implements OnInit {
   @Input() cells: ICell[] = [];
   @Input() row_A: ICell[] = [];
   @Input() row_B: ICell[] = [];
@@ -21,8 +22,15 @@ export class BoardComponent {
   @Input() row_J: ICell[] = [];
   @Input() boardSetup!: IBoardSetup;
 
+  constructor(private boardService: BoardService) { }
+
   location: string[] = [];
+  shipsToSet: string[] = [SHIP_NAME.CARRIER, SHIP_NAME.BATTLESHIP, SHIP_NAME.CRUISER, SHIP_NAME.SUBMARINE, SHIP_NAME.DESTROYER];
   isDragging: boolean = false;
+
+  ngOnInit(): void {
+    this.boardSetup.settingShip = this.shipsToSet[0];
+  }
 
   onCellMouseDown(cell: ICell) {
     this.isDragging = true;
@@ -32,10 +40,33 @@ export class BoardComponent {
   onCellMouseUp() {
     this.isDragging = false;
     this.updateCell();
+    this.updateSettingShip();
+
   }
 
   onCellMouseEnter(cell: ICell) {
-    if (this.isDragging) {
+    let shipLength = 0;
+    switch (this.boardSetup.settingShip) {
+      case SHIP_NAME.CARRIER:
+        shipLength = SHIP_LEN.CARRIER;
+        break;
+      case SHIP_NAME.BATTLESHIP:
+        shipLength = SHIP_LEN.BATTLESHIP;
+        break;
+      case SHIP_NAME.CRUISER:
+        shipLength = SHIP_LEN.CRUISER;
+        break;
+      case SHIP_NAME.SUBMARINE:
+        shipLength = SHIP_LEN.SUBMARINE;
+        break;
+      case SHIP_NAME.DESTROYER:
+        shipLength = SHIP_LEN.DESTROYER;
+        break;
+      default:
+        shipLength = 0;
+        break;
+    }
+    if (this.isDragging && this.location.length <= shipLength) {
       this.addCellToLocation(cell);
     }
   }
@@ -47,25 +78,50 @@ export class BoardComponent {
       isSettingUp: this.boardSetup.isSettingUp
     }
     if (!conditions.isOccupied && conditions.not_existing && conditions.isSettingUp) {
-      const newCoordinate = cell.coordinates;
+      let locationLength = this.location.length;
+      console.log('location: ', this.location);
+      console.log('isDragging: ', this.isDragging);
 
-      if (this.location.length === 0) {
-        this.location.push(newCoordinate);
+      if (locationLength === 0 || locationLength === 1) {
+        this.location.push(cell.coordinates);
       } else {
-        const firstCoordinate = this.location[0];
-        const isSameRow = this.location.every((loc) => loc[0] === firstCoordinate[0]);
-        const isSameCol = this.location.every((loc) => loc[1] === firstCoordinate[1]);
+        const isVertical = this.boardService.isVertical(this.location);
+        const isHorizontal = this.boardService.isHorizontal(this.location);
+        const initialX = this.location[0][0];
+        const initialY = this.location[0][1];
+        const x = cell.coordinates[0];
+        const y = cell.coordinates[1];
 
-        if (isSameRow && newCoordinate[0] === firstCoordinate[0]) {
-          this.location.push(newCoordinate);
-        } else if (isSameCol && newCoordinate[1] === firstCoordinate[1]) {
-          this.location.push(newCoordinate);
-        } else {
-          console.log('Coordinate is not in a straight line');
+        if (isVertical) {
+          if (y === initialY && x !== initialX) {
+            console.log('pushing: ', cell.coordinates);
+            this.location.push(cell.coordinates);
+          } else {
+            alert('Coordinate is not in a vertical line');
+            this.boardService.resetCells(this.cells);
+            this.location = [];
+          }
         }
+
+        if (isHorizontal) {
+          if (x === initialX && y !== initialY) {
+            console.log('pushing: ', cell.coordinates);
+            this.location.push(cell.coordinates);
+          } else {
+            alert('Coordinate is not in a horizontal line');
+            this.boardService.resetCells(this.cells);
+            this.location = [];
+          }
+        }
+        console.log('isVertical: ', isVertical);
+        console.log('isHorizontal: ', isHorizontal);
+        console.log('initialX: ', initialX);
+        console.log('initialY: ', initialY);
+        console.log(`x: ${x}, y: ${y}`);
       }
     }
   }
+
 
   updateCell() {
     if (this.location.length === 0) return;
@@ -77,6 +133,31 @@ export class BoardComponent {
       });
     });
     this.location = [];
+  }
+
+  updateSettingShip() {
+    this.shipsToSet.shift();
+    console.log('settingShip: ', this.boardSetup.settingShip);
+
+    switch (this.boardSetup.settingShip) {
+      case SHIP_NAME.CARRIER:
+        this.boardSetup.carrierSet = true;
+        break;
+      case SHIP_NAME.BATTLESHIP:
+        this.boardSetup.battleshipSet = true;
+        break;
+      case SHIP_NAME.CRUISER:
+        this.boardSetup.cruiserSet = true;
+        break;
+      case SHIP_NAME.SUBMARINE:
+        this.boardSetup.submarineSet = true;
+        break;
+      case SHIP_NAME.DESTROYER:
+        this.boardSetup.destroyerSet = true;
+        break;
+      default:
+        break;
+    }
   }
 
   onCellClick(cell: ICell) {
