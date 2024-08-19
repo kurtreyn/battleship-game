@@ -48,31 +48,10 @@ export class BoardComponent implements OnInit {
     this.isDragging = false;
     this.updateCell();
     this.updateSettingShip();
-
   }
 
   onCellMouseEnter(cell: ICell) {
-    let shipLength = 0;
-    switch (this.boardSetup.settingShip) {
-      case SHIP_NAME.CARRIER:
-        shipLength = SHIP_LEN.CARRIER;
-        break;
-      case SHIP_NAME.BATTLESHIP:
-        shipLength = SHIP_LEN.BATTLESHIP;
-        break;
-      case SHIP_NAME.CRUISER:
-        shipLength = SHIP_LEN.CRUISER;
-        break;
-      case SHIP_NAME.SUBMARINE:
-        shipLength = SHIP_LEN.SUBMARINE;
-        break;
-      case SHIP_NAME.DESTROYER:
-        shipLength = SHIP_LEN.DESTROYER;
-        break;
-      default:
-        shipLength = 0;
-        break;
-    }
+    let shipLength = this.boardService.getShipLength(this.boardSetup.settingShip);
     if (this.isDragging && this.location.length <= shipLength) {
       this.addCellToLocation(cell);
     }
@@ -86,9 +65,12 @@ export class BoardComponent implements OnInit {
     }
     if (!conditions.isOccupied && conditions.not_existing && conditions.isSettingUp) {
       let locationLength = this.location.length;
+      const settingShip = this.boardSetup.settingShip;
+      const shipLength = this.boardService.getShipLength(settingShip);
       console.log('location: ', this.location);
       console.log('isDragging: ', this.isDragging);
       console.log('isOccupied: ', conditions.isOccupied);
+      console.log('shipLength: ', shipLength);
 
       if (locationLength === 0 || locationLength === 1) {
         this.location.push(cell.coordinates);
@@ -131,6 +113,8 @@ export class BoardComponent implements OnInit {
   }
 
 
+
+
   updateCell() {
     if (this.location.length === 0) return;
     this.location.forEach((loc) => {
@@ -154,6 +138,7 @@ export class BoardComponent implements OnInit {
     switch (this.boardSetup.settingShip) {
       case SHIP_NAME.CARRIER:
         this.boardSetup.carrierSet = true;
+        this.shipLocations.carrier = this.location;
         break;
       case SHIP_NAME.BATTLESHIP:
         this.boardSetup.battleshipSet = true;
