@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BoardService } from '../../services/board.service'
-import { ICell, IBoardSetup } from 'src/app/models/game';
+import { ICell, IBoardSetup, IShipLocations } from 'src/app/models/game';
 
 @Component({
   selector: 'app-game',
@@ -29,6 +29,13 @@ export class GameComponent implements OnInit {
     submarineSet: false,
     destroyerSet: false,
     settingShip: ''
+  }
+  shipLocations: IShipLocations = {
+    carrier: [],
+    battleship: [],
+    cruiser: [],
+    submarine: [],
+    destroyer: []
   }
 
   constructor(private boardService: BoardService) { }

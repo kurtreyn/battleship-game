@@ -40,3 +40,11 @@ export interface IBoardSetup {
     destroyerSet: boolean;
     settingShip: string;
 }
+
+export interface IShipLocations {
+    carrier?: string[];
+    battleship?: string[];
+    cruiser?: string[];
+    submarine?: string[];
+    destroyer?: string[];
+}

@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { BoardService } from '../../services/board.service';
-import { ICell, IBoardSetup } from '../../models/game';
+import { ICell, IBoardSetup, IShipLocations } from '../../models/game';
 import { SHIP_LEN, SHIP_NAME } from '../../enums/enums';
 
 @Component({
@@ -21,6 +21,13 @@ export class BoardComponent implements OnInit {
   @Input() row_I: ICell[] = [];
   @Input() row_J: ICell[] = [];
   @Input() boardSetup!: IBoardSetup;
+  @Input() shipLocations: IShipLocations = {
+    carrier: [],
+    battleship: [],
+    cruiser: [],
+    submarine: [],
+    destroyer: []
+  }
 
   constructor(private boardService: BoardService) { }
 
@@ -81,6 +88,7 @@ export class BoardComponent implements OnInit {
       let locationLength = this.location.length;
       console.log('location: ', this.location);
       console.log('isDragging: ', this.isDragging);
+      console.log('isOccupied: ', conditions.isOccupied);
 
       if (locationLength === 0 || locationLength === 1) {
         this.location.push(cell.coordinates);
