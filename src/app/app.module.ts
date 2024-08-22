@@ -17,6 +17,7 @@ import { VerifyEmailComponent } from './components/verify-email/verify-email.com
 import { NavComponent } from './components/nav/nav.component';
 import { BoardComponent } from './components/board/board.component';
 import { GameComponent } from './components/game/game.component';
+import { ShipComponent } from './components/ship/ship.component';
 
 
 @NgModule({
@@ -30,6 +31,7 @@ import { GameComponent } from './components/game/game.component';
     NavComponent,
     BoardComponent,
     GameComponent,
+    ShipComponent,
   ],
   imports: [
     BrowserModule,

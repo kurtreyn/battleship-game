@@ -28,12 +28,13 @@ export class BoardComponent implements OnInit {
     submarine: [],
     destroyer: []
   }
-
-  constructor(private boardService: BoardService) { }
-
   location: string[] = [];
   shipsToSet: string[] = [SHIP_NAME.CARRIER, SHIP_NAME.BATTLESHIP, SHIP_NAME.CRUISER, SHIP_NAME.SUBMARINE, SHIP_NAME.DESTROYER];
   isDragging: boolean = false;
+
+  constructor(private boardService: BoardService) { }
+
+
 
   ngOnInit(): void {
     this.boardSetup.settingShip = this.shipsToSet[0];

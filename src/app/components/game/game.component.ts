@@ -42,7 +42,7 @@ export class GameComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.initializeCells('Kurt', 'pID', 'oID');
+    this.initializeCells('Kurt', 'pID221a5xr', 'oID55xz8n9b');
     this.setRows();
     console.log('initial boardSetup', this.boardSetup);
   }
@@ -101,12 +101,7 @@ export class GameComponent implements OnInit {
           this.row_J.push(cell);
           break;
       }
-      // console.log('this.row_A', this.row_A);
-
-
     });
-
-
   }
 }
 
