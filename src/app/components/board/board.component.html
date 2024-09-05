@@ -203,17 +203,17 @@
   <button (click)="toggleBoardSetup()">
     {{ !boardSetup.isSettingUp ? "Start Setup" : "Ready" }}
   </button>
-  <app-ship
+  <!-- <app-ship
     [cells]="cells"
     [boardSetup]="boardSetup"
     [shipLocations]="shipLocations"
-  ></app-ship>
-  <!-- <div>
+  ></app-ship> -->
+  <div>
     <h2>Ships</h2>
     <ul>
       <li *ngFor="let ship of shipsToSet">
         <span>{{ ship === boardSetup.settingShip ? ship : "" }}</span>
       </li>
     </ul>
-  </div> -->
+  </div>
 </section>

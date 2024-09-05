@@ -19,8 +19,8 @@ export interface ISession {
 }
 
 export interface ICell {
-    x: string,
-    y: string,
+    x: number,
+    y: number,
     row_label: string,
     coordinates: string,
     occupied: boolean,
@@ -29,6 +29,7 @@ export interface ICell {
     opponentId: string,
     hit: boolean,
     miss: boolean,
+    highlighted?: boolean,
 }
 
 export interface IBoardSetup {
