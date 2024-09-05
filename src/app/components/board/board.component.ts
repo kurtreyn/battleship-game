@@ -28,7 +28,8 @@ export class BoardComponent implements OnInit {
     submarine: [],
     destroyer: []
   }
-  location: string[] = [];
+  stagingLocation: string[] = [];
+  usedCells: string[] = [];
   shipsToSet: string[] = [SHIP_NAME.CARRIER, SHIP_NAME.BATTLESHIP, SHIP_NAME.CRUISER, SHIP_NAME.SUBMARINE, SHIP_NAME.DESTROYER];
   isDragging: boolean = false;
 
@@ -53,7 +54,7 @@ export class BoardComponent implements OnInit {
 
   onCellMouseEnter(cell: ICell) {
     let shipLength = this.boardService.getShipLength(this.boardSetup.settingShip);
-    if (this.isDragging && this.location.length <= shipLength) {
+    if (this.isDragging && this.stagingLocation.length <= shipLength) {
       this.addCellToLocation(cell);
     }
   }
@@ -61,47 +62,47 @@ export class BoardComponent implements OnInit {
   addCellToLocation(cell: ICell) {
     const conditions = {
       isOccupied: cell.occupied,
-      not_existing: !this.location.includes(cell.coordinates),
+      not_existing: !this.stagingLocation.includes(cell.coordinates),
       isSettingUp: this.boardSetup.isSettingUp
     }
     if (!conditions.isOccupied && conditions.not_existing && conditions.isSettingUp) {
-      let locationLength = this.location.length;
+      let locationLength = this.stagingLocation.length;
       const settingShip = this.boardSetup.settingShip;
       const shipLength = this.boardService.getShipLength(settingShip);
-      console.log('location: ', this.location);
+      console.log('stagingLocation: ', this.stagingLocation);
       console.log('isDragging: ', this.isDragging);
       console.log('isOccupied: ', conditions.isOccupied);
       console.log('shipLength: ', shipLength);
 
       if (locationLength === 0 || locationLength === 1) {
-        this.location.push(cell.coordinates);
+        this.stagingLocation.push(cell.coordinates);
       } else {
-        const isVertical = this.boardService.isVertical(this.location);
-        const isHorizontal = this.boardService.isHorizontal(this.location);
-        const initialX = this.location[0][0];
-        const initialY = this.location[0][1];
+        const isVertical = this.boardService.isVertical(this.stagingLocation);
+        const isHorizontal = this.boardService.isHorizontal(this.stagingLocation);
+        const initialX = this.stagingLocation[0][0];
+        const initialY = this.stagingLocation[0][1];
         const x = cell.coordinates[0];
         const y = cell.coordinates[1];
 
         if (isVertical) {
           if (y === initialY && x !== initialX) {
             console.log('pushing: ', cell.coordinates);
-            this.location.push(cell.coordinates);
+            this.stagingLocation.push(cell.coordinates);
           } else {
             alert('Coordinate is not in a vertical line');
             this.boardService.resetCells(this.cells);
-            this.location = [];
+            this.stagingLocation = [];
           }
         }
 
         if (isHorizontal) {
           if (x === initialX && y !== initialY) {
             console.log('pushing: ', cell.coordinates);
-            this.location.push(cell.coordinates);
+            this.stagingLocation.push(cell.coordinates);
           } else {
             alert('Coordinate is not in a horizontal line');
             this.boardService.resetCells(this.cells);
-            this.location = [];
+            this.stagingLocation = [];
           }
         }
         console.log('isVertical: ', isVertical);
@@ -117,15 +118,15 @@ export class BoardComponent implements OnInit {
 
 
   updateCell() {
-    if (this.location.length === 0) return;
-    this.location.forEach((loc) => {
+    if (this.stagingLocation.length === 0) return;
+    this.stagingLocation.forEach((loc) => {
       this.cells.forEach((cell) => {
         if (cell.coordinates === loc) {
           cell.occupied = true;
         }
       });
     });
-    this.location = [];
+    this.stagingLocation = [];
   }
 
   updateSettingShip() {
@@ -139,7 +140,7 @@ export class BoardComponent implements OnInit {
     switch (this.boardSetup.settingShip) {
       case SHIP_NAME.CARRIER:
         this.boardSetup.carrierSet = true;
-        this.shipLocations.carrier = this.location;
+        this.shipLocations.carrier = this.stagingLocation;
         break;
       case SHIP_NAME.BATTLESHIP:
         this.boardSetup.battleshipSet = true;
