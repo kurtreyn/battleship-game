@@ -17,8 +17,27 @@
   cursor: pointer;
 }
 
+.board-ul {
+  list-style-type: none;
+  padding: 0;
+  margin-left: 5px;
+}
+
+.settingShip {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.hasBeenSet {
+  text-decoration: line-through;
+}
+
 .isDragging {
   border: 5px solid green;
+}
+
+.isSelected {
+  border: 5px solid blue;
 }
 
 .empty {

@@ -23,6 +23,7 @@
             ship: cell.occupied,
             hit: cell.hit,
             miss: cell.miss,
+            isSelected: cell.isSelected,
             isDragging: isDragging && cell.highlighted,
             highlighted: cell.highlighted
           }"
@@ -46,10 +47,16 @@
     }}
   </button>
   <div *ngIf="!boardSetup.isFinishedSettingUp">
-    <h2>Ships</h2>
-    <ul>
-      <li *ngFor="let ship of shipsToSet">
-        <span>{{ ship === boardSetup.settingShip ? ship : "" }}</span>
+    <h2>Setup Your Ships</h2>
+    <ul class="board-ul">
+      <li *ngFor="let ship of shipsToSet" class="board-li">
+        <span
+          [ngClass]="{
+            settingShip: ship === boardSetup.settingShip,
+            hasBeenSet: hasShipBeenSet(ship)
+          }"
+          >{{ ship }}</span
+        >
       </li>
     </ul>
   </div>

@@ -30,6 +30,7 @@ export interface ICell {
     hit: boolean,
     miss: boolean,
     highlighted?: boolean,
+    isSelected?: boolean
 }
 
 export interface IBoardSetup {

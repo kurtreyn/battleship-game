@@ -95,6 +95,23 @@ export class BoardComponent implements OnInit {
     console.log('boardSetup', this.boardSetup);
   }
 
+  hasShipBeenSet(ship: string): boolean {
+    switch (ship) {
+      case SHIP_NAME.CARRIER:
+        return this.boardSetup.carrierSet;
+      case SHIP_NAME.BATTLESHIP:
+        return this.boardSetup.battleshipSet;
+      case SHIP_NAME.CRUISER:
+        return this.boardSetup.cruiserSet;
+      case SHIP_NAME.SUBMARINE:
+        return this.boardSetup.submarineSet;
+      case SHIP_NAME.DESTROYER:
+        return this.boardSetup.destroyerSet;
+      default:
+        return false;
+    }
+  }
+
   private _getCellInfo(cell: ICell) {
     const cellInfo: ICell = {
       x: cell.x,
@@ -106,7 +123,7 @@ export class BoardComponent implements OnInit {
       playerId: cell.playerId,
       opponentId: cell.opponentId,
       hit: cell.hit,
-      miss: cell.miss
+      miss: cell.miss,
     }
     console.log('Cell Info:', cellInfo);
     return cellInfo;
@@ -224,4 +241,6 @@ export class BoardComponent implements OnInit {
       console.log('this.boardSetup', this.boardSetup);
     }
   }
+
+
 }
