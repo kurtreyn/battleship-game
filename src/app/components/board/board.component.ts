@@ -116,6 +116,7 @@ export class BoardComponent implements OnInit {
   private _highlightCells(startCell: ICell, endCell: ICell) {
     this._resetHighlight();
     const cells = this._getCellsBetween(startCell, endCell);
+    console.log('this.currentShipLength:', this.currentShipLength);
     if (this._isValidPlacement(cells)) {
       cells.forEach(cell => {
         cell.highlighted = true
@@ -133,18 +134,24 @@ export class BoardComponent implements OnInit {
     const cells: ICell[] = [];
     const isVertical = start.y === end.y;
     const length = isVertical ? Math.abs(end.x - start.x) + 1 : Math.abs(end.y - start.y) + 1;
+    const maxLength = Math.min(length, this.currentShipLength);
 
-    if (length !== this.currentShipLength) return [];
-
-    for (let i = 0; i < length; i++) {
-      const x = isVertical ? Math.min(start.x, end.x) + i : start.x;
-      const y = isVertical ? start.y : Math.min(start.y, end.y) + i;
+    for (let i = 0; i < maxLength; i++) {
+      const { x, y } = this._calculateCoordinates(start, end, i, isVertical);
+      console.log('x:', x, 'y:', y);
       const cell = this.cells.find(c => c.x === x && c.y === y);
+      console.log('cell:', cell);
       if (cell) {
-        cells.push(cell)
+        cells.push(cell);
       }
     }
     return cells;
+  }
+
+  private _calculateCoordinates(start: ICell, end: ICell, i: number, isVertical: boolean): { x: number, y: number } {
+    const x = isVertical ? Math.min(start.x, end.x) + i : start.x;
+    const y = isVertical ? start.y : Math.min(start.y, end.y) + i;
+    return { x, y };
   }
 
   private _isValidPlacement(cells: ICell[]): boolean {
@@ -168,55 +175,44 @@ export class BoardComponent implements OnInit {
     switch (this.boardSetup.settingShip) {
       case SHIP_NAME.CARRIER:
         this.shipLocations.carrier = coordinates;
+        this.boardSetup.carrierSet = true;
         break;
       case SHIP_NAME.BATTLESHIP:
         this.shipLocations.battleship = coordinates;
-        break;
-      case SHIP_NAME.CRUISER:
-        this.shipLocations.cruiser = coordinates;
-        break;
-      case SHIP_NAME.SUBMARINE:
-        this.shipLocations.submarine = coordinates;
-        break;
-      case SHIP_NAME.DESTROYER:
-        this.shipLocations.destroyer = coordinates;
-        break;
-    }
-    console.log('shipLocations:', this.shipLocations);
-  }
-
-  private _updateSettingShip() {
-    // Remove the first ship from the array
-    this.shipsToSet.shift();
-
-    // Log the current setting ship
-    console.log('settingShip: ', this.boardSetup.settingShip);
-
-    // Update the board setup based on the current setting ship
-    switch (this.boardSetup.settingShip) {
-      case SHIP_NAME.CARRIER:
-        this.boardSetup.carrierSet = true;
-        this.shipLocations.carrier = this.stagingLocation;
-        break;
-      case SHIP_NAME.BATTLESHIP:
         this.boardSetup.battleshipSet = true;
         break;
       case SHIP_NAME.CRUISER:
+        this.shipLocations.cruiser = coordinates;
         this.boardSetup.cruiserSet = true;
         break;
       case SHIP_NAME.SUBMARINE:
+        this.shipLocations.submarine = coordinates;
         this.boardSetup.submarineSet = true;
         break;
       case SHIP_NAME.DESTROYER:
+        this.shipLocations.destroyer = coordinates;
         this.boardSetup.destroyerSet = true;
         break;
-      default:
-        break;
     }
+    console.log('shipLocations:', this.shipLocations);
+    console.log('boardSetup:', this.boardSetup);
+  }
 
-    // Update the settingShip to the next ship in the array, if any
-    if (this.shipsToSet.length > 0) {
-      this.boardSetup.settingShip = this.shipsToSet[0];
+  private _updateSettingShip() {
+    if (this.boardSetup.carrierSet) {
+      this.boardSetup.settingShip = SHIP_NAME.BATTLESHIP;
+      this.currentShipLength = SHIP_LEN.BATTLESHIP;
+    } else if (this.boardSetup.battleshipSet) {
+      this.boardSetup.settingShip = SHIP_NAME.CRUISER;
+      this.currentShipLength = SHIP_LEN.CRUISER;
+    } else if (this.boardSetup.cruiserSet) {
+      this.boardSetup.settingShip = SHIP_NAME.SUBMARINE;
+      this.currentShipLength = SHIP_LEN.SUBMARINE;
+    } else if (this.boardSetup.submarineSet) {
+      this.boardSetup.settingShip = SHIP_NAME.DESTROYER;
+      this.currentShipLength = SHIP_LEN.DESTROYER;
+    } else {
+      this.boardSetup.isSettingUp = false;
     }
   }
 }
