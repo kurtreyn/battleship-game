@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BoardService } from '../../services/board.service'
 import { ICell, IBoardSetup, IShipLocations } from 'src/app/models/game';
-import { COORDINATE_KEY } from 'src/app/enums/enums';
 
 @Component({
   selector: 'app-game',
@@ -51,7 +50,8 @@ export class GameComponent implements OnInit {
   initializeCells(boardOwner: string, playerId: string, opponentId: string): void {
     for (let i = 0; i < this.rowArr.length; i++) {
       for (let j = 0; j < this.colArr.length; j++) {
-        const xInt = parseInt(this.rowArr[i])
+        const xString = this.rowArr[i];
+        const xInt = this.boardService.convertToNumber(xString);
         const yInt = parseInt(this.colArr[j])
 
         this.cells.push({
