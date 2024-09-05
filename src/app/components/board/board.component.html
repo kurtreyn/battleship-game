@@ -39,14 +39,21 @@
 </section>
 
 <section class="staging-area">
-  <button (click)="toggleBoardSetup()">
+  <button
+    class="btn"
+    [ngClass]="{
+      'btn-primary': !boardSetup.isFinishedSettingUp,
+      'btn-success': boardSetup.isFinishedSettingUp
+    }"
+    (click)="toggleBoardSetup()"
+  >
     {{
       !boardSetup.isSettingUp && !boardSetup.isFinishedSettingUp
         ? "Start Setup"
         : "Ready To Play"
     }}
   </button>
-  <button (click)="resetBoard()">Reset Board</button>
+  <button class="btn btn-danger" (click)="resetBoard()">Reset Board</button>
   <div *ngIf="!boardSetup.isFinishedSettingUp">
     <h2>Setup Your Ships</h2>
     <ul class="board-ul">
