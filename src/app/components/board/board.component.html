@@ -46,6 +46,7 @@
         : "Ready To Play"
     }}
   </button>
+  <button (click)="resetBoard()">Reset Board</button>
   <div *ngIf="!boardSetup.isFinishedSettingUp">
     <h2>Setup Your Ships</h2>
     <ul class="board-ul">

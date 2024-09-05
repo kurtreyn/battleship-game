@@ -112,6 +112,34 @@ export class BoardComponent implements OnInit {
     }
   }
 
+  resetBoard() {
+    this.cells.forEach(cell => {
+      cell.occupied = false;
+      cell.hit = false;
+      cell.miss = false;
+      cell.highlighted = false;
+    });
+    this.boardSetup = {
+      isSettingUp: false,
+      carrierSet: false,
+      battleshipSet: false,
+      cruiserSet: false,
+      submarineSet: false,
+      destroyerSet: false,
+      settingShip: '',
+      isFinishedSettingUp: false
+    }
+    this.shipLocations = {
+      carrier: [],
+      battleship: [],
+      cruiser: [],
+      submarine: [],
+      destroyer: []
+    }
+    this.boardSetup.settingShip = this.shipsToSet[0];
+    this.currentShipLength = this.boardService.getShipLength(this.boardSetup.settingShip);
+  }
+
   private _getCellInfo(cell: ICell) {
     const cellInfo: ICell = {
       x: cell.x,
