@@ -22,7 +22,7 @@ export class GameComponent implements OnInit {
   row_I: ICell[] = []
   row_J: ICell[] = []
   boardSetup: IBoardSetup = {
-    isSettingUp: true, // TODO: change to false
+    isSettingUp: false, // TODO: change to false
     carrierSet: false,
     battleshipSet: false,
     cruiserSet: false,
@@ -42,17 +42,21 @@ export class GameComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.initializeCells('Kurt', 'pID221a5xr', 'oID55xz8n9b');
-    this.setRows();
+    this._initializeCells('Kurt', 'pID221a5xr', 'oID55xz8n9b');
+    this._setRows();
     console.log('initial boardSetup', this.boardSetup);
   }
 
-  initializeCells(boardOwner: string, playerId: string, opponentId: string): void {
+  private _initializeCells(boardOwner: string, playerId: string, opponentId: string): void {
     for (let i = 0; i < this.rowArr.length; i++) {
       for (let j = 0; j < this.colArr.length; j++) {
+        const xString = this.rowArr[i];
+        const xInt = this.boardService.convertToNumber(xString);
+        const yInt = parseInt(this.colArr[j])
+
         this.cells.push({
-          x: this.rowArr[i],
-          y: this.colArr[j],
+          x: xInt,
+          y: yInt,
           coordinates: `${this.rowArr[i]}${this.colArr[j]}`,
           row_label: this.rowArr[i].toUpperCase(),
           occupied: false,
@@ -66,7 +70,7 @@ export class GameComponent implements OnInit {
     }
   }
 
-  setRows(): void {
+  private _setRows(): void {
     if (!this.cells) return;
     this.cells.forEach((cell) => {
       switch (cell.row_label) {

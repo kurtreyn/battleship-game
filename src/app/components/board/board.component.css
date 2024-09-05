@@ -36,3 +36,11 @@
 .ship {
   background-color: #808080;
 }
+
+.cell.occupied {
+  background-color: gray;
+}
+
+.cell.highlighted {
+  background-color: lightblue;
+}
