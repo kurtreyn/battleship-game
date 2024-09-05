@@ -119,28 +119,33 @@ export class BoardComponent implements OnInit {
     this._resetHighlight();
     const cells = this._getCellsBetween(startCell, endCell);
     if (this._isValidPlacement(cells)) {
-      cells.forEach(cell => cell.highlighted = true);
+      cells.forEach(cell => {
+        cell.highlighted = true
+        this.stagingLocation.push(cell.coordinates);
+      });
     }
   }
 
   private _resetHighlight(): void {
+    console.log('resetting highlight');
     this.cells.forEach(cell => cell.highlighted = false);
   }
 
   private _getCellsBetween(start: ICell, end: ICell): ICell[] {
     const cells: ICell[] = [];
-    const isHorizontal = start.y === end.y;
-    const length = isHorizontal ? Math.abs(end.x - start.x) + 1 : Math.abs(end.y - start.y) + 1;
+    const isVertical = start.y === end.y;
+    const length = isVertical ? Math.abs(end.x - start.x) + 1 : Math.abs(end.y - start.y) + 1;
 
     if (length !== this.currentShipLength) return [];
 
     for (let i = 0; i < length; i++) {
-      const x = isHorizontal ? Math.min(start.x, end.x) + i : start.x;
-      const y = isHorizontal ? start.y : Math.min(start.y, end.y) + i;
+      const x = isVertical ? Math.min(start.x, end.x) + i : start.x;
+      const y = isVertical ? start.y : Math.min(start.y, end.y) + i;
       const cell = this.cells.find(c => c.x === x && c.y === y);
-      if (cell) cells.push(cell);
+      if (cell) {
+        cells.push(cell)
+      }
     }
-
     return cells;
   }
 

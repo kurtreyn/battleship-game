@@ -23,12 +23,12 @@
             ship: cell.occupied,
             hit: cell.hit,
             miss: cell.miss,
-            isDragging: isDragging && stagingLocation.includes(cell.coordinates)
+            isDragging:
+              isDragging && stagingLocation.includes(cell.coordinates),
+            highlighted: cell.highlighted
           }"
           id="{{ cell.coordinates }}"
           (click)="onCellClick(cell)"
-          [class.occupied]="cell.occupied"
-          [class.highlighted]="cell.highlighted"
           (mousedown)="onMouseDown(cell)"
           (mouseenter)="onMouseEnter(cell)"
           (mouseup)="onMouseUp(cell)"

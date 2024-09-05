@@ -42,12 +42,12 @@ export class GameComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.initializeCells('Kurt', 'pID221a5xr', 'oID55xz8n9b');
-    this.setRows();
+    this._initializeCells('Kurt', 'pID221a5xr', 'oID55xz8n9b');
+    this._setRows();
     console.log('initial boardSetup', this.boardSetup);
   }
 
-  initializeCells(boardOwner: string, playerId: string, opponentId: string): void {
+  private _initializeCells(boardOwner: string, playerId: string, opponentId: string): void {
     for (let i = 0; i < this.rowArr.length; i++) {
       for (let j = 0; j < this.colArr.length; j++) {
         const xString = this.rowArr[i];
@@ -70,7 +70,7 @@ export class GameComponent implements OnInit {
     }
   }
 
-  setRows(): void {
+  private _setRows(): void {
     if (!this.cells) return;
     this.cells.forEach((cell) => {
       switch (cell.row_label) {
