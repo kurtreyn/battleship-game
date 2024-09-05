@@ -116,11 +116,9 @@ export class BoardComponent implements OnInit {
   private _highlightCells(startCell: ICell, endCell: ICell) {
     this._resetHighlight();
     const cells = this._getCellsBetween(startCell, endCell);
-    console.log('this.currentShipLength:', this.currentShipLength);
     if (this._isValidPlacement(cells)) {
       cells.forEach(cell => {
         cell.highlighted = true
-        this.stagingLocation.push(cell.coordinates);
       });
     }
   }
@@ -138,9 +136,7 @@ export class BoardComponent implements OnInit {
 
     for (let i = 0; i < maxLength; i++) {
       const { x, y } = this._calculateCoordinates(start, end, i, isVertical);
-      console.log('x:', x, 'y:', y);
       const cell = this.cells.find(c => c.x === x && c.y === y);
-      console.log('cell:', cell);
       if (cell) {
         cells.push(cell);
       }
@@ -199,20 +195,24 @@ export class BoardComponent implements OnInit {
   }
 
   private _updateSettingShip() {
-    if (this.boardSetup.carrierSet) {
+    if (!this.boardSetup.carrierSet) {
+      this.boardSetup.settingShip = SHIP_NAME.CARRIER;
+      this.currentShipLength = SHIP_LEN.CARRIER;
+    } else if (!this.boardSetup.battleshipSet) {
       this.boardSetup.settingShip = SHIP_NAME.BATTLESHIP;
       this.currentShipLength = SHIP_LEN.BATTLESHIP;
-    } else if (this.boardSetup.battleshipSet) {
+    } else if (!this.boardSetup.cruiserSet) {
       this.boardSetup.settingShip = SHIP_NAME.CRUISER;
       this.currentShipLength = SHIP_LEN.CRUISER;
-    } else if (this.boardSetup.cruiserSet) {
+    } else if (!this.boardSetup.submarineSet) {
       this.boardSetup.settingShip = SHIP_NAME.SUBMARINE;
       this.currentShipLength = SHIP_LEN.SUBMARINE;
-    } else if (this.boardSetup.submarineSet) {
+    } else if (!this.boardSetup.destroyerSet) {
       this.boardSetup.settingShip = SHIP_NAME.DESTROYER;
       this.currentShipLength = SHIP_LEN.DESTROYER;
     } else {
       this.boardSetup.isSettingUp = false;
+      console.log('this.shipLocations', this.shipLocations);
     }
   }
 }
