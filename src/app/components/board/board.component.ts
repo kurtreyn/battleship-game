@@ -114,8 +114,6 @@ export class BoardComponent implements OnInit {
 
 
   private _highlightCells(startCell: ICell, endCell: ICell) {
-    console.log('startCell', startCell);
-    console.log('endCell', endCell);
     this._resetHighlight();
     const cells = this._getCellsBetween(startCell, endCell);
     if (this._isValidPlacement(cells)) {
@@ -184,6 +182,7 @@ export class BoardComponent implements OnInit {
         this.shipLocations.destroyer = coordinates;
         break;
     }
+    console.log('shipLocations:', this.shipLocations);
   }
 
   private _updateSettingShip() {
