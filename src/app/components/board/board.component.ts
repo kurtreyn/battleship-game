@@ -195,24 +195,33 @@ export class BoardComponent implements OnInit {
   }
 
   private _updateSettingShip() {
-    if (!this.boardSetup.carrierSet) {
-      this.boardSetup.settingShip = SHIP_NAME.CARRIER;
-      this.currentShipLength = SHIP_LEN.CARRIER;
-    } else if (!this.boardSetup.battleshipSet) {
-      this.boardSetup.settingShip = SHIP_NAME.BATTLESHIP;
-      this.currentShipLength = SHIP_LEN.BATTLESHIP;
-    } else if (!this.boardSetup.cruiserSet) {
-      this.boardSetup.settingShip = SHIP_NAME.CRUISER;
-      this.currentShipLength = SHIP_LEN.CRUISER;
-    } else if (!this.boardSetup.submarineSet) {
-      this.boardSetup.settingShip = SHIP_NAME.SUBMARINE;
-      this.currentShipLength = SHIP_LEN.SUBMARINE;
-    } else if (!this.boardSetup.destroyerSet) {
-      this.boardSetup.settingShip = SHIP_NAME.DESTROYER;
-      this.currentShipLength = SHIP_LEN.DESTROYER;
-    } else {
-      this.boardSetup.isSettingUp = false;
+    if (this.boardSetup.isSettingUp) {
+      if (!this.boardSetup.carrierSet) {
+        this.boardSetup.settingShip = SHIP_NAME.CARRIER;
+        this.currentShipLength = SHIP_LEN.CARRIER;
+      } else if (!this.boardSetup.battleshipSet) {
+        this.boardSetup.settingShip = SHIP_NAME.BATTLESHIP;
+        this.currentShipLength = SHIP_LEN.BATTLESHIP;
+      } else if (!this.boardSetup.cruiserSet) {
+        this.boardSetup.settingShip = SHIP_NAME.CRUISER;
+        this.currentShipLength = SHIP_LEN.CRUISER;
+      } else if (!this.boardSetup.submarineSet) {
+        this.boardSetup.settingShip = SHIP_NAME.SUBMARINE;
+        this.currentShipLength = SHIP_LEN.SUBMARINE;
+      } else if (!this.boardSetup.destroyerSet) {
+        this.boardSetup.settingShip = SHIP_NAME.DESTROYER;
+        this.currentShipLength = SHIP_LEN.DESTROYER;
+      } else {
+        console.log('All ships have been set');
+        this.boardSetup.isSettingUp = false;
+        this.boardSetup.isFinishedSettingUp = true;
+        console.log(this.boardSetup.isSettingUp)
+      }
+    }
+
+    if (this.boardSetup.isFinishedSettingUp) {
       console.log('this.shipLocations', this.shipLocations);
+      console.log('this.boardSetup', this.boardSetup);
     }
   }
 }

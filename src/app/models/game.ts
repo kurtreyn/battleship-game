@@ -40,6 +40,7 @@ export interface IBoardSetup {
     submarineSet: boolean;
     destroyerSet: boolean;
     settingShip: string;
+    isFinishedSettingUp?: boolean;
 }
 
 export interface IShipLocations {

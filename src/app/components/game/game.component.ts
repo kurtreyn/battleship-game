@@ -28,7 +28,8 @@ export class GameComponent implements OnInit {
     cruiserSet: false,
     submarineSet: false,
     destroyerSet: false,
-    settingShip: ''
+    settingShip: '',
+    isFinishedSettingUp: false
   }
   shipLocations: IShipLocations = {
     carrier: [],
