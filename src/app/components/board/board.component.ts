@@ -47,6 +47,7 @@ export class BoardComponent implements OnInit {
   }
 
   getRowCells(row: string): ICell[] {
+    // setup the rows on the board
     switch (row) {
       case 'A': return this.row_A;
       case 'B': return this.row_B;
@@ -63,6 +64,7 @@ export class BoardComponent implements OnInit {
   }
 
   onMouseDown(cell: ICell) {
+    // check if the board is in setup mode and the cell is not occupied in order to begin setting the ship
     if (this.boardSetup.isSettingUp && !cell.occupied) {
       this.isDragging = true;
       this.dragStartCell = cell;
@@ -71,12 +73,14 @@ export class BoardComponent implements OnInit {
   }
 
   onMouseEnter(cell: ICell) {
+    // check if the board is in setup mode and the cell is not occupied in order to highlight the selected cells
     if (this.isDragging && !cell.occupied) {
       this._highlightCells(this.dragStartCell!, cell);
     }
   }
 
   onMouseUp(cell: ICell) {
+    // check if the board is in setup mode and the cell is not occupied in order to place the ship
     if (this.isDragging) {
       this.isDragging = false;
       this.dragEndCell = cell;
@@ -96,6 +100,7 @@ export class BoardComponent implements OnInit {
   }
 
   hasShipBeenSet(ship: string): boolean {
+    // used to determine if a ship has been set in order to apply the appropriate css class on which ship is currently being set and which ships have been set
     switch (ship) {
       case SHIP_NAME.CARRIER:
         return this.boardSetup.carrierSet;
@@ -169,20 +174,23 @@ export class BoardComponent implements OnInit {
   }
 
   private _resetHighlight(): void {
-    console.log('resetting highlight');
     this.cells.forEach(cell => cell.highlighted = false);
   }
 
   private _getCellsBetween(start: ICell, end: ICell): ICell[] {
     const cells: ICell[] = [];
+    // determine if the ship is vertical or horizontal
     const isVertical = start.y === end.y;
+    // calculate the length of the ship, the length is the absolute difference between the start and end cell plus 1
     const length = isVertical ? Math.abs(end.x - start.x) + 1 : Math.abs(end.y - start.y) + 1;
+    // the max length of the ship is the minimum between the calculated length and the current ship length, that way we can't place a ship longer than the current ship
     const maxLength = Math.min(length, this.currentShipLength);
 
     for (let i = 0; i < maxLength; i++) {
       const { x, y } = this._calculateCoordinates(start, end, i, isVertical);
       const cell = this.cells.find(c => c.x === x && c.y === y);
       if (cell) {
+        // add the cell to the cells array if it exists
         cells.push(cell);
       }
     }
@@ -190,6 +198,8 @@ export class BoardComponent implements OnInit {
   }
 
   private _calculateCoordinates(start: ICell, end: ICell, i: number, isVertical: boolean): { x: number, y: number } {
+    // calculate the coordinates of the cells between the start and end cells
+    // if the ship is vertical, the y value will be the same for all cells, otherwise the x value will be the same
     const x = isVertical ? Math.min(start.x, end.x) + i : start.x;
     const y = isVertical ? start.y : Math.min(start.y, end.y) + i;
     return { x, y };
