@@ -5,8 +5,26 @@
   margin-top: 20px;
 }
 
-.grid-table {
-  border-collapse: collapse;
+.board-ul {
+  list-style-type: none;
+  padding: 0;
+  margin-left: 5px;
+}
+
+.btn-custom {
+  margin: 2px;
+}
+
+.cell.highlighted {
+  background-color: lightblue;
+}
+
+.cell.occupied {
+  background-color: gray;
+}
+
+.empty {
+  background-color: #fff;
 }
 
 .grid-cell {
@@ -17,19 +35,16 @@
   cursor: pointer;
 }
 
-.board-ul {
-  list-style-type: none;
-  padding: 0;
-  margin-left: 5px;
-}
-
-.settingShip {
-  font-weight: 600;
-  font-size: 1.1rem;
+.grid-table {
+  border-collapse: collapse;
 }
 
 .hasBeenSet {
   text-decoration: line-through;
+}
+
+.hit {
+  background-color: #ff0000;
 }
 
 .isDragging {
@@ -40,26 +55,21 @@
   border: 5px solid blue;
 }
 
-.empty {
-  background-color: #fff;
-}
-
-.hit {
-  background-color: #ff0000;
-}
-
 .miss {
   background-color: #00ffff;
+}
+
+.settingShip {
+  font-weight: 600;
+  font-size: 1.1rem;
 }
 
 .ship {
   background-color: #808080;
 }
 
-.cell.occupied {
-  background-color: gray;
-}
-
-.cell.highlighted {
-  background-color: lightblue;
+.staging-area {
+  display: block;
+  margin-top: 20px;
+  margin-left: 10px;
 }

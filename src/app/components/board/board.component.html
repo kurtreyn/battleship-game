@@ -40,7 +40,7 @@
 
 <section class="staging-area">
   <button
-    class="btn"
+    class="btn btn-custom"
     [ngClass]="{
       'btn-primary': !boardSetup.isFinishedSettingUp,
       'btn-success': boardSetup.isFinishedSettingUp
@@ -53,7 +53,9 @@
         : "Ready To Play"
     }}
   </button>
-  <button class="btn btn-danger" (click)="resetBoard()">Reset Board</button>
+  <button class="btn btn-danger btn-custom" (click)="resetBoard()">
+    Reset Board
+  </button>
   <div *ngIf="!boardSetup.isFinishedSettingUp">
     <h2>Setup Your Ships</h2>
     <ul class="board-ul">
@@ -67,5 +69,10 @@
         >
       </li>
     </ul>
+  </div>
+  <div class="instructions-area">
+    <span class="instructions"
+      >Click/press & drag on the grid to set your ship</span
+    >
   </div>
 </section>

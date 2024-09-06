@@ -22,7 +22,7 @@ export class GameComponent implements OnInit {
   row_I: ICell[] = []
   row_J: ICell[] = []
   boardSetup: IBoardSetup = {
-    isSettingUp: false, // TODO: change to false
+    isSettingUp: false,
     carrierSet: false,
     battleshipSet: false,
     cruiserSet: false,
