@@ -9,6 +9,10 @@ export interface IPlayer {
     score: number;
     session?: ISession;
     playerNumber: string;
+    playerShips?: IShipLocations;
+    playerBoard?: ICell[];
+    opponentShips?: IShipLocations;
+    opponentBoard?: ICell[];
 }
 
 export interface ISession {

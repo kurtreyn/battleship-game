@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { BoardService } from '../../services/board.service';
-import { ICell, IBoardSetup, IShipLocations } from '../../models/game';
+import { GameService } from 'src/app/services/game.service';
+import { ICell, IBoardSetup, IShipLocations, IPlayer } from '../../models/game';
 import { SHIP_LEN, SHIP_NAME } from '../../enums/enums';
 
 @Component({
@@ -28,6 +29,30 @@ export class BoardComponent implements OnInit {
     submarine: [],
     destroyer: []
   }
+  @Input() player: IPlayer = {
+    playerId: '',
+    name: '',
+    email: '',
+    isTurn: false,
+    isWinner: false,
+    isActive: false,
+    isReady: false,
+    score: 0,
+    playerNumber: '',
+    playerShips: this.shipLocations,
+    playerBoard: this.cells,
+  }
+  @Input() opponent: IPlayer = {
+    playerId: '',
+    name: '',
+    email: '',
+    isTurn: false,
+    isWinner: false,
+    isActive: false,
+    isReady: false,
+    score: 0,
+    playerNumber: '',
+  }
   rows: string[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
   stagingLocation: string[] = [];
   usedCells: string[] = [];
@@ -37,13 +62,13 @@ export class BoardComponent implements OnInit {
   dragEndCell: ICell | null = null;
   currentShipLength: number = 0;
 
-  constructor(private boardService: BoardService) { }
+  constructor(private _boardService: BoardService, private _gameService: GameService) { }
 
 
 
   ngOnInit(): void {
     this.boardSetup.settingShip = this.shipsToSet[0];
-    this.currentShipLength = this.boardService.getShipLength(this.boardSetup.settingShip);
+    this.currentShipLength = this._boardService.getShipLength(this.boardSetup.settingShip);
   }
 
   getRowCells(row: string): ICell[] {
@@ -95,8 +120,14 @@ export class BoardComponent implements OnInit {
   }
 
   toggleBoardSetup() {
-    this.boardSetup.isSettingUp = !this.boardSetup.isSettingUp;
-    console.log('boardSetup', this.boardSetup);
+    if (!this.boardSetup.isFinishedSettingUp) {
+      this.boardSetup.isSettingUp = !this.boardSetup.isSettingUp;
+      console.log('boardSetup', this.boardSetup);
+    } else {
+      this._setPlayerAsReady();
+      console.log('Player is ready', this.player);
+    }
+
   }
 
   hasShipBeenSet(ship: string): boolean {
@@ -142,7 +173,12 @@ export class BoardComponent implements OnInit {
       destroyer: []
     }
     this.boardSetup.settingShip = this.shipsToSet[0];
-    this.currentShipLength = this.boardService.getShipLength(this.boardSetup.settingShip);
+    this.currentShipLength = this._boardService.getShipLength(this.boardSetup.settingShip);
+  }
+
+  private _setPlayerAsReady() {
+    this.player.isReady = true;
+
   }
 
   private _getCellInfo(cell: ICell) {
@@ -245,8 +281,6 @@ export class BoardComponent implements OnInit {
         this.boardSetup.destroyerSet = true;
         break;
     }
-    console.log('shipLocations:', this.shipLocations);
-    console.log('boardSetup:', this.boardSetup);
   }
 
   private _updateSettingShip() {
@@ -267,10 +301,8 @@ export class BoardComponent implements OnInit {
         this.boardSetup.settingShip = SHIP_NAME.DESTROYER;
         this.currentShipLength = SHIP_LEN.DESTROYER;
       } else {
-        console.log('All ships have been set');
         this.boardSetup.isSettingUp = false;
         this.boardSetup.isFinishedSettingUp = true;
-        console.log(this.boardSetup.isSettingUp)
       }
     }
 

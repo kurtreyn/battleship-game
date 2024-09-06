@@ -38,7 +38,7 @@
   </table>
 </section>
 
-<section class="staging-area">
+<section class="staging-area" *ngIf="!this.player.isReady">
   <button
     class="btn btn-custom"
     [ngClass]="{
@@ -69,10 +69,10 @@
         >
       </li>
     </ul>
-  </div>
-  <div class="instructions-area">
-    <span class="instructions"
-      >Click/press & drag on the grid to set your ship</span
-    >
+    <div class="instructions-area">
+      <span class="instructions"
+        >Click/press & drag on the grid to set your ship</span
+      >
+    </div>
   </div>
 </section>
