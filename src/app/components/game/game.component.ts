@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { BoardService } from '../../services/board.service'
-import { ICell, IBoardSetup, IShipLocations } from 'src/app/models/game';
+import { GameService } from 'src/app/services/game.service';
+import { ICell, IBoardSetup, IShipLocations, IPlayer } from 'src/app/models/game';
 
 @Component({
   selector: 'app-game',
@@ -22,7 +23,7 @@ export class GameComponent implements OnInit {
   row_I: ICell[] = []
   row_J: ICell[] = []
   boardSetup: IBoardSetup = {
-    isSettingUp: false, // TODO: change to false
+    isSettingUp: false,
     carrierSet: false,
     battleshipSet: false,
     cruiserSet: false,
@@ -38,8 +39,32 @@ export class GameComponent implements OnInit {
     submarine: [],
     destroyer: []
   }
+  player: IPlayer = {
+    playerId: '',
+    name: '',
+    email: '',
+    isTurn: false,
+    isWinner: false,
+    isActive: false,
+    isReady: false,
+    score: 0,
+    playerNumber: '',
+    playerShips: this.shipLocations,
+    playerBoard: this.cells,
+  }
+  opponent: IPlayer = {
+    playerId: '',
+    name: '',
+    email: '',
+    isTurn: false,
+    isWinner: false,
+    isActive: false,
+    isReady: false,
+    score: 0,
+    playerNumber: '',
+  }
 
-  constructor(private boardService: BoardService) { }
+  constructor(private _boardService: BoardService, private _gameService: GameService) { }
 
 
   ngOnInit(): void {
@@ -52,7 +77,7 @@ export class GameComponent implements OnInit {
     for (let i = 0; i < this.rowArr.length; i++) {
       for (let j = 0; j < this.colArr.length; j++) {
         const xString = this.rowArr[i];
-        const xInt = this.boardService.convertToNumber(xString);
+        const xInt = this._boardService.convertToNumber(xString);
         const yInt = parseInt(this.colArr[j])
 
         this.cells.push({
