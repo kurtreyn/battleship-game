@@ -39,94 +39,44 @@ export class GameComponent implements OnInit {
     submarine: [],
     destroyer: []
   }
-  player: IPlayer = {
-    playerId: '',
-    name: '',
-    email: '',
-    isTurn: false,
-    isWinner: false,
-    isActive: false,
-    isReady: false,
-    score: 0,
-    playerNumber: '',
-  }
-  opponent: IPlayer = {
-    playerId: '',
-    name: '',
-    email: '',
-    isTurn: false,
-    isWinner: false,
-    isActive: false,
-    isReady: false,
-    score: 0,
-    playerNumber: '',
-  }
+  // use these properties, not the ones above
+  player!: IPlayer
+  opponent!: IPlayer
+  isOpponent: boolean = false;
+  gameStarted: boolean = false;
+
+
 
   constructor(private _boardService: BoardService, private _gameService: GameService) { }
 
 
   ngOnInit(): void {
-    this._initializeCells('Kurt', 'pID221a5xr', 'oID55xz8n9b');
-    this._setRows();
-    console.log('initial boardSetup', this.boardSetup);
+    this._initializePlayers();
   }
 
-  private _initializeCells(boardOwner: string, playerId: string, opponentId: string): void {
-    for (let i = 0; i < this.rowArr.length; i++) {
-      for (let j = 0; j < this.colArr.length; j++) {
-        const xString = this.rowArr[i];
-        const xInt = this._boardService.convertToNumber(xString);
-        const yInt = parseInt(this.colArr[j])
+  onPlayerCellClick(cell: ICell) { }
 
-        this.cells.push({
-          x: xInt,
-          y: yInt,
-          coordinates: `${this.rowArr[i]}${this.colArr[j]}`,
-          row_label: this.rowArr[i].toUpperCase(),
-          occupied: false,
-          hit: false,
-          miss: false
-        });
-      }
+  onOpponentCellClick(cell: ICell) {
+
+  }
+
+  private _initializePlayers(): void {
+    this.player = this._createPlayer('Player');
+    this.opponent = this._createPlayer('Opponent');
+
+  }
+
+  private _createPlayer(name: string): IPlayer {
+    const board = this._boardService.createBoard();
+    return {
+      playerId: 'pID221a5xr',
+      name,
+      email: '',
+      isReady: false,
+      board,
+      shipLocations: this._boardService.initializeShipLocations(),
+      boardSetup: this._boardService.initializeBoardSetup(),
     }
-  }
-
-  private _setRows(): void {
-    if (!this.cells) return;
-    this.cells.forEach((cell) => {
-      switch (cell.row_label) {
-        case 'A':
-          this.row_A.push(cell);
-          break;
-        case 'B':
-          this.row_B.push(cell);
-          break;
-        case 'C':
-          this.row_C.push(cell);
-          break;
-        case 'D':
-          this.row_D.push(cell);
-          break;
-        case 'E':
-          this.row_E.push(cell);
-          break;
-        case 'F':
-          this.row_F.push(cell);
-          break;
-        case 'G':
-          this.row_G.push(cell);
-          break;
-        case 'H':
-          this.row_H.push(cell);
-          break;
-        case 'I':
-          this.row_I.push(cell);
-          break;
-        case 'J':
-          this.row_J.push(cell);
-          break;
-      }
-    });
   }
 }
 
