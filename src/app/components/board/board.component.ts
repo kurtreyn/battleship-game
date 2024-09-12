@@ -264,6 +264,7 @@ export class BoardComponent implements OnInit {
     if (this.player.boardSetup!.isFinishedSettingUp) {
       console.log('this.player.shipLocations!', this.player.shipLocations!);
       console.log('this.player.boardSetup!', this.player.boardSetup!);
+      console.log('this.player', this.player)
     }
   }
 
