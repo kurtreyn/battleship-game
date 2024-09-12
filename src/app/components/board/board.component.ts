@@ -39,8 +39,6 @@ export class BoardComponent implements OnInit {
     isReady: false,
     score: 0,
     playerNumber: '',
-    playerShips: this.shipLocations,
-    playerBoard: this.cells,
   }
   @Input() opponent: IPlayer = {
     playerId: '',
@@ -188,9 +186,6 @@ export class BoardComponent implements OnInit {
       row_label: cell.row_label,
       coordinates: cell.coordinates,
       occupied: cell.occupied,
-      boardOwner: cell.boardOwner,
-      playerId: cell.playerId,
-      opponentId: cell.opponentId,
       hit: cell.hit,
       miss: cell.miss,
     }

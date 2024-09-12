@@ -49,8 +49,6 @@ export class GameComponent implements OnInit {
     isReady: false,
     score: 0,
     playerNumber: '',
-    playerShips: this.shipLocations,
-    playerBoard: this.cells,
   }
   opponent: IPlayer = {
     playerId: '',
@@ -86,9 +84,6 @@ export class GameComponent implements OnInit {
           coordinates: `${this.rowArr[i]}${this.colArr[j]}`,
           row_label: this.rowArr[i].toUpperCase(),
           occupied: false,
-          boardOwner: boardOwner,
-          playerId: playerId,
-          opponentId: opponentId,
           hit: false,
           miss: false
         });

@@ -2,17 +2,22 @@ export interface IPlayer {
     playerId: string;
     name: string;
     email: string;
-    isTurn: boolean;
-    isWinner: boolean;
-    isActive: boolean;
     isReady: boolean;
-    score: number;
+    isTurn?: boolean;
+    isWinner?: boolean;
+    isActive?: boolean;
+    score?: number;
     session?: ISession;
-    playerNumber: string;
-    playerShips?: IShipLocations;
-    playerBoard?: ICell[];
-    opponentShips?: IShipLocations;
-    opponentBoard?: ICell[];
+    playerNumber?: string;
+    shipLocations?: IShipLocations;
+    shipArray?: string[];
+    board?: IBoard;
+    boardSetup?: IBoardSetup;
+}
+
+export interface IBoard {
+    cells: ICell[];
+    rows: { [key: string]: ICell[] };
 }
 
 export interface ISession {
@@ -28,9 +33,6 @@ export interface ICell {
     row_label: string,
     coordinates: string,
     occupied: boolean,
-    boardOwner: string,
-    playerId: string,
-    opponentId: string,
     hit: boolean,
     miss: boolean,
     highlighted?: boolean,
