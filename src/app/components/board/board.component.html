@@ -42,13 +42,14 @@
   <button
     class="btn btn-custom"
     [ngClass]="{
-      'btn-primary': !boardSetup.isFinishedSettingUp,
-      'btn-success': boardSetup.isFinishedSettingUp
+      'btn-primary': !this.player.boardSetup!.isFinishedSettingUp,
+      'btn-success': this.player.boardSetup!.isFinishedSettingUp
     }"
     (click)="toggleBoardSetup()"
   >
     {{
-      !boardSetup.isSettingUp && !boardSetup.isFinishedSettingUp
+      !this.player.boardSetup!.isSettingUp &&
+      !this.player.boardSetup!.isFinishedSettingUp
         ? "Start Setup"
         : "Ready To Play"
     }}
@@ -56,13 +57,13 @@
   <button class="btn btn-danger btn-custom" (click)="resetBoard()">
     Reset Board
   </button>
-  <div *ngIf="!boardSetup.isFinishedSettingUp">
+  <div *ngIf="!this.player.boardSetup!.isFinishedSettingUp">
     <h2>Setup Your Ships</h2>
     <ul class="board-ul">
       <li *ngFor="let ship of shipsToSet" class="board-li">
         <span
           [ngClass]="{
-            settingShip: ship === boardSetup.settingShip,
+            settingShip: ship === this.player.boardSetup!.settingShip,
             hasBeenSet: hasShipBeenSet(ship)
           }"
           >{{ ship }}</span
