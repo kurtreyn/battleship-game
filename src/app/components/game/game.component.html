@@ -1,13 +1,15 @@
 <!-- <app-board [player]="player"></app-board> -->
 <section class="game-boards">
   <div class="player-board board">
+    <span>Your Board</span>
     <app-board
       [player]="player"
       [isOpponent]="isOpponent"
       [gameStarted]="gameStarted"
     ></app-board>
   </div>
-  <div class="opponent-board board">
+  <div *ngIf="opponent.isReady" class="opponent-board board">
+    <span>Opponent's Board</span>
     <app-board [player]="opponent" [isOpponent]="true"></app-board>
   </div>
 </section>

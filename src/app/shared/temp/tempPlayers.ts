@@ -18,7 +18,7 @@ export const tempOpponent = {
     isTurn: false,
     isWinner: false,
     isActive: true,
-    isReady: true,
+    isReady: false,
     score: 0,
 }
 

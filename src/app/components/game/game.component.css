@@ -4,18 +4,17 @@
 }
 
 .board {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: center;
   margin: 20px;
 }
 
 .player-board {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  /* outline: solid 2px blue; */
 }
 
 .opponent-board {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  outline: solid 2px red;
+  /* outline: solid 2px red; */
 }
