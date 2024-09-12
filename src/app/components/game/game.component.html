@@ -1,1 +1,13 @@
-<app-board [player]="player"></app-board>
+<!-- <app-board [player]="player"></app-board> -->
+<section class="game-boards">
+  <div class="player-board board">
+    <app-board
+      [player]="player"
+      [isOpponent]="isOpponent"
+      [gameStarted]="gameStarted"
+    ></app-board>
+  </div>
+  <div class="opponent-board board">
+    <app-board [player]="opponent" [isOpponent]="true"></app-board>
+  </div>
+</section>

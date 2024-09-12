@@ -11,6 +11,8 @@ import { SHIP_LEN, SHIP_NAME } from '../../enums/enums';
 })
 export class BoardComponent implements OnInit {
   @Input() player!: IPlayer;
+  @Input() isOpponent: boolean = false;
+  @Input() gameStarted: boolean = false;
   displayRows: string[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
   displayColumns: string[] = ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
   shipsToSet: string[] = [SHIP_NAME.CARRIER, SHIP_NAME.BATTLESHIP, SHIP_NAME.CRUISER, SHIP_NAME.SUBMARINE, SHIP_NAME.DESTROYER];
@@ -262,9 +264,7 @@ export class BoardComponent implements OnInit {
     }
 
     if (this.player.boardSetup!.isFinishedSettingUp) {
-      console.log('this.player.shipLocations!', this.player.shipLocations!);
-      console.log('this.player.boardSetup!', this.player.boardSetup!);
-      console.log('this.player', this.player)
+      console.log('this.player FINISHED SETUP', this.player)
     }
   }
 

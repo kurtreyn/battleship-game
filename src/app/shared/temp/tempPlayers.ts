@@ -30,7 +30,7 @@ export const oppShipLocations: IShipLocations = {
     submarine: ['j7', 'j8', 'j9']
 }
 
-export const oppShipArray: string[] = ['c8', 'd8', 'e8', 'f8', 'f2', 'f3', 'f4', 'f5', 'f6', 'c5', 'd5', 'e5', 'g9', 'h9', 'i4', 'i5', 'i6']
+export const oppShipArray: string[] = ['b10', 'c10', 'd10', 'e10', 'b1', 'b2', 'b3', 'b4', 'b5', 'h1', 'h2', 'h3', 'e5', 'f5', 'j7', 'j8', 'j9']
 
 export const oppBoardSetup: IBoardSetup = {
     battleshipSet: true,

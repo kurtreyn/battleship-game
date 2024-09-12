@@ -1,0 +1,21 @@
+.game-boards {
+  display: flex;
+  justify-content: center;
+}
+
+.board {
+  margin: 20px;
+}
+
+.player-board {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.opponent-board {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  outline: solid 2px red;
+}
