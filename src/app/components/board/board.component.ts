@@ -10,29 +10,9 @@ import { SHIP_LEN, SHIP_NAME } from '../../enums/enums';
   styleUrls: ['./board.component.css']
 })
 export class BoardComponent implements OnInit {
-  // @Input() cells: ICell[] = [];
-  // @Input() row_A: ICell[] = [];
-  // @Input() row_B: ICell[] = [];
-  // @Input() row_C: ICell[] = [];
-  // @Input() row_D: ICell[] = [];
-  // @Input() row_E: ICell[] = [];
-  // @Input() row_F: ICell[] = [];
-  // @Input() row_G: ICell[] = [];
-  // @Input() row_H: ICell[] = [];
-  // @Input() row_I: ICell[] = [];
-  // @Input() row_J: ICell[] = [];
-  // @Input() boardSetup!: IBoardSetup;
-  // @Input() shipLocations: IShipLocations = {
-  //   carrier: [],
-  //   battleship: [],
-  //   cruiser: [],
-  //   submarine: [],
-  //   destroyer: []
-  // }
   @Input() player!: IPlayer;
-  rows: string[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-  stagingLocation: string[] = [];
-  usedCells: string[] = [];
+  displayRows: string[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+  displayColumns: string[] = ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
   shipsToSet: string[] = [SHIP_NAME.CARRIER, SHIP_NAME.BATTLESHIP, SHIP_NAME.CRUISER, SHIP_NAME.SUBMARINE, SHIP_NAME.DESTROYER];
   isDragging: boolean = false;
   dragStartCell: ICell | null = null;

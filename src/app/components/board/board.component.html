@@ -2,19 +2,11 @@
   <table class="grid-table">
     <tbody>
       <tr>
-        <td class="grid-cell"></td>
-        <td class="grid-cell">1</td>
-        <td class="grid-cell">2</td>
-        <td class="grid-cell">3</td>
-        <td class="grid-cell">4</td>
-        <td class="grid-cell">5</td>
-        <td class="grid-cell">6</td>
-        <td class="grid-cell">7</td>
-        <td class="grid-cell">8</td>
-        <td class="grid-cell">9</td>
-        <td class="grid-cell">10</td>
+        <td class="grid-cell" *ngFor="let col of displayColumns">
+          {{ col }}
+        </td>
       </tr>
-      <tr *ngFor="let row of rows; let rowIndex = index">
+      <tr *ngFor="let row of displayRows; let rowIndex = index">
         <td class="grid-cell">{{ row }}</td>
         <td
           class="grid-cell"

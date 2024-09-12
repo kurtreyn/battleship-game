@@ -9,35 +9,26 @@ export const tempPlayer = {
     isActive: true,
     isReady: false,
     score: 0,
-    playerNumber: '1',
-    shipLocations: {
-        carrier: [],
-        battleship: [],
-        cruiser: [],
-        submarine: [],
-        destroyer: []
-    },
-    shipArray: [],
-    board: {}
 }
 
 export const tempOpponent = {
     playerId: 'oID55xz8n9b',
-    name: 'Opponent',
-    email: 'opponent@email.com',
+    name: 'Derek',
+    email: 'derek@email.com',
     isTurn: false,
     isWinner: false,
     isActive: true,
     isReady: true,
     score: 0,
-    playerNumber: '2',
-    shipLocations: {
-        carrier: ['a1', 'b1', 'c1', 'd1', 'e1'],
-        battleship: ['b5', 'c5', 'd5', 'e5'],
-        cruiser: ['c8', 'd8', 'e8'],
-        submarine: ['g3', 'g4', 'g5'],
-        destroyer: ['i5', 'i6']
-    },
-    shipArray: ['a1', 'b1', 'c1', 'd1', 'e1', 'b5', 'c5', 'd5', 'e5', 'c8', 'd8', 'e8', 'g3', 'g4', 'g5', 'i5', 'i6'],
-    board: {}
 }
+
+export const oppShipLocations: IShipLocations = {
+    battleship: ['c8', 'd8', 'e8', 'f8'],
+    carrier: ['f2', 'f3', 'f4', 'f5', 'f6'],
+    cruiser: ['c5', 'd5', 'e5'],
+    destroyer: ['g9', 'h9'],
+    submarine: ['i4', 'i5', 'i6']
+}
+
+export const oppShipArray: string[] = ['c8', 'd8', 'e8', 'f8', 'f2', 'f3', 'f4', 'f5', 'f6', 'c5', 'd5', 'e5', 'g9', 'h9', 'i4', 'i5', 'i6']
+

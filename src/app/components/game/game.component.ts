@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { BoardService } from '../../services/board.service'
 import { GameService } from 'src/app/services/game.service';
 import { ICell, IPlayer } from 'src/app/models/game';
+import { tempPlayer, tempOpponent } from 'src/app/shared/temp/tempPlayers';
 
 @Component({
   selector: 'app-game',
@@ -30,18 +31,18 @@ export class GameComponent implements OnInit {
   }
 
   private _initializePlayers(): void {
-    this.player = this._createPlayer('Player');
-    this.opponent = this._createPlayer('Opponent');
+    this.player = this._createPlayer(tempPlayer);
+    this.opponent = this._createPlayer(tempOpponent);
 
   }
 
-  private _createPlayer(name: string): IPlayer {
+  private _createPlayer(player: IPlayer): IPlayer {
     const board = this._boardService.createBoard();
     return {
-      playerId: 'pID221a5xr',
-      name,
-      email: '',
-      isReady: false,
+      playerId: player.playerId,
+      name: player.name,
+      email: player.email,
+      isReady: player.isReady,
       board,
       shipLocations: this._boardService.initializeShipLocations(),
       boardSetup: this._boardService.initializeBoardSetup(),
