@@ -135,46 +135,22 @@ export class BoardService {
     return rows;
   }
 
-  setRows(cells: ICell[], rowA: ICell[], rowB: ICell[], rowC: ICell[], rowD: ICell[], rowE: ICell[], rowF: ICell[], rowG: ICell[], rowH: ICell[], rowI: ICell[], rowJ: ICell[]) {
-    if (!cells) return;
+  setRows(cells: ICell[]): { [key: string]: ICell[] } {
+    if (!cells) return {};
+
+    const rows: { [key: string]: ICell[] } = {
+      A: [], B: [], C: [], D: [], E: [],
+      F: [], G: [], H: [], I: [], J: []
+    };
 
     cells.forEach(cell => {
-      switch (cell.row_label) {
-        case 'A':
-          rowA.push(cell);
-          break;
-        case 'B':
-          rowB.push(cell);
-          break;
-        case 'C':
-          rowC.push(cell);
-          break;
-        case 'D':
-          rowD.push(cell);
-          break;
-        case 'E':
-          rowE.push(cell);
-          break;
-        case 'F':
-          rowF.push(cell);
-          break;
-        case 'G':
-          rowG.push(cell);
-          break;
-        case 'H':
-          rowH.push(cell);
-          break;
-        case 'I':
-          rowI.push(cell);
-          break;
-        case 'J':
-          rowJ.push(cell);
-          break;
-        default:
-          break;
-
+      const rowLabel = cell.row_label.toUpperCase();
+      if (rowLabel in rows) {
+        rows[rowLabel].push(cell);
       }
     });
+
+    return rows;
   }
 
   initializeShipLocations(): IShipLocations {

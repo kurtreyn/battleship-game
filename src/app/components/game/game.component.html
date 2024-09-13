@@ -8,7 +8,7 @@
       [gameStarted]="gameStarted"
     ></app-board>
   </div>
-  <div *ngIf="opponent.isReady" class="opponent-board board">
+  <div *ngIf="gameStarted" class="opponent-board board">
     <span>Opponent's Board</span>
     <app-board [player]="opponent" [isOpponent]="true"></app-board>
   </div>

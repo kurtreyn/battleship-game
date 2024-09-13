@@ -1,9 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { BoardService } from '../../services/board.service'
 import { GameService } from 'src/app/services/game.service';
 import { ICell, IPlayer } from 'src/app/models/game';
-import { tempPlayer, tempOpponent } from 'src/app/shared/temp/tempPlayers';
+import { tempPlayer, tempOpponent, oppShipLocations, oppShipArray, oppBoardSetup, oppCells } from 'src/app/shared/temp/tempPlayers';
 
 @Component({
   selector: 'app-game',
@@ -63,11 +63,36 @@ export class GameComponent implements OnInit, OnDestroy {
 
   private _subscribeToPlayerUpdates(): void {
     this._playerSubscription = this._gameService.player$.subscribe(player => {
-      if (player) this.player = player;
+      console.log('Player', player);
+      if (player) {
+        this.player = player
+        console.log('THIS.PLAYER', this.player);
+
+        // TODO: this is a temp means of setting the opponent
+        if (this.player.isReady && !this.opponent.isReady) {
+          console.log('--PLAYER IS READY--');
+          const updatedOpponent = {
+            ...this.opponent,
+            board: {
+              cells: oppCells,
+              rows: this._boardService.setRows(oppCells),
+            },
+            isReady: true,
+            shipLocations: oppShipLocations,
+            shipArray: oppShipArray,
+            boardSetup: oppBoardSetup,
+          }
+          console.log('Updated Opponent', updatedOpponent);
+          this._gameService.updateOpponent(updatedOpponent);
+          this.gameStarted = true;
+        }
+      };
     });
 
     this._opponentSubscription = this._gameService.opponent$.subscribe(opponent => {
-      if (opponent) this.opponent = opponent;
+      if (opponent) {
+        this.opponent = opponent
+      };
     });
   }
 }

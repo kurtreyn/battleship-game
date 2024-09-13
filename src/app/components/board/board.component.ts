@@ -28,7 +28,7 @@ export class BoardComponent implements OnInit {
   ngOnInit(): void {
     this.player.boardSetup!.settingShip = this.shipsToSet[0];
     this.currentShipLength = this._boardService.getShipLength(this.player.boardSetup!.settingShip);
-    console.log('Player', this.player);
+    // console.log('Player', this.player);
   }
 
   getRowCells(row: string): ICell[] {
@@ -82,10 +82,9 @@ export class BoardComponent implements OnInit {
   toggleBoardSetup() {
     if (!this.player.boardSetup!.isFinishedSettingUp) {
       this.player.boardSetup!.isSettingUp = !this.player.boardSetup!.isSettingUp;
-      console.log('boardSetup', this.player.boardSetup!);
+      // console.log('boardSetup', this.player.boardSetup!);
     } else {
       this._setPlayerAsReady();
-      console.log('Player is ready', this.player);
     }
 
   }
@@ -138,6 +137,7 @@ export class BoardComponent implements OnInit {
 
   private _setPlayerAsReady() {
     this.player.isReady = true;
+    this._gameService.updatePlayer(this.player);
 
   }
 
@@ -151,7 +151,7 @@ export class BoardComponent implements OnInit {
       hit: cell.hit,
       miss: cell.miss,
     }
-    console.log('Cell Info:', cellInfo);
+    // console.log('Cell Info:', cellInfo);
     return cellInfo;
   }
 
@@ -265,6 +265,7 @@ export class BoardComponent implements OnInit {
 
     if (this.player.boardSetup!.isFinishedSettingUp) {
       console.log('this.player FINISHED SETUP', this.player)
+      this._gameService.updatePlayer(this.player);
     }
   }
 
