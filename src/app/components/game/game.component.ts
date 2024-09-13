@@ -14,7 +14,7 @@ export class GameComponent implements OnInit, OnDestroy {
   player!: IPlayer
   opponent!: IPlayer
   // isOpponent: boolean = false;
-  gameStarted: boolean = false;
+  gameStarted: boolean = true;
 
   private _playerSubscription!: Subscription;
   private _opponentSubscription!: Subscription;
@@ -47,10 +47,11 @@ export class GameComponent implements OnInit, OnDestroy {
 
   private _initializePlayer(): void {
     const player = this._createPlayer(tempPlayer);
+    const board = this._boardService.createBoard(player);
     this._gameService.updatePlayer(player);
     const newTempOpp = {
       ...tempOpponent,
-      board: this._boardService.createBoard(),
+      board: board,
       shipLocations: oppShipLocations,
       shipArray: oppShipArray,
       boardSetup: oppBoardSetup,
@@ -61,7 +62,7 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   private _createPlayer(player: IPlayer): IPlayer {
-    const board = this._boardService.createBoard();
+    const board = this._boardService.createBoard(player);
     return {
       playerId: player.playerId,
       name: player.name,
@@ -91,6 +92,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this._opponentSubscription = this._gameService.opponent$.subscribe(opponent => {
       if (opponent) {
         this.opponent = opponent
+        console.log('OPPONENT', this.opponent);
       };
     });
   }

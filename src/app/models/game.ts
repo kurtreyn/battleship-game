@@ -35,6 +35,7 @@ export interface ICell {
     occupied: boolean,
     hit: boolean,
     miss: boolean,
+    playerId?: string,
     highlighted?: boolean,
     isSelected?: boolean
 }

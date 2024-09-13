@@ -90,7 +90,8 @@ export class BoardComponent implements OnInit {
 
   onCellClick(cell: ICell) {
     if (cell) {
-      this._getCellInfo(cell);
+      const cellInfo = this._getCellInfo(cell);
+      console.log('Cell Clicked:', cellInfo);
     }
   }
 

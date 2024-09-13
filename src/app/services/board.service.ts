@@ -11,9 +11,11 @@ export class BoardService {
 
   constructor() { }
 
-  createBoard(): IBoard {
-    const cells = this._initializeCells();
+  createBoard(player: IPlayer): IBoard {
+    const cells = this._initializeCells(player);
     const rows = this._initializeRows(cells);
+    console.log('cells:', cells);
+    console.log('rows:', rows);
     return { cells, rows };
   }
 
@@ -104,67 +106,67 @@ export class BoardService {
     return coordKey[num];
   }
 
-  initializePlayer(inputPlayer: IPlayer): IPlayer {
-    return {
-      playerId: inputPlayer.playerId,
-      name: inputPlayer.name,
-      email: inputPlayer.email,
-      isTurn: inputPlayer.isTurn,
-      isWinner: inputPlayer.isWinner,
-      isActive: inputPlayer.isActive,
-      isReady: inputPlayer.isReady,
-      score: inputPlayer.score,
-      playerNumber: inputPlayer.playerNumber,
-      shipLocations: inputPlayer.shipLocations,
-      board: inputPlayer.board
-    };
-  }
+  // initializePlayer(inputPlayer: IPlayer): IPlayer {
+  //   return {
+  //     playerId: inputPlayer.playerId,
+  //     name: inputPlayer.name,
+  //     email: inputPlayer.email,
+  //     isTurn: inputPlayer.isTurn,
+  //     isWinner: inputPlayer.isWinner,
+  //     isActive: inputPlayer.isActive,
+  //     isReady: inputPlayer.isReady,
+  //     score: inputPlayer.score,
+  //     playerNumber: inputPlayer.playerNumber,
+  //     shipLocations: inputPlayer.shipLocations,
+  //     board: inputPlayer.board
+  //   };
+  // }
 
-  initializeBoard(rowArr: string[], colArr: string[], cells: ICell[]) {
-    for (let i = 0; i < rowArr.length; i++) {
-      for (let j = 0; j < colArr.length; j++) {
-        const xString = rowArr[i];
-        const xInt = this.convertToNumber(xString);
-        const yInt = parseInt(colArr[j]);
+  // initializeBoard(rowArr: string[], colArr: string[], cells: ICell[]) {
+  //   for (let i = 0; i < rowArr.length; i++) {
+  //     for (let j = 0; j < colArr.length; j++) {
+  //       const xString = rowArr[i];
+  //       const xInt = this.convertToNumber(xString);
+  //       const yInt = parseInt(colArr[j]);
 
-        cells.push({
-          x: xInt,
-          y: yInt,
-          coordinates: `${rowArr[i]}${colArr[j]}`,
-          row_label: rowArr[i].toUpperCase(),
-          occupied: false,
-          hit: false,
-          miss: false
-        })
-      }
-    }
-  }
+  //       cells.push({
+  //         x: xInt,
+  //         y: yInt,
+  //         coordinates: `${rowArr[i]}${colArr[j]}`,
+  //         row_label: rowArr[i].toUpperCase(),
+  //         occupied: false,
+  //         hit: false,
+  //         miss: false
+  //       })
+  //     }
+  //   }
+  // }
 
-  createRows(cells: ICell[]): { [key: string]: ICell[] } {
-    const rows: { [key: string]: ICell[] } = {};
-    this.rowArr.forEach(row => {
-      rows[row] = cells.filter(cell => cell.coordinates.startsWith(row));
-    });
-    return rows;
-  }
+  // createRows(cells: ICell[]): { [key: string]: ICell[] } {
+  //   const rows: { [key: string]: ICell[] } = {};
+  //   this.rowArr.forEach(row => {
+  //     rows[row] = cells.filter(cell => cell.coordinates.startsWith(row));
+  //   });
+  //   return rows;
+  // }
 
-  setRows(cells: ICell[]): { [key: string]: ICell[] } {
-    if (!cells) return {};
+  // setRows(cells: ICell[]): { [key: string]: ICell[] } {
+  //   if (!cells) return {};
 
-    const rows: { [key: string]: ICell[] } = {
-      A: [], B: [], C: [], D: [], E: [],
-      F: [], G: [], H: [], I: [], J: []
-    };
+  //   const rows: { [key: string]: ICell[] } = {
+  //     A: [], B: [], C: [], D: [], E: [],
+  //     F: [], G: [], H: [], I: [], J: []
+  //   };
 
-    cells.forEach(cell => {
-      const rowLabel = cell.row_label.toUpperCase();
-      if (rowLabel in rows) {
-        rows[rowLabel].push(cell);
-      }
-    });
+  //   cells.forEach(cell => {
+  //     const rowLabel = cell.row_label.toUpperCase();
+  //     if (rowLabel in rows) {
+  //       rows[rowLabel].push(cell);
+  //     }
+  //   });
 
-    return rows;
-  }
+  //   return rows;
+  // }
 
   initializeShipLocations(): IShipLocations {
     return {
@@ -189,7 +191,7 @@ export class BoardService {
     };
   }
 
-  private _initializeCells(): ICell[] {
+  private _initializeCells(player: IPlayer): ICell[] {
     const cells: ICell[] = [];
     for (let y = 0; y < 10; y++) {
       for (let x = 0; x < 10; x++) {
@@ -201,6 +203,7 @@ export class BoardService {
           hit: false,
           miss: false,
           highlighted: false,
+          playerId: player.playerId,
           row_label: this.rowArr[y].toUpperCase()
         });
       }
