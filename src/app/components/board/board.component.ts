@@ -28,24 +28,39 @@ export class BoardComponent implements OnInit {
   ngOnInit(): void {
     this.player.boardSetup!.settingShip = this.shipsToSet[0];
     this.currentShipLength = this._boardService.getShipLength(this.player.boardSetup!.settingShip);
-    // console.log('Player', this.player);
+    // console.log('Player', this.player.name, 'Board:', this.player.board);
+    // console.log('Is Opponent:', this.isOpponent);
+    // if (this.player.board && this.player.board.rows) {
+    //   console.log('Board Rows:', Object.keys(this.player.board.rows));
+    // } else {
+    //   console.warn('Player board or rows are undefined');
+    // }
   }
 
   getRowCells(row: string): ICell[] {
-    // setup the rows on the board
-    switch (row) {
-      case 'A': return this.player.board?.rows['a'] || [];
-      case 'B': return this.player.board?.rows['b'] || [];
-      case 'C': return this.player.board?.rows['c'] || [];
-      case 'D': return this.player.board?.rows['d'] || [];
-      case 'E': return this.player.board?.rows['e'] || [];
-      case 'F': return this.player.board?.rows['f'] || [];
-      case 'G': return this.player.board?.rows['g'] || [];
-      case 'H': return this.player.board?.rows['h'] || [];
-      case 'I': return this.player.board?.rows['i'] || [];
-      case 'J': return this.player.board?.rows['j'] || [];
-      default: return [];
+    if (!this.player.board || !this.player.board.rows) {
+      // console.warn(`Board or rows undefined for player ${this.player.name}`);
+      return [];
     }
+
+    const cells = this.player.board.rows[row.toLowerCase()] || [];
+    // console.log(`Player: ${this.player.name}, Row ${row}:`, cells);
+
+    if (this.isOpponent) {
+      if (cells.length === 0) {
+        console.warn(`No cells found for opponent's row ${row}`);
+      }
+      const opponentCells = cells.map(cell => ({
+        ...cell,
+        occupied: false, // Hide opponent's ship placements
+        hit: cell.hit,
+        miss: cell.miss
+      }));
+
+      return opponentCells;
+    }
+
+    return cells;
   }
 
   onMouseDown(cell: ICell) {

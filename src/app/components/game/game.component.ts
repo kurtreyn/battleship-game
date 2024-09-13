@@ -26,7 +26,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this._subscribeToPlayerUpdates();
-    this._initializePlayers();
+    this._initializePlayer();
   }
 
   ngOnDestroy(): void {
@@ -40,12 +40,19 @@ export class GameComponent implements OnInit, OnDestroy {
 
   }
 
-  private _initializePlayers(): void {
+  private _initializePlayer(): void {
     const player = this._createPlayer(tempPlayer);
-    const opponent = this._createPlayer(tempOpponent);
     this._gameService.updatePlayer(player);
+    const newTempOpp = {
+      ...tempOpponent,
+      board: this._boardService.createBoard(),
+      shipLocations: oppShipLocations,
+      shipArray: oppShipArray,
+      boardSetup: oppBoardSetup,
+      isReady: true
+    }
+    const opponent = this._createPlayer(newTempOpp);
     this._gameService.updateOpponent(opponent);
-
   }
 
   private _createPlayer(player: IPlayer): IPlayer {
@@ -69,21 +76,8 @@ export class GameComponent implements OnInit, OnDestroy {
         console.log('THIS.PLAYER', this.player);
 
         // TODO: this is a temp means of setting the opponent
-        if (this.player.isReady && !this.opponent.isReady) {
+        if (this.player.isReady) {
           console.log('--PLAYER IS READY--');
-          const updatedOpponent = {
-            ...this.opponent,
-            board: {
-              cells: oppCells,
-              rows: this._boardService.setRows(oppCells),
-            },
-            isReady: true,
-            shipLocations: oppShipLocations,
-            shipArray: oppShipArray,
-            boardSetup: oppBoardSetup,
-          }
-          console.log('Updated Opponent', updatedOpponent);
-          this._gameService.updateOpponent(updatedOpponent);
           this.gameStarted = true;
         }
       };

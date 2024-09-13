@@ -18,7 +18,6 @@ export class GameService {
   }
 
   updateOpponent(opponent: IPlayer): void {
-    console.log('Opponent', opponent);
     this._opponent.next(opponent);
   }
 

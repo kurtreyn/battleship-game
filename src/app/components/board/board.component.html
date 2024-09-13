@@ -12,7 +12,7 @@
           class="grid-cell"
           *ngFor="let cell of getRowCells(row)"
           [ngClass]="{
-            ship: cell.occupied,
+            ship: !isOpponent && cell.occupied,
             hit: cell.hit,
             miss: cell.miss,
             isSelected: cell.isSelected,

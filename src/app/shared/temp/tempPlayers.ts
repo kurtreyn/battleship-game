@@ -22,6 +22,8 @@ export const tempOpponent = {
     score: 0,
 }
 
+
+
 export const oppShipLocations: IShipLocations = {
     battleship: ['b10', 'c10', 'd10', 'e10'],
     carrier: ['b1', 'b2', 'b3', 'b4', 'b5'],
@@ -1047,3 +1049,21 @@ export const oppCells: ICell[] = [
 ];
 
 
+export const oppDerek = {
+    playerId: 'oID55xz8n9b',
+    name: 'Derek',
+    email: 'derek@email.com',
+    isTurn: false,
+    isWinner: false,
+    isActive: true,
+    isReady: true,
+    score: 0,
+    // playerNumber: '2',
+    // shipLocations: oppShipLocations,
+    // shipArray: oppShipArray,
+    // board: {
+    //     cells: oppCells,
+    //     rows: {}
+    // },
+    // boardSetup: oppBoardSetup,
+}
