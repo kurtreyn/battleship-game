@@ -17,6 +17,19 @@ export class BoardService {
     return { cells, rows };
   }
 
+  getCellInfo(cell: ICell): ICell {
+    return {
+      x: cell.x,
+      y: cell.y,
+      coordinates: cell.coordinates,
+      occupied: cell.occupied,
+      hit: cell.hit,
+      miss: cell.miss,
+      highlighted: cell.highlighted,
+      row_label: cell.row_label
+    };
+  }
+
   getShipLength(ship: string) {
     switch (ship) {
       case SHIP_NAME.CARRIER:

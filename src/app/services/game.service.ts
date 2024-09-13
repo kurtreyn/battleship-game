@@ -28,4 +28,8 @@ export class GameService {
   getOpponent(): IPlayer | null {
     return this._opponent.getValue();
   }
+
+  attack(player: IPlayer, coordinates: string) {
+    console.log(`Player ${player.name} attacked ${coordinates}`);
+  }
 }

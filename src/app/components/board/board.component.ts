@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { BoardService } from '../../services/board.service';
 import { GameService } from 'src/app/services/game.service';
-import { ICell, IBoardSetup, IShipLocations, IPlayer } from '../../models/game';
+import { ICell, IPlayer } from '../../models/game';
 import { SHIP_LEN, SHIP_NAME } from '../../enums/enums';
 
 @Component({

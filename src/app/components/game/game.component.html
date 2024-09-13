@@ -4,12 +4,16 @@
     <span>Your Board</span>
     <app-board
       [player]="player"
-      [isOpponent]="isOpponent"
+      [isOpponent]="false"
       [gameStarted]="gameStarted"
     ></app-board>
   </div>
   <div *ngIf="gameStarted" class="opponent-board board">
     <span>Opponent's Board</span>
-    <app-board [player]="opponent" [isOpponent]="true"></app-board>
+    <app-board
+      [player]="opponent"
+      [isOpponent]="true"
+      [gameStarted]="gameStarted"
+    ></app-board>
   </div>
 </section>

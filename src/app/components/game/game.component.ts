@@ -13,7 +13,7 @@ import { tempPlayer, tempOpponent, oppShipLocations, oppShipArray, oppBoardSetup
 export class GameComponent implements OnInit, OnDestroy {
   player!: IPlayer
   opponent!: IPlayer
-  isOpponent: boolean = false;
+  // isOpponent: boolean = false;
   gameStarted: boolean = false;
 
   private _playerSubscription!: Subscription;
@@ -36,8 +36,13 @@ export class GameComponent implements OnInit, OnDestroy {
 
   onPlayerCellClick(cell: ICell) { }
 
-  onOpponentCellClick(cell: ICell) {
+  onOpponentCellClick(cell: ICell) { }
 
+  onCellClicked(event: { player: IPlayer, cell: ICell }) {
+    console.log(`${event.player.name} clicked cell:`, event.cell);
+    if (this.gameStarted) {
+      this._gameService.attack(event.player, event.cell.coordinates);
+    }
   }
 
   private _initializePlayer(): void {
