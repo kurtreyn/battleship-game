@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { BoardService } from '../../services/board.service'
 import { GameService } from 'src/app/services/game.service';
 import { ICell, IPlayer } from 'src/app/models/game';
@@ -9,11 +10,14 @@ import { tempPlayer, tempOpponent } from 'src/app/shared/temp/tempPlayers';
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.css']
 })
-export class GameComponent implements OnInit {
+export class GameComponent implements OnInit, OnDestroy {
   player!: IPlayer
   opponent!: IPlayer
   isOpponent: boolean = false;
   gameStarted: boolean = false;
+
+  private _playerSubscription!: Subscription;
+  private _opponentSubscription!: Subscription;
 
 
 
@@ -21,7 +25,13 @@ export class GameComponent implements OnInit {
 
 
   ngOnInit(): void {
+    this._subscribeToPlayerUpdates();
     this._initializePlayers();
+  }
+
+  ngOnDestroy(): void {
+    this._playerSubscription.unsubscribe();
+    this._opponentSubscription.unsubscribe();
   }
 
   onPlayerCellClick(cell: ICell) { }
@@ -31,8 +41,10 @@ export class GameComponent implements OnInit {
   }
 
   private _initializePlayers(): void {
-    this.player = this._createPlayer(tempPlayer);
-    this.opponent = this._createPlayer(tempOpponent);
+    const player = this._createPlayer(tempPlayer);
+    const opponent = this._createPlayer(tempOpponent);
+    this._gameService.updatePlayer(player);
+    this._gameService.updateOpponent(opponent);
 
   }
 
@@ -47,6 +59,16 @@ export class GameComponent implements OnInit {
       shipLocations: this._boardService.initializeShipLocations(),
       boardSetup: this._boardService.initializeBoardSetup(),
     }
+  }
+
+  private _subscribeToPlayerUpdates(): void {
+    this._playerSubscription = this._gameService.player$.subscribe(player => {
+      if (player) this.player = player;
+    });
+
+    this._opponentSubscription = this._gameService.opponent$.subscribe(opponent => {
+      if (opponent) this.opponent = opponent;
+    });
   }
 }
 
