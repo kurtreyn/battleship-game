@@ -3,10 +3,10 @@ export interface IPlayer {
     name: string;
     email: string;
     isReady: boolean;
+    score: number;
     isTurn?: boolean;
     isWinner?: boolean;
     isActive?: boolean;
-    score?: number;
     session?: ISession;
     playerNumber?: string;
     shipLocations?: IShipLocations;

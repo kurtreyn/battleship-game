@@ -4,6 +4,7 @@ import { BoardService } from '../../services/board.service'
 import { GameService } from 'src/app/services/game.service';
 import { ICell, IPlayer } from 'src/app/models/game';
 import { tempPlayer, tempOpponent, oppShipLocations, oppShipArray, oppBoardSetup, oppCells } from 'src/app/shared/temp/tempPlayers';
+import { GAME } from '../../enums/enums'
 
 @Component({
   selector: 'app-game',
@@ -15,6 +16,8 @@ export class GameComponent implements OnInit, OnDestroy {
   opponent!: IPlayer
   // isOpponent: boolean = false;
   gameStarted: boolean = true;
+  gameCompleted: boolean = false;
+  winningScore: number = GAME.WINNING_SCORE;
 
   private _playerSubscription!: Subscription;
   private _opponentSubscription!: Subscription;
@@ -57,6 +60,7 @@ export class GameComponent implements OnInit, OnDestroy {
       boardSetup: oppBoardSetup,
       isReady: true
     }
+
     const opponent = this._createPlayer(newTempOpp);
     this._gameService.updateOpponent(opponent);
   }
@@ -68,6 +72,7 @@ export class GameComponent implements OnInit, OnDestroy {
       name: player.name,
       email: player.email,
       isReady: player.isReady,
+      score: player.score,
       board,
       shipLocations: this._boardService.initializeShipLocations(),
       boardSetup: this._boardService.initializeBoardSetup(),
@@ -79,9 +84,13 @@ export class GameComponent implements OnInit, OnDestroy {
     this._playerSubscription = this._gameService.player$.subscribe(player => {
       if (player) {
         this.player = player
-
-        if (this.player.isReady) {
+        console.log('player', this.player);
+        if (this.player.isReady && this.opponent.isReady) {
           this.gameStarted = true;
+        }
+
+        if (this.player.score === this.winningScore || this.opponent.score === this.winningScore) {
+          this.gameCompleted = true;
         }
       };
     });
@@ -89,7 +98,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this._opponentSubscription = this._gameService.opponent$.subscribe(opponent => {
       if (opponent) {
         this.opponent = opponent
-        console.log('opponent', this.opponent);
+        // console.log('opponent', this.opponent);
       };
     });
   }
