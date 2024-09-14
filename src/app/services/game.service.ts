@@ -15,11 +15,19 @@ export class GameService {
   constructor() { }
 
   updatePlayer(player: IPlayer): void {
-    this._player.next(player);
+    try {
+      this._player.next(player);
+    } catch (error) {
+      console.error('Error updating player:', error);
+    }
   }
 
   updateOpponent(opponent: IPlayer): void {
-    this._opponent.next(opponent);
+    try {
+      this._opponent.next(opponent);
+    } catch (error) {
+      console.error('Error updating opponent:');
+    }
   }
 
   getPlayer(): IPlayer | null {
@@ -51,18 +59,20 @@ export class GameService {
           }
         });
 
-        if (player.score < GAME.WINNING_SCORE) {
-          this.updatePlayer({
-            ...player,
-            score: player.score! + 1
-          })
-        }
+        if (!!player.score) {
+          if (player.score < GAME.WINNING_SCORE) {
+            this.updatePlayer({
+              ...player,
+              score: player.score! + 1
+            })
+          }
 
-        if (player.score === GAME.WINNING_SCORE) {
-          this.updatePlayer({
-            ...player,
-            isWinner: true
-          })
+          if (player.score === GAME.WINNING_SCORE) {
+            this.updatePlayer({
+              ...player,
+              isWinner: true
+            })
+          }
         }
 
 
