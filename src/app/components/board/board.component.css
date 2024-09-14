@@ -23,16 +23,13 @@
   background-color: gray;
 }
 
-.empty {
-  background-color: #fff;
-}
-
 .grid-cell {
   width: 30px;
   height: 30px;
   text-align: center;
   border: 1px solid #000;
   cursor: pointer;
+  background-color: rgba(24, 152, 236, 0.4);
 }
 
 .grid-table {
@@ -56,7 +53,7 @@
 }
 
 .miss {
-  background-color: #00ffff;
+  background-color: #fff;
 }
 
 .settingShip {
