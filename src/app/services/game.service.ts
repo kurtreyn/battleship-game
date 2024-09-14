@@ -29,14 +29,14 @@ export class GameService {
     return this._opponent.getValue();
   }
 
-  attack(player: IPlayer, coordinates: string) {
+  attack(coordinates: string) {
     const opponent = this.getOpponent();
-    console.log('opponent', opponent);
-    console.log(`Player ${player.name} attacked ${coordinates}`);
+    if (!opponent) {
+      return;
+    }
     if (opponent?.shipArray?.includes(coordinates)) {
-      console.log('HIT!');
       const cell = opponent.board!.cells.find(cell => cell.coordinates === coordinates);
-      console.log('cell', cell);
+      // console.log('cell', cell);
       if (cell) {
         cell.hit = true;
         this.updateOpponent({
@@ -49,18 +49,20 @@ export class GameService {
         });
       }
     } else {
-      console.log('MISS!');
       const cell = opponent?.board!.cells.find(cell => cell.coordinates === coordinates);
-      console.log('cell', cell);
+      // console.log('cell', cell);
       if (cell) {
         cell.miss = true;
-        // this.updateOpponent({
-        //    ...opponent, 
-        //    board: { ...opponent.board, 
-        //     cells: [...opponent.board!.cells], 
-        //     rows: opponent.board!.rows 
-        //   } 
-        // });
+        this.updateOpponent({
+          ...opponent,
+          board: {
+            ...opponent!.board!,
+            cells: [...opponent!.board!.cells],
+            rows: opponent!.board!.rows
+          }
+        });
+
+
       }
     }
   }

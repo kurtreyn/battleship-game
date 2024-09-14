@@ -28,27 +28,18 @@ export class BoardComponent implements OnInit {
   ngOnInit(): void {
     this.player.boardSetup!.settingShip = this.shipsToSet[0];
     this.currentShipLength = this._boardService.getShipLength(this.player.boardSetup!.settingShip);
-    // console.log('Player', this.player.name, 'Board:', this.player.board);
-    // console.log('Is Opponent:', this.isOpponent);
-    // if (this.player.board && this.player.board.rows) {
-    //   console.log('Board Rows:', Object.keys(this.player.board.rows));
-    // } else {
-    //   console.warn('Player board or rows are undefined');
-    // }
   }
 
   getRowCells(row: string): ICell[] {
     if (!this.player.board || !this.player.board.rows) {
-      // console.warn(`Board or rows undefined for player ${this.player.name}`);
       return [];
     }
 
     const cells = this.player.board.rows[row.toLowerCase()] || [];
-    // console.log(`Player: ${this.player.name}, Row ${row}:`, cells);
 
     if (this.isOpponent) {
       if (cells.length === 0) {
-        console.warn(`No cells found for opponent's row ${row}`);
+        return [];
       }
       const opponentCells = cells.map(cell => ({
         ...cell,
@@ -103,14 +94,13 @@ export class BoardComponent implements OnInit {
       const { coordinates } = cellInfo;
       // console.log('Cell Clicked:', cellInfo);
       console.log('coordinates:', coordinates);
-      this._gameService.attack(this.player, coordinates);
+      this._gameService.attack(coordinates);
     }
   }
 
   toggleBoardSetup() {
     if (!this.player.boardSetup!.isFinishedSettingUp) {
       this.player.boardSetup!.isSettingUp = !this.player.boardSetup!.isSettingUp;
-      // console.log('boardSetup', this.player.boardSetup!);
     } else {
       this._setPlayerAsReady();
     }

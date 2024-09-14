@@ -38,12 +38,12 @@ export class GameComponent implements OnInit, OnDestroy {
 
   onOpponentCellClick(cell: ICell) { }
 
-  onCellClicked(event: { player: IPlayer, cell: ICell }) {
-    console.log(`${event.player.name} clicked cell:`, event.cell);
-    if (this.gameStarted) {
-      this._gameService.attack(event.player, event.cell.coordinates);
-    }
-  }
+  // onCellClicked(event: { player: IPlayer, cell: ICell }) {
+  //   console.log(`${event.player.name} clicked cell:`, event.cell);
+  //   if (this.gameStarted) {
+  //     this._gameService.attack(event.player, event.cell.coordinates);
+  //   }
+  // }
 
   private _initializePlayer(): void {
     const player = this._createPlayer(tempPlayer);
@@ -77,14 +77,10 @@ export class GameComponent implements OnInit, OnDestroy {
 
   private _subscribeToPlayerUpdates(): void {
     this._playerSubscription = this._gameService.player$.subscribe(player => {
-      // console.log('Player', player);
       if (player) {
         this.player = player
-        // console.log('THIS.PLAYER', this.player);
 
-        // TODO: this is a temp means of setting the opponent
         if (this.player.isReady) {
-          console.log('--PLAYER IS READY--');
           this.gameStarted = true;
         }
       };
@@ -93,7 +89,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this._opponentSubscription = this._gameService.opponent$.subscribe(opponent => {
       if (opponent) {
         this.opponent = opponent
-        // console.log('OPPONENT', this.opponent);
+        console.log('opponent', this.opponent);
       };
     });
   }
