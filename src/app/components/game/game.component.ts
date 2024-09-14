@@ -1,136 +1,105 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { BoardService } from '../../services/board.service'
 import { GameService } from 'src/app/services/game.service';
-import { ICell, IBoardSetup, IShipLocations, IPlayer } from 'src/app/models/game';
+import { ICell, IPlayer } from 'src/app/models/game';
+import { tempPlayer, tempOpponent, oppShipLocations, oppShipArray, oppBoardSetup, oppCells } from 'src/app/shared/temp/tempPlayers';
+import { GAME } from '../../enums/enums'
 
 @Component({
   selector: 'app-game',
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.css']
 })
-export class GameComponent implements OnInit {
-  cells: ICell[] = [];
-  rowArr: string[] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
-  colArr: string[] = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
-  row_A: ICell[] = []
-  row_B: ICell[] = []
-  row_C: ICell[] = []
-  row_D: ICell[] = []
-  row_E: ICell[] = []
-  row_F: ICell[] = []
-  row_G: ICell[] = []
-  row_H: ICell[] = []
-  row_I: ICell[] = []
-  row_J: ICell[] = []
-  boardSetup: IBoardSetup = {
-    isSettingUp: false,
-    carrierSet: false,
-    battleshipSet: false,
-    cruiserSet: false,
-    submarineSet: false,
-    destroyerSet: false,
-    settingShip: '',
-    isFinishedSettingUp: false
-  }
-  shipLocations: IShipLocations = {
-    carrier: [],
-    battleship: [],
-    cruiser: [],
-    submarine: [],
-    destroyer: []
-  }
-  player: IPlayer = {
-    playerId: '',
-    name: '',
-    email: '',
-    isTurn: false,
-    isWinner: false,
-    isActive: false,
-    isReady: false,
-    score: 0,
-    playerNumber: '',
-    playerShips: this.shipLocations,
-    playerBoard: this.cells,
-  }
-  opponent: IPlayer = {
-    playerId: '',
-    name: '',
-    email: '',
-    isTurn: false,
-    isWinner: false,
-    isActive: false,
-    isReady: false,
-    score: 0,
-    playerNumber: '',
-  }
+export class GameComponent implements OnInit, OnDestroy {
+  player!: IPlayer
+  opponent!: IPlayer
+  // isOpponent: boolean = false;
+  gameStarted: boolean = true;
+  gameCompleted: boolean = false;
+  winningScore: number = GAME.WINNING_SCORE;
+
+  private _playerSubscription!: Subscription;
+  private _opponentSubscription!: Subscription;
+
+
 
   constructor(private _boardService: BoardService, private _gameService: GameService) { }
 
 
   ngOnInit(): void {
-    this._initializeCells('Kurt', 'pID221a5xr', 'oID55xz8n9b');
-    this._setRows();
-    console.log('initial boardSetup', this.boardSetup);
+    this._subscribeToPlayerUpdates();
+    this._initializePlayer();
   }
 
-  private _initializeCells(boardOwner: string, playerId: string, opponentId: string): void {
-    for (let i = 0; i < this.rowArr.length; i++) {
-      for (let j = 0; j < this.colArr.length; j++) {
-        const xString = this.rowArr[i];
-        const xInt = this._boardService.convertToNumber(xString);
-        const yInt = parseInt(this.colArr[j])
+  ngOnDestroy(): void {
+    this._playerSubscription.unsubscribe();
+    this._opponentSubscription.unsubscribe();
+  }
 
-        this.cells.push({
-          x: xInt,
-          y: yInt,
-          coordinates: `${this.rowArr[i]}${this.colArr[j]}`,
-          row_label: this.rowArr[i].toUpperCase(),
-          occupied: false,
-          boardOwner: boardOwner,
-          playerId: playerId,
-          opponentId: opponentId,
-          hit: false,
-          miss: false
-        });
-      }
+  onPlayerCellClick(cell: ICell) { }
+
+  onOpponentCellClick(cell: ICell) { }
+
+  // onCellClicked(event: { player: IPlayer, cell: ICell }) {
+  //   console.log(`${event.player.name} clicked cell:`, event.cell);
+  //   if (this.gameStarted) {
+  //     this._gameService.attack(event.player, event.cell.coordinates);
+  //   }
+  // }
+
+  private _initializePlayer(): void {
+    const player = this._createPlayer(tempPlayer);
+    const board = this._boardService.createBoard(player);
+    this._gameService.updatePlayer(player);
+    const newTempOpp = {
+      ...tempOpponent,
+      board: board,
+      shipLocations: oppShipLocations,
+      shipArray: oppShipArray,
+      boardSetup: oppBoardSetup,
+      isReady: true
+    }
+
+    const opponent = this._createPlayer(newTempOpp);
+    this._gameService.updateOpponent(opponent);
+  }
+
+  private _createPlayer(player: IPlayer): IPlayer {
+    const board = this._boardService.createBoard(player);
+    return {
+      playerId: player.playerId,
+      name: player.name,
+      email: player.email,
+      isReady: player.isReady,
+      score: player.score,
+      board,
+      shipLocations: this._boardService.initializeShipLocations(),
+      boardSetup: this._boardService.initializeBoardSetup(),
+      shipArray: oppShipArray
     }
   }
 
-  private _setRows(): void {
-    if (!this.cells) return;
-    this.cells.forEach((cell) => {
-      switch (cell.row_label) {
-        case 'A':
-          this.row_A.push(cell);
-          break;
-        case 'B':
-          this.row_B.push(cell);
-          break;
-        case 'C':
-          this.row_C.push(cell);
-          break;
-        case 'D':
-          this.row_D.push(cell);
-          break;
-        case 'E':
-          this.row_E.push(cell);
-          break;
-        case 'F':
-          this.row_F.push(cell);
-          break;
-        case 'G':
-          this.row_G.push(cell);
-          break;
-        case 'H':
-          this.row_H.push(cell);
-          break;
-        case 'I':
-          this.row_I.push(cell);
-          break;
-        case 'J':
-          this.row_J.push(cell);
-          break;
-      }
+  private _subscribeToPlayerUpdates(): void {
+    this._playerSubscription = this._gameService.player$.subscribe(player => {
+      if (player) {
+        this.player = player
+        console.log('player', this.player);
+        if (this.player.isReady && this.opponent.isReady) {
+          this.gameStarted = true;
+        }
+
+        if (this.player.score === this.winningScore || this.opponent.score === this.winningScore) {
+          this.gameCompleted = true;
+        }
+      };
+    });
+
+    this._opponentSubscription = this._gameService.opponent$.subscribe(opponent => {
+      if (opponent) {
+        this.opponent = opponent
+        // console.log('opponent', this.opponent);
+      };
     });
   }
 }

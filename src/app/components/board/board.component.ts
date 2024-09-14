@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { BoardService } from '../../services/board.service';
 import { GameService } from 'src/app/services/game.service';
-import { ICell, IBoardSetup, IShipLocations, IPlayer } from '../../models/game';
+import { ICell, IPlayer } from '../../models/game';
 import { SHIP_LEN, SHIP_NAME } from '../../enums/enums';
 
 @Component({
@@ -10,52 +10,11 @@ import { SHIP_LEN, SHIP_NAME } from '../../enums/enums';
   styleUrls: ['./board.component.css']
 })
 export class BoardComponent implements OnInit {
-  @Input() cells: ICell[] = [];
-  @Input() row_A: ICell[] = [];
-  @Input() row_B: ICell[] = [];
-  @Input() row_C: ICell[] = [];
-  @Input() row_D: ICell[] = [];
-  @Input() row_E: ICell[] = [];
-  @Input() row_F: ICell[] = [];
-  @Input() row_G: ICell[] = [];
-  @Input() row_H: ICell[] = [];
-  @Input() row_I: ICell[] = [];
-  @Input() row_J: ICell[] = [];
-  @Input() boardSetup!: IBoardSetup;
-  @Input() shipLocations: IShipLocations = {
-    carrier: [],
-    battleship: [],
-    cruiser: [],
-    submarine: [],
-    destroyer: []
-  }
-  @Input() player: IPlayer = {
-    playerId: '',
-    name: '',
-    email: '',
-    isTurn: false,
-    isWinner: false,
-    isActive: false,
-    isReady: false,
-    score: 0,
-    playerNumber: '',
-    playerShips: this.shipLocations,
-    playerBoard: this.cells,
-  }
-  @Input() opponent: IPlayer = {
-    playerId: '',
-    name: '',
-    email: '',
-    isTurn: false,
-    isWinner: false,
-    isActive: false,
-    isReady: false,
-    score: 0,
-    playerNumber: '',
-  }
-  rows: string[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-  stagingLocation: string[] = [];
-  usedCells: string[] = [];
+  @Input() player!: IPlayer;
+  @Input() isOpponent: boolean = false;
+  @Input() gameStarted: boolean = false;
+  displayRows: string[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+  displayColumns: string[] = ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
   shipsToSet: string[] = [SHIP_NAME.CARRIER, SHIP_NAME.BATTLESHIP, SHIP_NAME.CRUISER, SHIP_NAME.SUBMARINE, SHIP_NAME.DESTROYER];
   isDragging: boolean = false;
   dragStartCell: ICell | null = null;
@@ -67,30 +26,37 @@ export class BoardComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.boardSetup.settingShip = this.shipsToSet[0];
-    this.currentShipLength = this._boardService.getShipLength(this.boardSetup.settingShip);
+    this.player.boardSetup!.settingShip = this.shipsToSet[0];
+    this.currentShipLength = this._boardService.getShipLength(this.player.boardSetup!.settingShip);
   }
 
   getRowCells(row: string): ICell[] {
-    // setup the rows on the board
-    switch (row) {
-      case 'A': return this.row_A;
-      case 'B': return this.row_B;
-      case 'C': return this.row_C;
-      case 'D': return this.row_D;
-      case 'E': return this.row_E;
-      case 'F': return this.row_F;
-      case 'G': return this.row_G;
-      case 'H': return this.row_H;
-      case 'I': return this.row_I;
-      case 'J': return this.row_J;
-      default: return [];
+    if (!this.player.board || !this.player.board.rows) {
+      return [];
     }
+
+    const cells = this.player.board.rows[row.toLowerCase()] || [];
+
+    if (this.isOpponent) {
+      if (cells.length === 0) {
+        return [];
+      }
+      const opponentCells = cells.map(cell => ({
+        ...cell,
+        occupied: false, // Hide opponent's ship placements
+        hit: cell.hit,
+        miss: cell.miss
+      }));
+
+      return opponentCells;
+    }
+
+    return cells;
   }
 
   onMouseDown(cell: ICell) {
     // check if the board is in setup mode and the cell is not occupied in order to begin setting the ship
-    if (this.boardSetup.isSettingUp && !cell.occupied) {
+    if (this.player.boardSetup!.isSettingUp && !cell.occupied) {
       this.isDragging = true;
       this.dragStartCell = cell;
       this._highlightCells(cell, cell);
@@ -114,18 +80,29 @@ export class BoardComponent implements OnInit {
   }
 
   onCellClick(cell: ICell) {
+    const playerId = this.player.playerId;
+    const opponent = this._gameService.getOpponent();
+    let opponentId = '';
+
+    if (opponent) {
+      opponentId = opponent.playerId;
+      console.log(`playerId: ${playerId}, opponentId: ${opponentId}`);
+    }
+
     if (cell) {
-      this._getCellInfo(cell);
+      const cellInfo = this._getCellInfo(cell);
+      const { coordinates } = cellInfo;
+      // console.log('Cell Clicked:', cellInfo);
+      console.log('coordinates:', coordinates);
+      this._gameService.attack(coordinates);
     }
   }
 
   toggleBoardSetup() {
-    if (!this.boardSetup.isFinishedSettingUp) {
-      this.boardSetup.isSettingUp = !this.boardSetup.isSettingUp;
-      console.log('boardSetup', this.boardSetup);
+    if (!this.player.boardSetup!.isFinishedSettingUp) {
+      this.player.boardSetup!.isSettingUp = !this.player.boardSetup!.isSettingUp;
     } else {
       this._setPlayerAsReady();
-      console.log('Player is ready', this.player);
     }
 
   }
@@ -134,28 +111,28 @@ export class BoardComponent implements OnInit {
     // used to determine if a ship has been set in order to apply the appropriate css class on which ship is currently being set and which ships have been set
     switch (ship) {
       case SHIP_NAME.CARRIER:
-        return this.boardSetup.carrierSet;
+        return this.player.boardSetup!.carrierSet;
       case SHIP_NAME.BATTLESHIP:
-        return this.boardSetup.battleshipSet;
+        return this.player.boardSetup!.battleshipSet;
       case SHIP_NAME.CRUISER:
-        return this.boardSetup.cruiserSet;
+        return this.player.boardSetup!.cruiserSet;
       case SHIP_NAME.SUBMARINE:
-        return this.boardSetup.submarineSet;
+        return this.player.boardSetup!.submarineSet;
       case SHIP_NAME.DESTROYER:
-        return this.boardSetup.destroyerSet;
+        return this.player.boardSetup!.destroyerSet;
       default:
         return false;
     }
   }
 
   resetBoard() {
-    this.cells.forEach(cell => {
+    this.player.board!.cells.forEach(cell => {
       cell.occupied = false;
       cell.hit = false;
       cell.miss = false;
       cell.highlighted = false;
     });
-    this.boardSetup = {
+    this.player.boardSetup! = {
       isSettingUp: false,
       carrierSet: false,
       battleshipSet: false,
@@ -165,19 +142,20 @@ export class BoardComponent implements OnInit {
       settingShip: '',
       isFinishedSettingUp: false
     }
-    this.shipLocations = {
+    this.player.shipLocations! = {
       carrier: [],
       battleship: [],
       cruiser: [],
       submarine: [],
       destroyer: []
     }
-    this.boardSetup.settingShip = this.shipsToSet[0];
-    this.currentShipLength = this._boardService.getShipLength(this.boardSetup.settingShip);
+    this.player.boardSetup!.settingShip = this.shipsToSet[0];
+    this.currentShipLength = this._boardService.getShipLength(this.player.boardSetup!.settingShip);
   }
 
   private _setPlayerAsReady() {
     this.player.isReady = true;
+    this._gameService.updatePlayer(this.player);
 
   }
 
@@ -188,13 +166,11 @@ export class BoardComponent implements OnInit {
       row_label: cell.row_label,
       coordinates: cell.coordinates,
       occupied: cell.occupied,
-      boardOwner: cell.boardOwner,
-      playerId: cell.playerId,
-      opponentId: cell.opponentId,
       hit: cell.hit,
       miss: cell.miss,
+      playerId: cell.playerId,
     }
-    console.log('Cell Info:', cellInfo);
+    // console.log('Cell Info:', cellInfo);
     return cellInfo;
   }
 
@@ -210,7 +186,7 @@ export class BoardComponent implements OnInit {
   }
 
   private _resetHighlight(): void {
-    this.cells.forEach(cell => cell.highlighted = false);
+    this.player.board!.cells.forEach(cell => cell.highlighted = false);
   }
 
   private _getCellsBetween(start: ICell, end: ICell): ICell[] {
@@ -224,7 +200,7 @@ export class BoardComponent implements OnInit {
 
     for (let i = 0; i < maxLength; i++) {
       const { x, y } = this._calculateCoordinates(start, end, i, isVertical);
-      const cell = this.cells.find(c => c.x === x && c.y === y);
+      const cell = this.player.board!.cells.find(c => c.x === x && c.y === y);
       if (cell) {
         // add the cell to the cells array if it exists
         cells.push(cell);
@@ -259,56 +235,56 @@ export class BoardComponent implements OnInit {
 
   private _updateShipLocation(cells: ICell[]): void {
     const coordinates = cells.map(cell => cell.coordinates);
-    switch (this.boardSetup.settingShip) {
+    switch (this.player.boardSetup!.settingShip) {
       case SHIP_NAME.CARRIER:
-        this.shipLocations.carrier = coordinates;
-        this.boardSetup.carrierSet = true;
+        this.player.shipLocations!.carrier = coordinates;
+        this.player.boardSetup!.carrierSet = true;
         break;
       case SHIP_NAME.BATTLESHIP:
-        this.shipLocations.battleship = coordinates;
-        this.boardSetup.battleshipSet = true;
+        this.player.shipLocations!.battleship = coordinates;
+        this.player.boardSetup!.battleshipSet = true;
         break;
       case SHIP_NAME.CRUISER:
-        this.shipLocations.cruiser = coordinates;
-        this.boardSetup.cruiserSet = true;
+        this.player.shipLocations!.cruiser = coordinates;
+        this.player.boardSetup!.cruiserSet = true;
         break;
       case SHIP_NAME.SUBMARINE:
-        this.shipLocations.submarine = coordinates;
-        this.boardSetup.submarineSet = true;
+        this.player.shipLocations!.submarine = coordinates;
+        this.player.boardSetup!.submarineSet = true;
         break;
       case SHIP_NAME.DESTROYER:
-        this.shipLocations.destroyer = coordinates;
-        this.boardSetup.destroyerSet = true;
+        this.player.shipLocations!.destroyer = coordinates;
+        this.player.boardSetup!.destroyerSet = true;
         break;
     }
   }
 
   private _updateSettingShip() {
-    if (this.boardSetup.isSettingUp) {
-      if (!this.boardSetup.carrierSet) {
-        this.boardSetup.settingShip = SHIP_NAME.CARRIER;
+    if (this.player.boardSetup!.isSettingUp) {
+      if (!this.player.boardSetup!.carrierSet) {
+        this.player.boardSetup!.settingShip = SHIP_NAME.CARRIER;
         this.currentShipLength = SHIP_LEN.CARRIER;
-      } else if (!this.boardSetup.battleshipSet) {
-        this.boardSetup.settingShip = SHIP_NAME.BATTLESHIP;
+      } else if (!this.player.boardSetup!.battleshipSet) {
+        this.player.boardSetup!.settingShip = SHIP_NAME.BATTLESHIP;
         this.currentShipLength = SHIP_LEN.BATTLESHIP;
-      } else if (!this.boardSetup.cruiserSet) {
-        this.boardSetup.settingShip = SHIP_NAME.CRUISER;
+      } else if (!this.player.boardSetup!.cruiserSet) {
+        this.player.boardSetup!.settingShip = SHIP_NAME.CRUISER;
         this.currentShipLength = SHIP_LEN.CRUISER;
-      } else if (!this.boardSetup.submarineSet) {
-        this.boardSetup.settingShip = SHIP_NAME.SUBMARINE;
+      } else if (!this.player.boardSetup!.submarineSet) {
+        this.player.boardSetup!.settingShip = SHIP_NAME.SUBMARINE;
         this.currentShipLength = SHIP_LEN.SUBMARINE;
-      } else if (!this.boardSetup.destroyerSet) {
-        this.boardSetup.settingShip = SHIP_NAME.DESTROYER;
+      } else if (!this.player.boardSetup!.destroyerSet) {
+        this.player.boardSetup!.settingShip = SHIP_NAME.DESTROYER;
         this.currentShipLength = SHIP_LEN.DESTROYER;
       } else {
-        this.boardSetup.isSettingUp = false;
-        this.boardSetup.isFinishedSettingUp = true;
+        this.player.boardSetup!.isSettingUp = false;
+        this.player.boardSetup!.isFinishedSettingUp = true;
       }
     }
 
-    if (this.boardSetup.isFinishedSettingUp) {
-      console.log('this.shipLocations', this.shipLocations);
-      console.log('this.boardSetup', this.boardSetup);
+    if (this.player.boardSetup!.isFinishedSettingUp) {
+      console.log('this.player FINISHED SETUP', this.player)
+      this._gameService.updatePlayer(this.player);
     }
   }
 

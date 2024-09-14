@@ -18,3 +18,7 @@ export enum SHIP_NAME {
     SUBMARINE = 'submarine',
     DESTROYER = 'destroyer',
 }
+
+export enum GAME {
+    WINNING_SCORE = 17,
+}

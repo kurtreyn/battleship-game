@@ -1,17 +1,19 @@
-<app-board
-  [cells]="cells"
-  [row_A]="row_A"
-  [row_B]="row_B"
-  [row_C]="row_C"
-  [row_D]="row_D"
-  [row_E]="row_E"
-  [row_F]="row_F"
-  [row_G]="row_G"
-  [row_H]="row_H"
-  [row_I]="row_I"
-  [row_J]="row_J"
-  [boardSetup]="boardSetup"
-  [shipLocations]="shipLocations"
-  [player]="player"
-  [opponent]="opponent"
-></app-board>
+<!-- <app-board [player]="player"></app-board> -->
+<section class="game-boards">
+  <div class="player-board board">
+    <span>Your Board</span>
+    <app-board
+      [player]="player"
+      [isOpponent]="false"
+      [gameStarted]="gameStarted"
+    ></app-board>
+  </div>
+  <div *ngIf="gameStarted" class="opponent-board board">
+    <span>Opponent's Board</span>
+    <app-board
+      [player]="opponent"
+      [isOpponent]="false"
+      [gameStarted]="gameStarted"
+    ></app-board>
+  </div>
+</section>

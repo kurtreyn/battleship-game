@@ -2,25 +2,17 @@
   <table class="grid-table">
     <tbody>
       <tr>
-        <td class="grid-cell"></td>
-        <td class="grid-cell">1</td>
-        <td class="grid-cell">2</td>
-        <td class="grid-cell">3</td>
-        <td class="grid-cell">4</td>
-        <td class="grid-cell">5</td>
-        <td class="grid-cell">6</td>
-        <td class="grid-cell">7</td>
-        <td class="grid-cell">8</td>
-        <td class="grid-cell">9</td>
-        <td class="grid-cell">10</td>
+        <td class="grid-cell" *ngFor="let col of displayColumns">
+          {{ col }}
+        </td>
       </tr>
-      <tr *ngFor="let row of rows; let rowIndex = index">
+      <tr *ngFor="let row of displayRows; let rowIndex = index">
         <td class="grid-cell">{{ row }}</td>
         <td
           class="grid-cell"
           *ngFor="let cell of getRowCells(row)"
           [ngClass]="{
-            ship: cell.occupied,
+            ship: !isOpponent && cell.occupied,
             hit: cell.hit,
             miss: cell.miss,
             isSelected: cell.isSelected,
@@ -42,13 +34,14 @@
   <button
     class="btn btn-custom"
     [ngClass]="{
-      'btn-primary': !boardSetup.isFinishedSettingUp,
-      'btn-success': boardSetup.isFinishedSettingUp
+      'btn-primary': !this.player.boardSetup!.isFinishedSettingUp,
+      'btn-success': this.player.boardSetup!.isFinishedSettingUp
     }"
     (click)="toggleBoardSetup()"
   >
     {{
-      !boardSetup.isSettingUp && !boardSetup.isFinishedSettingUp
+      !this.player.boardSetup!.isSettingUp &&
+      !this.player.boardSetup!.isFinishedSettingUp
         ? "Start Setup"
         : "Ready To Play"
     }}
@@ -56,13 +49,13 @@
   <button class="btn btn-danger btn-custom" (click)="resetBoard()">
     Reset Board
   </button>
-  <div *ngIf="!boardSetup.isFinishedSettingUp">
+  <div *ngIf="!this.player.boardSetup!.isFinishedSettingUp">
     <h2>Setup Your Ships</h2>
     <ul class="board-ul">
       <li *ngFor="let ship of shipsToSet" class="board-li">
         <span
           [ngClass]="{
-            settingShip: ship === boardSetup.settingShip,
+            settingShip: ship === this.player.boardSetup!.settingShip,
             hasBeenSet: hasShipBeenSet(ship)
           }"
           >{{ ship }}</span

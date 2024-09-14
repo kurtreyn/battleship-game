@@ -1,0 +1,20 @@
+.game-boards {
+  display: flex;
+  justify-content: center;
+}
+
+.board {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 20px;
+}
+
+.player-board {
+  /* outline: solid 2px blue; */
+}
+
+.opponent-board {
+  /* outline: solid 2px red; */
+}
