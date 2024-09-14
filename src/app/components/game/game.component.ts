@@ -71,15 +71,16 @@ export class GameComponent implements OnInit, OnDestroy {
       board,
       shipLocations: this._boardService.initializeShipLocations(),
       boardSetup: this._boardService.initializeBoardSetup(),
+      shipArray: oppShipArray
     }
   }
 
   private _subscribeToPlayerUpdates(): void {
     this._playerSubscription = this._gameService.player$.subscribe(player => {
-      console.log('Player', player);
+      // console.log('Player', player);
       if (player) {
         this.player = player
-        console.log('THIS.PLAYER', this.player);
+        // console.log('THIS.PLAYER', this.player);
 
         // TODO: this is a temp means of setting the opponent
         if (this.player.isReady) {
@@ -92,7 +93,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this._opponentSubscription = this._gameService.opponent$.subscribe(opponent => {
       if (opponent) {
         this.opponent = opponent
-        console.log('OPPONENT', this.opponent);
+        // console.log('OPPONENT', this.opponent);
       };
     });
   }

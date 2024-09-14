@@ -14,8 +14,6 @@ export class BoardService {
   createBoard(player: IPlayer): IBoard {
     const cells = this._initializeCells(player);
     const rows = this._initializeRows(cells);
-    console.log('cells:', cells);
-    console.log('rows:', rows);
     return { cells, rows };
   }
 

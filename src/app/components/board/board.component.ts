@@ -89,9 +89,21 @@ export class BoardComponent implements OnInit {
   }
 
   onCellClick(cell: ICell) {
+    const playerId = this.player.playerId;
+    const opponent = this._gameService.getOpponent();
+    let opponentId = '';
+
+    if (opponent) {
+      opponentId = opponent.playerId;
+      console.log(`playerId: ${playerId}, opponentId: ${opponentId}`);
+    }
+
     if (cell) {
       const cellInfo = this._getCellInfo(cell);
-      console.log('Cell Clicked:', cellInfo);
+      const { coordinates } = cellInfo;
+      // console.log('Cell Clicked:', cellInfo);
+      console.log('coordinates:', coordinates);
+      this._gameService.attack(this.player, coordinates);
     }
   }
 
@@ -166,6 +178,7 @@ export class BoardComponent implements OnInit {
       occupied: cell.occupied,
       hit: cell.hit,
       miss: cell.miss,
+      playerId: cell.playerId,
     }
     // console.log('Cell Info:', cellInfo);
     return cellInfo;

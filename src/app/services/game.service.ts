@@ -30,6 +30,38 @@ export class GameService {
   }
 
   attack(player: IPlayer, coordinates: string) {
+    const opponent = this.getOpponent();
+    console.log('opponent', opponent);
     console.log(`Player ${player.name} attacked ${coordinates}`);
+    if (opponent?.shipArray?.includes(coordinates)) {
+      console.log('HIT!');
+      const cell = opponent.board!.cells.find(cell => cell.coordinates === coordinates);
+      console.log('cell', cell);
+      if (cell) {
+        cell.hit = true;
+        this.updateOpponent({
+          ...opponent,
+          board: {
+            ...opponent.board,
+            cells: [...opponent.board!.cells],
+            rows: opponent.board!.rows
+          }
+        });
+      }
+    } else {
+      console.log('MISS!');
+      const cell = opponent?.board!.cells.find(cell => cell.coordinates === coordinates);
+      console.log('cell', cell);
+      if (cell) {
+        cell.miss = true;
+        // this.updateOpponent({
+        //    ...opponent, 
+        //    board: { ...opponent.board, 
+        //     cells: [...opponent.board!.cells], 
+        //     rows: opponent.board!.rows 
+        //   } 
+        // });
+      }
+    }
   }
 }
