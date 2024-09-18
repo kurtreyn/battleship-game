@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -10,6 +10,8 @@ export class RegFormComponent {
   email: string = ''
   name: string = ''
   password: string = ''
+  @Input() showLogin!: boolean;
+  @Input() showLobby!: boolean;
 
   constructor(private _authService: AuthService) { }
 
@@ -31,5 +33,11 @@ export class RegFormComponent {
     this.email = ''
     this.password = ''
     this.name = ''
+    this._showLobby();
+  }
+
+  private _showLobby() {
+    this.showLogin = false;
+    this.showLobby = true;
   }
 }

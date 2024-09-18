@@ -5,16 +5,20 @@
 </section>
 
 <section class="registration-section" *ngIf="!showLogin && !showLobby">
-  <app-reg-form></app-reg-form>
+  <app-reg-form [showLogin]="showLogin" [showLobby]="showLobby"></app-reg-form>
   <ng-container *ngTemplateOutlet="toggleSection"></ng-container>
 </section>
 
 <section class="login-section" *ngIf="showLogin && !showLobby">
-  <app-login></app-login>
+  <app-login
+    [showLogin]="showLogin"
+    [showLobby]="showLobby"
+    (onLogin)="onLoginEvent($event)"
+  ></app-login>
   <ng-container *ngTemplateOutlet="toggleSection"></ng-container>
 </section>
 
-<section class="lobby-section" *ngIf="!player?.readyToEnterGame && showLobby">
+<section class="lobby-section" *ngIf="showLobby">
   <app-lobby></app-lobby>
 </section>
 

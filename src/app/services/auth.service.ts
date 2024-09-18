@@ -17,15 +17,19 @@ export class AuthService {
 
   login(email: string, password: string) {
     this._fireauth.signInWithEmailAndPassword(email, password).then((res) => {
+      console.log('email', res.user?.email)
       localStorage.setItem('token', 'true')
+      console.log('res', res)
       // if (res.user?.emailVerified === true) {
-      //   this.router.navigate(['/dashboard'])
+      //   // this._router.navigate(['/dashboard'])
+      //   console.log('login successful')
       // } else {
-      //   this.router.navigate(['/verify-email'])
+      //   // this._router.navigate(['/verify-email'])
       // }
     }, err => {
       alert('Something went wring' + err.message)
-      this._router.navigate(['/login'])
+      // this._router.navigate(['/login'])
+      console.log('login failed')
     })
   }
 
@@ -56,7 +60,8 @@ export class AuthService {
   logout() {
     this._fireauth.signOut().then(() => {
       localStorage.removeItem('token')
-      this._router.navigate(['/login'])
+      // this._router.navigate(['/login'])
+      alert('Sign out successful')
     }, err => {
       alert('Something went wring' + err.message)
     })

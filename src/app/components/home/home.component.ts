@@ -24,6 +24,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private _playerSubscription!: Subscription;
   private _opponentSubscription!: Subscription;
+  private _allPlayersSubscription!: Subscription;
 
 
   constructor(private _gameService: GameService, private _dataService: DataService) { }
@@ -36,15 +37,27 @@ export class HomeComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this._playerSubscription.unsubscribe();
     this._opponentSubscription.unsubscribe();
+    this._allPlayersSubscription.unsubscribe();
   }
 
   toggleShowLogin(): void {
     this.showLogin = !this.showLogin
   }
 
+  onLoginEvent(event: boolean): void {
+    if (event) {
+      this.showLogin = false;
+      this.showLobby = true;
+    }
+  }
+
   private _getAllPlayers(): void {
-    this._dataService.getAllPlayers().subscribe(players => {
-      console.log('players', players);
+    this._allPlayersSubscription = this._dataService.getAllPlayers().subscribe(players => {
+      if (players) {
+        const activePlayers = players.filter(player => player.isActive === true);
+        this.allPlayers = activePlayers;
+        console.log('allPlayers', this.allPlayers);
+      }
     });
   }
 
