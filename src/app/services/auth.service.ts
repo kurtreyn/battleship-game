@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
+// import { BehaviorSubject, Observable } from 'rxjs';
 import { DataService } from './data.service';
 import { GameService } from './game.service';
 import { take } from 'rxjs/operators';
@@ -15,7 +16,16 @@ export class AuthService {
   player?: IPlayer;
   allPlayers?: IPlayer[];
 
-  constructor(private _fireauth: AngularFireAuth, private _dataService: DataService, private _gameService: GameService, private _router: Router) { }
+  constructor(
+    private _fireauth: AngularFireAuth,
+    private _dataService: DataService,
+    private _gameService: GameService,
+    private _router: Router
+  ) { }
+
+  getCurrentUser() {
+    return this._fireauth.authState;
+  }
 
 
   login(email: string, password: string) {

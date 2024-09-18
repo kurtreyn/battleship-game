@@ -1,9 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { GameService } from 'src/app/services/game.service';
+import { DataService } from 'src/app/services/data.service';
+import { AuthService } from 'src/app/services/auth.service';
 import { IPlayer } from 'src/app/models/game';
 import { Subscription } from 'rxjs';
 import { GAME } from 'src/app/enums/enums';
-import { DataService } from 'src/app/services/data.service';
+import { take } from 'rxjs/operators';
+
+
 
 @Component({
   selector: 'app-home',
@@ -16,6 +20,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   showLogin: boolean = false;
   showLobby: boolean = false;
   activePlayers?: IPlayer[];
+  isLoggedIn: boolean = false;
   player?: IPlayer
   opponent?: IPlayer
   gameStarted: boolean = true;
@@ -25,19 +30,27 @@ export class HomeComponent implements OnInit, OnDestroy {
   private _playerSubscription!: Subscription;
   private _opponentSubscription!: Subscription;
   private _activePlayersSubscription!: Subscription;
+  private _authSubscription!: Subscription;
+  private _currentUserSubscription!: Subscription;
 
 
-  constructor(private _gameService: GameService, private _dataService: DataService) { }
+  constructor(
+    private _gameService: GameService,
+    private _dataService: DataService,
+    private _authService: AuthService
+  ) { }
 
   ngOnInit(): void {
     this._subscribeToPlayerUpdates();
     this._getActivePlayers();
+    this._getCurrentUser();
   }
 
   ngOnDestroy(): void {
     this._playerSubscription.unsubscribe();
     this._opponentSubscription.unsubscribe();
     this._activePlayersSubscription.unsubscribe();
+    this._authSubscription.unsubscribe();
   }
 
   toggleShowLogin(): void {
@@ -49,6 +62,25 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.showLogin = false;
       this.showLobby = true;
     }
+  }
+
+  private _getCurrentUser(): void {
+    this._currentUserSubscription = this._authService.getCurrentUser().subscribe(user => {
+      if (user) {
+        this.isLoggedIn = true;
+        this.showLobby = true;
+        this._dataService.getAllPlayers().pipe(
+          take(1)
+        ).subscribe(players => {
+          const player = players.find(player => player.playerId === user.uid);
+          if (player) {
+            this._gameService.setPlayer(player);
+          }
+        });
+      } else {
+        console.log('no user');
+      }
+    });
   }
 
   private _getActivePlayers(): void {
@@ -64,15 +96,20 @@ export class HomeComponent implements OnInit, OnDestroy {
   private _subscribeToPlayerUpdates(): void {
     this._playerSubscription = this._gameService.player$.subscribe(player => {
       console.log('player', player);
-      if (player && this.opponent) {
+      if (player) {
         this.player = player
-        if (this.player.isReady && this.opponent.isReady) {
-          this.gameStarted = true;
+        // console.log('THIS.PLAYER', this.player);
+
+        if (this.player && this.opponent) {
+          if (this.player.isReady && this.opponent.isReady) {
+            this.gameStarted = true;
+          }
+
+          if (this.player.score === this.winningScore || this.opponent.score === this.winningScore) {
+            this.gameCompleted = true;
+          }
         }
 
-        if (this.player.score === this.winningScore || this.opponent.score === this.winningScore) {
-          this.gameCompleted = true;
-        }
       };
     });
 

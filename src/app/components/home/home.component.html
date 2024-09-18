@@ -4,37 +4,41 @@
   </div>
 </section>
 
-<section class="registration-section" *ngIf="!showLogin && !showLobby">
-  <app-reg-form (onReg)="onLoginOrRegEvent($event)"></app-reg-form>
-  <ng-container *ngTemplateOutlet="toggleSection"></ng-container>
-</section>
+<ng-container *ngIf="!isLoggedIn; else hasPlayer">
+  <section class="registration-section" *ngIf="!showLogin && !showLobby">
+    <app-reg-form (onReg)="onLoginOrRegEvent($event)"></app-reg-form>
+    <ng-container *ngTemplateOutlet="toggleSection"></ng-container>
+  </section>
 
-<section class="login-section" *ngIf="showLogin && !showLobby">
-  <app-login (onLogin)="onLoginOrRegEvent($event)"></app-login>
-  <ng-container *ngTemplateOutlet="toggleSection"></ng-container>
-</section>
+  <section class="login-section" *ngIf="showLogin && !showLobby">
+    <app-login (onLogin)="onLoginOrRegEvent($event)"></app-login>
+    <ng-container *ngTemplateOutlet="toggleSection"></ng-container>
+  </section>
 
-<section class="lobby-section" *ngIf="showLobby">
-  <app-lobby
-    [player]="player"
-    [activePlayers]="activePlayers"
-    [opponent]="opponent"
-  ></app-lobby>
-</section>
+  <ng-template #toggleSection>
+    <section class="toggle-section">
+      <div class="message-area">
+        <p class="text-muted">
+          {{ showLogin ? doesNotHaveAccountMessage : hasAccountMessage }}
+        </p>
+      </div>
+      <button (click)="toggleShowLogin()" class="btn btn-warning">
+        {{ showLogin ? "Register" : "Login" }}
+      </button>
+    </section>
+  </ng-template>
+</ng-container>
 
-<section class="game-section" *ngIf="player?.readyToEnterGame && !showLobby">
-  <app-game></app-game>
-</section>
+<ng-template #hasPlayer>
+  <section class="lobby-section" *ngIf="showLobby">
+    <app-lobby
+      [player]="player"
+      [activePlayers]="activePlayers"
+      [opponent]="opponent"
+    ></app-lobby>
+  </section>
 
-<ng-template #toggleSection>
-  <section class="toggle-section">
-    <div class="message-area">
-      <p class="text-muted">
-        {{ showLogin ? doesNotHaveAccountMessage : hasAccountMessage }}
-      </p>
-    </div>
-    <button (click)="toggleShowLogin()" class="btn btn-warning">
-      {{ showLogin ? "Register" : "Login" }}
-    </button>
+  <section class="game-section" *ngIf="player?.readyToEnterGame && !showLobby">
+    <app-game></app-game>
   </section>
 </ng-template>

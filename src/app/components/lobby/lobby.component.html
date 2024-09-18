@@ -1,1 +1,15 @@
-<section class="lobby-area"></section>
+<section class="lobby-area">
+  <div class="player-section" *ngIf="player">
+    <ul class="player-details">
+      <li>{{ player.name }}</li>
+    </ul>
+  </div>
+
+  <div class="active-user-section" *ngIf="activePlayers">
+    <ul class="active-users">
+      <li *ngFor="let activePlayer of activePlayers">
+        {{ activePlayer.name }}
+      </li>
+    </ul>
+  </div>
+</section>
