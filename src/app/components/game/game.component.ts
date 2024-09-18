@@ -89,8 +89,10 @@ export class GameComponent implements OnInit, OnDestroy {
           this.gameStarted = true;
         }
 
-        if (this.player.score === this.winningScore || this.opponent.score === this.winningScore) {
-          this.gameCompleted = true;
+        if (this.opponent) {
+          if (this.player.score === this.winningScore || this.opponent.score === this.winningScore) {
+            this.gameCompleted = true;
+          }
         }
       };
     });
