@@ -11,6 +11,13 @@
   width: 100%;
 }
 
+.lobby-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
 .login-section {
   display: flex;
   flex-direction: column;

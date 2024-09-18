@@ -3,6 +3,7 @@ import { GameService } from 'src/app/services/game.service';
 import { IPlayer } from 'src/app/models/game';
 import { Subscription } from 'rxjs';
 import { GAME } from 'src/app/enums/enums';
+import { DataService } from 'src/app/services/data.service';
 
 @Component({
   selector: 'app-home',
@@ -11,6 +12,8 @@ import { GAME } from 'src/app/enums/enums';
 })
 export class HomeComponent implements OnInit, OnDestroy {
   showLogin: boolean = false;
+  showLobby: boolean = false;
+  allPlayers?: IPlayer[];
   hasAccountMessage: string = 'Already have an account? Click here to login';
   doesNotHaveAccountMessage: string = 'Don\'t have an account? Click here to register';
   player?: IPlayer
@@ -23,10 +26,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   private _opponentSubscription!: Subscription;
 
 
-  constructor(private _gameService: GameService) { }
+  constructor(private _gameService: GameService, private _dataService: DataService) { }
 
   ngOnInit(): void {
     this._subscribeToPlayerUpdates();
+    this._getAllPlayers();
   }
 
   ngOnDestroy(): void {
@@ -36,6 +40,12 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   toggleShowLogin(): void {
     this.showLogin = !this.showLogin
+  }
+
+  private _getAllPlayers(): void {
+    this._dataService.getAllPlayers().subscribe(players => {
+      console.log('players', players);
+    });
   }
 
   private _subscribeToPlayerUpdates(): void {

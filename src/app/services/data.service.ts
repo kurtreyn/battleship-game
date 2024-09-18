@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-// import { v4 as uuidv4 } from 'uuid';
 import { IPlayer } from '../models/game';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +21,13 @@ export class DataService {
   }
 
   getAllPlayers() {
-    return this._afs.collection('/players').snapshotChanges()
+    return this._afs.collection('/players').snapshotChanges().pipe(
+      map(actions => actions.map(a => {
+        const data = a.payload.doc.data() as IPlayer;
+        const id = a.payload.doc.id;
+        return { id, ...data };
+      }))
+    )
   }
 
   deletePlayer(player: IPlayer) {

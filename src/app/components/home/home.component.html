@@ -4,17 +4,21 @@
   </div>
 </section>
 
-<section class="registration-section" *ngIf="!showLogin">
+<section class="registration-section" *ngIf="!showLogin && !showLobby">
   <app-reg-form></app-reg-form>
   <ng-container *ngTemplateOutlet="toggleSection"></ng-container>
 </section>
 
-<section class="login-section" *ngIf="showLogin">
+<section class="login-section" *ngIf="showLogin && !showLobby">
   <app-login></app-login>
   <ng-container *ngTemplateOutlet="toggleSection"></ng-container>
 </section>
 
-<section class="game-section" *ngIf="player?.readyToEnterGame">
+<section class="lobby-section" *ngIf="!player?.readyToEnterGame && showLobby">
+  <app-lobby></app-lobby>
+</section>
+
+<section class="game-section" *ngIf="player?.readyToEnterGame && !showLobby">
   <app-game></app-game>
 </section>
 
