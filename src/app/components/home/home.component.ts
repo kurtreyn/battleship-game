@@ -30,7 +30,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   private _playerSubscription!: Subscription;
   private _opponentSubscription!: Subscription;
   private _activePlayersSubscription!: Subscription;
-  private _authSubscription!: Subscription;
   private _currentUserSubscription!: Subscription;
 
 
@@ -50,7 +49,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this._playerSubscription.unsubscribe();
     this._opponentSubscription.unsubscribe();
     this._activePlayersSubscription.unsubscribe();
-    this._authSubscription.unsubscribe();
+    this._currentUserSubscription.unsubscribe();
   }
 
   toggleShowLogin(): void {
