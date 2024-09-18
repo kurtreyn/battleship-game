@@ -13,7 +13,7 @@ import { DataService } from 'src/app/services/data.service';
 export class HomeComponent implements OnInit, OnDestroy {
   showLogin: boolean = false;
   showLobby: boolean = false;
-  allPlayers?: IPlayer[];
+  activePlayers?: IPlayer[];
   hasAccountMessage: string = 'Already have an account? Click here to login';
   doesNotHaveAccountMessage: string = 'Don\'t have an account? Click here to register';
   player?: IPlayer
@@ -24,20 +24,20 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private _playerSubscription!: Subscription;
   private _opponentSubscription!: Subscription;
-  private _allPlayersSubscription!: Subscription;
+  private _activePlayersSubscription!: Subscription;
 
 
   constructor(private _gameService: GameService, private _dataService: DataService) { }
 
   ngOnInit(): void {
     this._subscribeToPlayerUpdates();
-    this._getAllPlayers();
+    this._getActivePlayers();
   }
 
   ngOnDestroy(): void {
     this._playerSubscription.unsubscribe();
     this._opponentSubscription.unsubscribe();
-    this._allPlayersSubscription.unsubscribe();
+    this._activePlayersSubscription.unsubscribe();
   }
 
   toggleShowLogin(): void {
@@ -51,21 +51,21 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  private _getAllPlayers(): void {
-    this._allPlayersSubscription = this._dataService.getAllPlayers().subscribe(players => {
+  private _getActivePlayers(): void {
+    this._activePlayersSubscription = this._dataService.getAllPlayers().subscribe(players => {
       if (players) {
         const activePlayers = players.filter(player => player.isActive === true);
-        this.allPlayers = activePlayers;
-        console.log('allPlayers', this.allPlayers);
+        this.activePlayers = activePlayers;
+        console.log('active players', this.activePlayers);
       }
     });
   }
 
   private _subscribeToPlayerUpdates(): void {
     this._playerSubscription = this._gameService.player$.subscribe(player => {
+      console.log('player', player);
       if (player && this.opponent) {
         this.player = player
-        console.log('player', this.player);
         if (this.player.isReady && this.opponent.isReady) {
           this.gameStarted = true;
         }

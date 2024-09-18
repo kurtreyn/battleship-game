@@ -14,6 +14,10 @@ export class GameService {
 
   constructor() { }
 
+  setPlayer(player: IPlayer): void {
+    this._player.next(player);
+  }
+
   updatePlayer(player: IPlayer): void {
     try {
       this._player.next(player);

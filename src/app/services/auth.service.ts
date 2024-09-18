@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { DataService } from './data.service';
+import { GameService } from './game.service';
+import { take } from 'rxjs/operators';
 
 import { IPlayer } from '../models/game';
 
@@ -11,25 +13,31 @@ import { IPlayer } from '../models/game';
 })
 export class AuthService {
   player?: IPlayer;
+  allPlayers?: IPlayer[];
 
-  constructor(private _fireauth: AngularFireAuth, private _dataService: DataService, private _router: Router) { }
+  constructor(private _fireauth: AngularFireAuth, private _dataService: DataService, private _gameService: GameService, private _router: Router) { }
 
 
   login(email: string, password: string) {
-    this._fireauth.signInWithEmailAndPassword(email, password).then((res) => {
-      console.log('email', res.user?.email)
-      localStorage.setItem('token', 'true')
-      console.log('res', res)
-      // if (res.user?.emailVerified === true) {
-      //   // this._router.navigate(['/dashboard'])
-      //   console.log('login successful')
-      // } else {
-      //   // this._router.navigate(['/verify-email'])
-      // }
-    }, err => {
-      alert('Something went wring' + err.message)
-      // this._router.navigate(['/login'])
-      console.log('login failed')
+    this._dataService.getAllPlayers().pipe(
+      take(1)
+    ).subscribe(players => {
+      this.allPlayers = players;
+
+      this._fireauth.signInWithEmailAndPassword(email, password).then((res) => {
+        localStorage.setItem('token', 'true')
+        // console.log('res', res)
+        const playerId = res.user?.uid;
+
+        this.player = this.allPlayers?.find(player => player.playerId === playerId);
+        if (this.player) {
+          this._gameService.setPlayer(this.player);
+        }
+      }, err => {
+        alert('Something went wring' + err.message)
+        // this._router.navigate(['/login'])
+        console.log('login failed')
+      })
     })
   }
 
@@ -48,11 +56,9 @@ export class AuthService {
         readyToEnterGame: false
       };
       this._dataService.addPlayer(this.player);
-      // this.router.navigate(['/login'])
-      // this.sendEmailForVerification(res.user)
+      this._gameService.setPlayer(this.player);
     }, err => {
       alert('Something went wring')
-      // this.router.navigate(['/register'])
     })
   }
 
