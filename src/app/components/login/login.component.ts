@@ -10,8 +10,6 @@ export class LoginComponent implements OnInit {
   email: string = ''
   password: string = ''
   @Output() onLogin = new EventEmitter<boolean>();
-  @Input() showLogin!: boolean;
-  @Input() showLobby!: boolean;
 
   constructor(private _authService: AuthService) { }
 
@@ -33,10 +31,5 @@ export class LoginComponent implements OnInit {
     this.onLogin.emit(true);
   }
 
-  private _showLobby() {
-    this.showLogin = false;
-    this.showLobby = true;
-    console.log('showLogin', this.showLogin);
-    console.log('showLobby', this.showLobby);
-  }
+
 }

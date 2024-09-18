@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -10,8 +10,7 @@ export class RegFormComponent {
   email: string = ''
   name: string = ''
   password: string = ''
-  @Input() showLogin!: boolean;
-  @Input() showLobby!: boolean;
+  @Output() onReg = new EventEmitter<boolean>();
 
   constructor(private _authService: AuthService) { }
 
@@ -33,11 +32,8 @@ export class RegFormComponent {
     this.email = ''
     this.password = ''
     this.name = ''
-    this._showLobby();
+    this.onReg.emit(true);
   }
 
-  private _showLobby() {
-    this.showLogin = false;
-    this.showLobby = true;
-  }
+
 }

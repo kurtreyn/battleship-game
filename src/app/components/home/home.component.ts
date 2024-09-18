@@ -44,7 +44,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.showLogin = !this.showLogin
   }
 
-  onLoginEvent(event: boolean): void {
+  onLoginOrRegEvent(event: boolean): void {
     if (event) {
       this.showLogin = false;
       this.showLobby = true;
