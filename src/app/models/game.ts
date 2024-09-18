@@ -4,6 +4,7 @@ export interface IPlayer {
     email: string;
     isReady: boolean;
     score: number;
+    readyToEnterGame?: boolean;
     isTurn?: boolean;
     isWinner?: boolean;
     isActive?: boolean;

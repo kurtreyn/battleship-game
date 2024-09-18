@@ -1,2 +1,32 @@
-<!-- <app-reg-form></app-reg-form> -->
-<app-game></app-game>
+<section class="logo-section">
+  <div class="game-logo-wrapper">
+    <img src="assets/images/ship-logo.jpg" alt="logo" class="game-logo" />
+  </div>
+</section>
+
+<section class="registration-section" *ngIf="!showLogin">
+  <app-reg-form></app-reg-form>
+  <ng-container *ngTemplateOutlet="toggleSection"></ng-container>
+</section>
+
+<section class="login-section" *ngIf="showLogin">
+  <app-login></app-login>
+  <ng-container *ngTemplateOutlet="toggleSection"></ng-container>
+</section>
+
+<section class="game-section" *ngIf="player?.readyToEnterGame">
+  <app-game></app-game>
+</section>
+
+<ng-template #toggleSection>
+  <section class="toggle-section">
+    <div class="message-area">
+      <p class="text-muted">
+        {{ showLogin ? doesNotHaveAccountMessage : hasAccountMessage }}
+      </p>
+    </div>
+    <button (click)="toggleShowLogin()" class="btn btn-warning">
+      {{ showLogin ? "Register" : "Login" }}
+    </button>
+  </section>
+</ng-template>
