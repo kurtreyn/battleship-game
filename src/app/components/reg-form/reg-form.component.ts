@@ -11,7 +11,7 @@ export class RegFormComponent {
   name: string = ''
   password: string = ''
 
-  constructor(private auth: AuthService) { }
+  constructor(private _authService: AuthService) { }
 
 
   register() {
@@ -27,7 +27,7 @@ export class RegFormComponent {
       alert('Please enter your password')
       return
     }
-    this.auth.register(this.email, this.password, this.name)
+    this._authService.register(this.email, this.password, this.name)
     this.email = ''
     this.password = ''
     this.name = ''

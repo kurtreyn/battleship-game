@@ -12,11 +12,11 @@ import { IPlayer } from '../models/game';
 export class AuthService {
   player?: IPlayer;
 
-  constructor(private fireauth: AngularFireAuth, private dataService: DataService, private router: Router) { }
+  constructor(private _fireauth: AngularFireAuth, private _dataService: DataService, private _router: Router) { }
 
 
   login(email: string, password: string) {
-    this.fireauth.signInWithEmailAndPassword(email, password).then((res) => {
+    this._fireauth.signInWithEmailAndPassword(email, password).then((res) => {
       localStorage.setItem('token', 'true')
       // if (res.user?.emailVerified === true) {
       //   this.router.navigate(['/dashboard'])
@@ -25,12 +25,12 @@ export class AuthService {
       // }
     }, err => {
       alert('Something went wring' + err.message)
-      this.router.navigate(['/login'])
+      this._router.navigate(['/login'])
     })
   }
 
   register(email: string, password: string, name: string) {
-    this.fireauth.createUserWithEmailAndPassword(email, password).then((res) => {
+    this._fireauth.createUserWithEmailAndPassword(email, password).then((res) => {
       alert('Registration successful');
       this.player = {
         playerId: res.user?.uid || '',
@@ -41,9 +41,9 @@ export class AuthService {
         score: 0,
         isReady: false,
         isActive: false,
-        playerNumber: '0'
+        readyToEnterGame: false
       };
-      this.dataService.addPlayer(this.player);
+      this._dataService.addPlayer(this.player);
       // this.router.navigate(['/login'])
       // this.sendEmailForVerification(res.user)
     }, err => {
@@ -54,27 +54,27 @@ export class AuthService {
 
 
   logout() {
-    this.fireauth.signOut().then(() => {
+    this._fireauth.signOut().then(() => {
       localStorage.removeItem('token')
-      this.router.navigate(['/login'])
+      this._router.navigate(['/login'])
     }, err => {
       alert('Something went wring' + err.message)
     })
   }
 
   forgotPassword(email: string) {
-    this.fireauth.sendPasswordResetEmail(email).then(() => {
+    this._fireauth.sendPasswordResetEmail(email).then(() => {
       alert('Password reset link sent')
-      this.router.navigate(['/verify-email'])
+      this._router.navigate(['/verify-email'])
     }, err => {
       alert('Something went wring' + err.message)
-      this.router.navigate(['/forgot-password'])
+      this._router.navigate(['/forgot-password'])
     })
   }
 
   sendEmailForVerification(user: any) {
     user.sendEmailVerification().then((res: any) => {
-      this.router.navigate(['/verify-email'])
+      this._router.navigate(['/verify-email'])
     }, (err: any) => {
       alert('Something went wring' + err.message)
     })

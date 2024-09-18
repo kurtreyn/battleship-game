@@ -10,7 +10,7 @@ export class LoginComponent implements OnInit {
   email: string = ''
   password: string = ''
 
-  constructor(private auth: AuthService) { }
+  constructor(private _authService: AuthService) { }
 
   ngOnInit(): void {
   }
@@ -24,7 +24,7 @@ export class LoginComponent implements OnInit {
       alert('Please enter your password')
       return
     }
-    this.auth.login(this.email, this.password)
+    this._authService.login(this.email, this.password)
     this.email = ''
     this.password = ''
   }
