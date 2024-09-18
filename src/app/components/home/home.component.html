@@ -15,7 +15,11 @@
 </section>
 
 <section class="lobby-section" *ngIf="showLobby">
-  <app-lobby></app-lobby>
+  <app-lobby
+    [player]="player"
+    [activePlayers]="activePlayers"
+    [opponent]="opponent"
+  ></app-lobby>
 </section>
 
 <section class="game-section" *ngIf="player?.readyToEnterGame && !showLobby">

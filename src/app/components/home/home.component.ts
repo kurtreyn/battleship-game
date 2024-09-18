@@ -11,11 +11,11 @@ import { DataService } from 'src/app/services/data.service';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit, OnDestroy {
+  hasAccountMessage: string = 'Already have an account? Click here to login';
+  doesNotHaveAccountMessage: string = 'Don\'t have an account? Click here to register';
   showLogin: boolean = false;
   showLobby: boolean = false;
   activePlayers?: IPlayer[];
-  hasAccountMessage: string = 'Already have an account? Click here to login';
-  doesNotHaveAccountMessage: string = 'Don\'t have an account? Click here to register';
   player?: IPlayer
   opponent?: IPlayer
   gameStarted: boolean = true;
