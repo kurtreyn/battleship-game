@@ -27,6 +27,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   gameCompleted: boolean = false;
   winningScore: number = GAME.WINNING_SCORE;
   showModal: boolean = true;
+  modalMessage: string = 'Welcome to Battleship!';
 
   private _playerSubscription!: Subscription;
   private _opponentSubscription!: Subscription;

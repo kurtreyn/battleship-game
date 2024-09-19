@@ -5,7 +5,11 @@
     </div>
   </section>
 
-  <app-modal *ngIf="showModal" (onClose)="toggleShowModal()"></app-modal>
+  <app-modal
+    *ngIf="showModal"
+    [modalMessage]="modalMessage"
+    (onClose)="toggleShowModal()"
+  ></app-modal>
 
   <ng-container *ngIf="!isLoggedIn; else hasPlayer">
     <section class="registration-section" *ngIf="!showLogin && !showLobby">

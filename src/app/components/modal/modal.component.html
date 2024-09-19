@@ -5,8 +5,21 @@
       <button class="close-modal-btn">X</button>
     </div>
     <div class="modal-body">
-      <span>Modal text</span>
+      <span class="modal-message">{{ modalMessage }}</span>
     </div>
-    <div class="modal-footer"></div>
+    <div class="modal-footer">
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-success modal-action-btn"
+      >
+        Accept Challenge
+      </button>
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-danger modal-action-btn"
+      >
+        Decline Challenge
+      </button>
+    </div>
   </div>
 </div>
