@@ -8,7 +8,9 @@ import { map } from 'rxjs/operators';
 })
 export class DataService {
 
-  constructor(private _afs: AngularFirestore) { }
+  constructor(
+    private _afs: AngularFirestore
+  ) { }
 
   addPlayer(player: IPlayer) {
     player.name = player.name
@@ -30,15 +32,15 @@ export class DataService {
     )
   }
 
-  getIndividualPlayer(playerId: string) {
-    return this._afs.doc('/players/' + playerId).valueChanges()
+  getIndividualPlayer(id: string) {
+    return this._afs.doc('/players/' + id).valueChanges()
   }
 
   deletePlayer(player: IPlayer) {
-    return this._afs.doc('/players/' + player.playerId).delete()
+    return this._afs.doc('/players/' + player.id).delete()
   }
 
   updatePlayer(player: IPlayer) {
-    return this._afs.doc('/players/' + player.playerId).update(player)
+    return this._afs.doc('/players/' + player.id).update(player)
   }
 }

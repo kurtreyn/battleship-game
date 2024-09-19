@@ -85,7 +85,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private _getActivePlayers(): void {
     this._activePlayersSubscription = this._dataService.getAllPlayers().subscribe(players => {
       if (players) {
-        const activePlayers = players.filter(player => player.isActive === true);
+        const activePlayers = players.filter(player => player.isActive === true && player.playerId !== this.player?.playerId);
         this.activePlayers = activePlayers;
         console.log('active players', this.activePlayers);
       }

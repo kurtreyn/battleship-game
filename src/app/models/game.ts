@@ -4,6 +4,7 @@ export interface IPlayer {
     email: string;
     isReady: boolean;
     score: number;
+    id?: string;
     readyToEnterGame?: boolean;
     isTurn?: boolean;
     isWinner?: boolean;
@@ -23,8 +24,6 @@ export interface IBoard {
 
 export interface ISession {
     sessionId: string;
-    date: string;
-    time: string;
     players: IPlayer[];
 }
 

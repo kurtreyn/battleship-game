@@ -29,14 +29,29 @@ export class LobbyComponent implements OnInit, OnDestroy {
     console.log('clicked')
     if (this.player) {
       const updatedPlayer = { ...this.player, isActive: !this.player.isActive };
-      console.log('updated player', updatedPlayer)
+      // console.log('updated player', updatedPlayer)
       this._dataService.updatePlayer(updatedPlayer);
-      const newPlayerValue = this._dataService.getIndividualPlayer(this.player.playerId).pipe(
-        take(1)
-      )
-        .subscribe(player => {
-          console.log('updated player', player)
-        })
+      // console.log('this.player', this.player)
+      if (this.player.id) {
+        this._dataService.getIndividualPlayer(this.player.id).pipe(
+          take(1)
+        )
+          .subscribe(player => {
+            // console.log('updated player', player)
+            if (player) {
+              const updatedPlayerData = player as IPlayer;
+              this._gameService.updatePlayer(updatedPlayerData);
+            }
+          })
+
+      }
+
+      // this._dataService.getIndividualPlayer(this.player.playerId).pipe(
+      //   take(1)
+      // )
+      //   .subscribe(player => {
+      //     console.log('updated player', player)
+      //   })
 
       // this._gameService.updatePlayer(updatedPlayer);
     }

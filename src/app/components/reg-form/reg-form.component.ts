@@ -12,7 +12,9 @@ export class RegFormComponent {
   password: string = ''
   @Output() onReg = new EventEmitter<boolean>();
 
-  constructor(private _authService: AuthService) { }
+  constructor(
+    private _authService: AuthService
+  ) { }
 
 
   register() {
