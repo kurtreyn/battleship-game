@@ -30,12 +30,15 @@ export class DataService {
     )
   }
 
+  getIndividualPlayer(playerId: string) {
+    return this._afs.doc('/players/' + playerId).valueChanges()
+  }
+
   deletePlayer(player: IPlayer) {
     return this._afs.doc('/players/' + player.playerId).delete()
   }
 
   updatePlayer(player: IPlayer) {
-    this.deletePlayer(player);
-    this.addPlayer(player);
+    return this._afs.doc('/players/' + player.playerId).update(player)
   }
 }

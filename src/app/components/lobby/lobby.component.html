@@ -1,6 +1,6 @@
 <section class="lobby-area">
   <div class="player-section" *ngIf="player">
-    <h3 class="player-title">Your Info</h3>
+    <h3 class="player-title title">Your Info</h3>
     <ul class="player-details">
       <li class="fr">
         <span class="player-name">{{ player.name }}</span>
@@ -13,12 +13,18 @@
           alt="status"
           class="status-icon"
         />
+        <button
+          class="btn btn-info btn-sm change-status-btn"
+          (click)="toggleActiveStatus()"
+        >
+          {{ player.isActive ? "Go Inactive" : "Go Active" }}
+        </button>
       </li>
     </ul>
   </div>
 
   <div class="active-user-section" *ngIf="activePlayers">
-    <h3 class="active-user-title">Active Users</h3>
+    <h3 class="active-user-title title">Active Users</h3>
     <ul class="active-users">
       <li *ngFor="let activePlayer of activePlayers" class="fr">
         <span class="player-name">{{ activePlayer.name }}</span>
@@ -31,6 +37,9 @@
           alt="status"
           class="status-icon"
         />
+        <button type="button" class="btn btn-sm btn-outline-dark challenge-btn">
+          Challenge Player
+        </button>
       </li>
     </ul>
   </div>

@@ -39,9 +39,23 @@
 .fr {
   display: flex;
   align-items: center;
+  margin-bottom: 20px;
 }
 
 .fc {
   display: flex;
   flex-direction: column;
+}
+
+.change-status-btn {
+  margin-left: 10px;
+}
+
+.challenge-btn {
+  margin-left: 10px;
+}
+
+.title {
+  margin-left: 10px;
+  color: #444;
 }
