@@ -9,7 +9,7 @@ export interface IPlayer {
     isTurn?: boolean;
     isWinner?: boolean;
     isActive?: boolean;
-    session?: ISession;
+    session?: string;
     playerNumber?: string;
     shipLocations?: IShipLocations;
     shipArray?: string[];
@@ -20,11 +20,6 @@ export interface IPlayer {
 export interface IBoard {
     cells: ICell[];
     rows: { [key: string]: ICell[] };
-}
-
-export interface ISession {
-    sessionId: string;
-    players: IPlayer[];
 }
 
 export interface ICell {

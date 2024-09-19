@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { v4 as uuidv4 } from 'uuid';
 import { ICell, IBoardSetup, IShipLocations, IPlayer } from '../models/game';
 import { GAME } from '../enums/enums';
 
@@ -13,6 +14,10 @@ export class GameService {
   opponent$: Observable<IPlayer | null> = this._opponent.asObservable();
 
   constructor() { }
+
+  generateId(): string {
+    return uuidv4();
+  }
 
   setPlayer(player: IPlayer): void {
     this._player.next(player);

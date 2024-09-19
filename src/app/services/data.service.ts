@@ -43,4 +43,8 @@ export class DataService {
   updatePlayer(player: IPlayer) {
     return this._afs.doc('/players/' + player.id).update(player)
   }
+
+  challengePlayer(player: IPlayer) {
+    return this._afs.doc('/players/' + player.id).update(player)
+  }
 }

@@ -26,18 +26,14 @@ export class LobbyComponent implements OnInit, OnDestroy {
   }
 
   toggleActiveStatus(): void {
-    console.log('clicked')
     if (this.player) {
       const updatedPlayer = { ...this.player, isActive: !this.player.isActive };
-      // console.log('updated player', updatedPlayer)
       this._dataService.updatePlayer(updatedPlayer);
-      // console.log('this.player', this.player)
       if (this.player.id) {
         this._dataService.getIndividualPlayer(this.player.id).pipe(
           take(1)
         )
           .subscribe(player => {
-            // console.log('updated player', player)
             if (player) {
               const updatedPlayerData = player as IPlayer;
               this._gameService.updatePlayer(updatedPlayerData);
@@ -45,16 +41,13 @@ export class LobbyComponent implements OnInit, OnDestroy {
           })
 
       }
-
-      // this._dataService.getIndividualPlayer(this.player.playerId).pipe(
-      //   take(1)
-      // )
-      //   .subscribe(player => {
-      //     console.log('updated player', player)
-      //   })
-
-      // this._gameService.updatePlayer(updatedPlayer);
     }
+  }
+
+  challengePlayer(playerId: string): void {
+    const session = this._gameService.generateId();
+    console.log('session', session);
+    console.log('challenging player', playerId);
   }
 
 }

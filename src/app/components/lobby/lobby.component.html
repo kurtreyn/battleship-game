@@ -37,7 +37,11 @@
           alt="status"
           class="status-icon"
         />
-        <button type="button" class="btn btn-sm btn-outline-dark challenge-btn">
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-dark challenge-btn"
+          (click)="challengePlayer(activePlayer.playerId)"
+        >
           Challenge Player
         </button>
       </li>
