@@ -44,10 +44,15 @@ export class LobbyComponent implements OnInit, OnDestroy {
     }
   }
 
-  challengePlayer(playerId: string): void {
-    const session = this._gameService.generateId();
-    console.log('session', session);
-    console.log('challenging player', playerId);
+  challengePlayer(opponentId: string): void {
+    const requestId = this._gameService.generateId();
+    if (this.player) {
+      const playerId = this.player.playerId;
+      console.log('requestId', requestId);
+      console.log('challenging player', opponentId);
+      this._dataService.sendRequests(requestId, playerId, opponentId);
+    }
+
   }
 
 }

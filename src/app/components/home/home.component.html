@@ -1,44 +1,51 @@
-<section class="logo-section">
-  <div class="game-logo-wrapper">
-    <img src="assets/images/ship-logo.jpg" alt="logo" class="game-logo" />
-  </div>
-</section>
-
-<ng-container *ngIf="!isLoggedIn; else hasPlayer">
-  <section class="registration-section" *ngIf="!showLogin && !showLobby">
-    <app-reg-form (onReg)="onLoginOrRegEvent($event)"></app-reg-form>
-    <ng-container *ngTemplateOutlet="toggleSection"></ng-container>
+<main class="main-home">
+  <section class="logo-section">
+    <div class="game-logo-wrapper">
+      <img src="assets/images/ship-logo.jpg" alt="logo" class="game-logo" />
+    </div>
   </section>
 
-  <section class="login-section" *ngIf="showLogin && !showLobby">
-    <app-login (onLogin)="onLoginOrRegEvent($event)"></app-login>
-    <ng-container *ngTemplateOutlet="toggleSection"></ng-container>
-  </section>
+  <app-modal *ngIf="showModal" (onClose)="toggleShowModal()"></app-modal>
 
-  <ng-template #toggleSection>
-    <section class="toggle-section">
-      <div class="message-area">
-        <p class="text-muted">
-          {{ showLogin ? doesNotHaveAccountMessage : hasAccountMessage }}
-        </p>
-      </div>
-      <button (click)="toggleShowLogin()" class="btn btn-warning">
-        {{ showLogin ? "Register" : "Login" }}
-      </button>
+  <ng-container *ngIf="!isLoggedIn; else hasPlayer">
+    <section class="registration-section" *ngIf="!showLogin && !showLobby">
+      <app-reg-form (onReg)="onLoginOrRegEvent($event)"></app-reg-form>
+      <ng-container *ngTemplateOutlet="toggleSection"></ng-container>
+    </section>
+
+    <section class="login-section" *ngIf="showLogin && !showLobby">
+      <app-login (onLogin)="onLoginOrRegEvent($event)"></app-login>
+      <ng-container *ngTemplateOutlet="toggleSection"></ng-container>
+    </section>
+
+    <ng-template #toggleSection>
+      <section class="toggle-section">
+        <div class="message-area">
+          <p class="text-muted">
+            {{ showLogin ? doesNotHaveAccountMessage : hasAccountMessage }}
+          </p>
+        </div>
+        <button (click)="toggleShowLogin()" class="btn btn-warning">
+          {{ showLogin ? "Register" : "Login" }}
+        </button>
+      </section>
+    </ng-template>
+  </ng-container>
+
+  <ng-template #hasPlayer>
+    <section class="lobby-section" *ngIf="showLobby">
+      <app-lobby
+        [player]="player"
+        [activePlayers]="activePlayers"
+        [opponent]="opponent"
+      ></app-lobby>
+    </section>
+
+    <section
+      class="game-section"
+      *ngIf="player?.readyToEnterGame && !showLobby"
+    >
+      <app-game></app-game>
     </section>
   </ng-template>
-</ng-container>
-
-<ng-template #hasPlayer>
-  <section class="lobby-section" *ngIf="showLobby">
-    <app-lobby
-      [player]="player"
-      [activePlayers]="activePlayers"
-      [opponent]="opponent"
-    ></app-lobby>
-  </section>
-
-  <section class="game-section" *ngIf="player?.readyToEnterGame && !showLobby">
-    <app-game></app-game>
-  </section>
-</ng-template>
+</main>

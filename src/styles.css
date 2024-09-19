@@ -10,6 +10,10 @@ body {
   margin: 0;
 }
 
+.main-home {
+  position: relative;
+}
+
 .flex-row {
   display: flex;
   flex-direction: row;

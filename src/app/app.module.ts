@@ -18,6 +18,7 @@ import { NavComponent } from './components/nav/nav.component';
 import { BoardComponent } from './components/board/board.component';
 import { GameComponent } from './components/game/game.component';
 import { LobbyComponent } from './components/lobby/lobby.component';
+import { ModalComponent } from './components/modal/modal.component';
 
 
 @NgModule({
@@ -32,6 +33,7 @@ import { LobbyComponent } from './components/lobby/lobby.component';
     BoardComponent,
     GameComponent,
     LobbyComponent,
+    ModalComponent,
   ],
   imports: [
     BrowserModule,

@@ -26,11 +26,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   gameStarted: boolean = true;
   gameCompleted: boolean = false;
   winningScore: number = GAME.WINNING_SCORE;
+  showModal: boolean = true;
 
   private _playerSubscription!: Subscription;
   private _opponentSubscription!: Subscription;
   private _activePlayersSubscription!: Subscription;
   private _currentUserSubscription!: Subscription;
+  private _requestsSubscription!: Subscription;
 
 
   constructor(
@@ -43,6 +45,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this._subscribeToPlayerUpdates();
     this._getActivePlayers();
     this._getCurrentUser();
+    this._subscribeToRequests();
   }
 
   ngOnDestroy(): void {
@@ -50,10 +53,15 @@ export class HomeComponent implements OnInit, OnDestroy {
     this._opponentSubscription.unsubscribe();
     this._activePlayersSubscription.unsubscribe();
     this._currentUserSubscription.unsubscribe();
+    this._requestsSubscription.unsubscribe();
   }
 
   toggleShowLogin(): void {
     this.showLogin = !this.showLogin
+  }
+
+  toggleShowModal(): void {
+    this.showModal = !this.showModal;
   }
 
   onLoginOrRegEvent(event: boolean): void {
@@ -117,6 +125,12 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.opponent = opponent
         // console.log('opponent', this.opponent);
       };
+    });
+  }
+
+  private _subscribeToRequests(): void {
+    this._requestsSubscription = this._dataService.getRequests().subscribe(requests => {
+      console.log('requests', requests);
     });
   }
 }

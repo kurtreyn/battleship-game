@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { IPlayer } from '../models/game';
 import { map } from 'rxjs/operators';
@@ -7,6 +8,8 @@ import { map } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class DataService {
+  private _requests = new BehaviorSubject<any>(null);
+  requests$: Observable<any> = this._requests.asObservable();
 
   constructor(
     private _afs: AngularFirestore
@@ -46,5 +49,29 @@ export class DataService {
 
   challengePlayer(player: IPlayer) {
     return this._afs.doc('/players/' + player.id).update(player)
+  }
+
+  sendRequests(requestId: string, playerId: string, opponentId: string) {
+    const request = {
+      requestId: requestId,
+      playerId: playerId,
+      opponentId: opponentId,
+      accepted: false
+    }
+    return this._afs.collection('/requests').add({ request })
+  }
+
+  acceptRequest(requestId: string) {
+    return this._afs.doc('/requests/' + requestId).update({ accepted: true })
+  }
+
+  getRequests() {
+    return this._afs.collection('/requests').snapshotChanges().pipe(
+      map(actions => actions.map(a => {
+        const data = a.payload.doc.data() as any;
+        const id = a.payload.doc.id;
+        return { id, ...data };
+      }))
+    )
   }
 }
