@@ -7,6 +7,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 })
 export class ModalComponent {
   @Output() onClose = new EventEmitter<void>();
+  @Output() onChalleneResponse = new EventEmitter<boolean>();
   @Input() modalMessage: string = '';
 
 
@@ -15,5 +16,11 @@ export class ModalComponent {
   close() {
     this.onClose.emit();
   }
+
+  respondToChallenge(response: boolean) {
+    this.onChalleneResponse.emit(response);
+  }
+
+
 
 }

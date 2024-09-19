@@ -2,7 +2,7 @@
   <div class="modal-inside">
     <div class="modal-header">
       <h3 class="modal-title"></h3>
-      <button class="close-modal-btn">X</button>
+      <button class="close-modal-btn" (click)="close()">X</button>
     </div>
     <div class="modal-body">
       <span class="modal-message">{{ modalMessage }}</span>
@@ -11,12 +11,14 @@
       <button
         type="button"
         class="btn btn-sm btn-outline-success modal-action-btn"
+        (click)="respondToChallenge(true)"
       >
         Accept Challenge
       </button>
       <button
         type="button"
         class="btn btn-sm btn-outline-danger modal-action-btn"
+        (click)="respondToChallenge(false)"
       >
         Decline Challenge
       </button>

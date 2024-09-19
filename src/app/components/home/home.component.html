@@ -9,6 +9,7 @@
     *ngIf="showModal"
     [modalMessage]="modalMessage"
     (onClose)="toggleShowModal()"
+    (onChalleneResponse)="onChallengeResponseEvent($event)"
   ></app-modal>
 
   <ng-container *ngIf="!isLoggedIn; else hasPlayer">

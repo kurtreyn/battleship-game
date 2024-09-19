@@ -51,14 +51,8 @@ export class DataService {
     return this._afs.doc('/players/' + player.id).update(player)
   }
 
-  sendRequests(requestId: string, playerId: string, opponentId: string) {
-    const request = {
-      requestId: requestId,
-      playerId: playerId,
-      opponentId: opponentId,
-      accepted: false
-    }
-    return this._afs.collection('/requests').add({ request })
+  sendRequests(requestId: string, playerId: string, playerName: string, opponentId: string, opponentName: string) {
+    return this._afs.collection('/requests').add({ requestId, playerId, playerName, opponentId, opponentName, accepted: false })
   }
 
   acceptRequest(requestId: string) {

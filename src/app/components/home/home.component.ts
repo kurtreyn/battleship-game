@@ -26,7 +26,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   gameStarted: boolean = true;
   gameCompleted: boolean = false;
   winningScore: number = GAME.WINNING_SCORE;
-  showModal: boolean = true;
+  showModal: boolean = false;
   modalMessage: string = 'Welcome to Battleship!';
 
   private _playerSubscription!: Subscription;
@@ -62,7 +62,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   toggleShowModal(): void {
+    console.log('show modal');
     this.showModal = !this.showModal;
+  }
+
+  onChallengeResponseEvent(response: boolean): void {
+    console.log('response', response);
+    this.showModal = false;
   }
 
   onLoginOrRegEvent(event: boolean): void {
@@ -131,7 +137,31 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private _subscribeToRequests(): void {
     this._requestsSubscription = this._dataService.getRequests().subscribe(requests => {
-      console.log('requests', requests);
+      // console.log('requests', requests);
+      if (requests) {
+        if (this.player) {
+          const playerId = this.player.playerId;
+          // console.log('playerId', playerId);
+          const request = requests.find(request => request.opponentId === playerId && request.accepted === false);
+          console.log('request', request);
+          if (request) {
+            this.showModal = true;
+            this.modalMessage = `You have a challenge from ${request.opponentName}`;
+            // const requestId = request.id;
+            // const opponentId = request.opponentId;
+            // this._dataService.acceptRequest(requestId);
+            // this._dataService.getIndividualPlayer(opponentId).pipe(
+            //   take(1)
+            // ).subscribe(opponent => {
+            //   if (opponent) {
+            //     const opponentData = opponent as IPlayer;
+            //     this._gameService.updateOpponent(opponentData);
+            //   }
+            // });
+          }
+        }
+
+      }
     });
   }
 }
