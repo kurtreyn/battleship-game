@@ -146,7 +146,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           console.log('request', request);
           if (request) {
             this.showModal = true;
-            this.modalMessage = `You have a challenge from ${request.playerName}`;
+            this.modalMessage = `You have a challenge from ${request.challengerName}`;
             // const requestId = request.id;
             // const opponentId = request.opponentId;
             // this._dataService.acceptRequest(requestId);
