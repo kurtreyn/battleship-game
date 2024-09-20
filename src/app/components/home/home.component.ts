@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { GameService } from 'src/app/services/game.service';
 import { DataService } from 'src/app/services/data.service';
 import { AuthService } from 'src/app/services/auth.service';
+import { BoardService } from 'src/app/services/board.service';
 import { IPlayer } from 'src/app/models/game';
 import { Subscription } from 'rxjs';
 import { GAME } from 'src/app/enums/enums';
@@ -41,7 +42,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   constructor(
     private _gameService: GameService,
     private _dataService: DataService,
-    private _authService: AuthService
+    private _authService: AuthService,
+    private _boardService: BoardService
   ) { }
 
   ngOnInit(): void {
@@ -140,17 +142,28 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private _subscribeToPlayerUpdates(): void {
     this._playerSubscription = this._gameService.player$.subscribe(player => {
-      console.log('player', player);
+      // console.log('player', player);
       if (player) {
         this.player = player
         // console.log('THIS.PLAYER', this.player);
 
-        if (this.player && this.opponent) {
+        if (this.player) {
+
+          if (this.player.readyToEnterGame) {
+            this.showLobby = false;
+            this.gameStarted = true;
+          }
+
+          console.log('player', this.player);
           if (this.player && this.opponent) {
             if (this.player.readyToEnterGame && this.opponent.readyToEnterGame) {
               console.log('both players ready to enter game');
-              this.showLobby = false;
-              this.gameStarted = true;
+              // this.showLobby = false;
+              // this.gameStarted = true;
+            }
+
+            if (this.player.score === this.winningScore || this.opponent.score === this.winningScore) {
+              this.gameCompleted = true;
             }
 
             if (this.player.score === this.winningScore || this.opponent.score === this.winningScore) {
@@ -158,9 +171,7 @@ export class HomeComponent implements OnInit, OnDestroy {
             }
           }
 
-          if (this.player.score === this.winningScore || this.opponent.score === this.winningScore) {
-            this.gameCompleted = true;
-          }
+
         }
 
       };
@@ -171,11 +182,11 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.opponent = opponent
         console.log('opponent', this.opponent);
         if (this.player && this.opponent) {
-          if (this.player.readyToEnterGame && this.opponent.readyToEnterGame) {
-            console.log('game on')
-            this.showLobby = false;
-            this.gameStarted = true;
-          }
+          // if (this.player.readyToEnterGame && this.opponent.readyToEnterGame) {
+          //   console.log('game on')
+          //   this.showLobby = false;
+          //   this.gameStarted = true;
+          // }
 
           if (this.player.score === this.winningScore || this.opponent.score === this.winningScore) {
             this.gameCompleted = true;
@@ -187,22 +198,56 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private _subscribeToRequests(): void {
     this._requestsSubscription = this._dataService.getRequests().subscribe(requests => {
-      // console.log('requests', requests);
+      console.log('requests', requests);
       if (requests) {
         if (this.player) {
           const playerId = this.player.playerId;
-          // console.log('playerId', playerId);
-          const request = requests.find(request => request.opponentId === playerId && request.accepted === false && request.responded === false);
-          // console.log('request', request);
-          if (request) {
+          const unrespondedRequest = requests.find(request => request.opponentId === playerId && request.accepted === false && request.responded === false);
+
+          const respondedRequest = requests.find(request => request.opponentId === playerId && request.accepted === true && request.responded === true);
+
+          if (unrespondedRequest) {
             this.showModal = true;
-            this.modalMessage = `You have a challenge from ${request.challengerName}`;
-            this.challengerId = request.challengerId;
-            this.requestId = request.id;;
+            this.modalMessage = `You have a challenge from ${unrespondedRequest.challengerName}`;
+            this.challengerId = unrespondedRequest.challengerId;
+            this.requestId = unrespondedRequest.id;;
 
           }
-        }
 
+          if (respondedRequest) {
+            const updatedPlayerData = {
+              ...this.player,
+              readyToEnterGame: true,
+              session: respondedRequest.id
+            } as IPlayer;
+
+
+            const challenger = this.activePlayers?.find(player => player.playerId === this.challengerId);
+            const challengerId = challenger?.id;
+            if (challengerId) {
+              this._dataService.getIndividualPlayer(challengerId).pipe(
+                take(1)
+              ).subscribe(opponent => {
+                if (opponent) {
+
+                  const opponentData = {
+                    ...opponent,
+                    isReady: false,
+                    score: 0,
+                    readyToEnterGame: true,
+                    session: respondedRequest.id,
+                  } as IPlayer;
+                  const board = this._boardService.createBoard(opponentData);
+                  opponentData.board = board;
+                  console.log('opponent data', opponentData);
+                }
+              });
+            }
+
+
+            this._gameService.updatePlayer(updatedPlayerData);
+          }
+        }
       }
     });
   }

@@ -44,12 +44,6 @@ export class GameComponent implements OnInit, OnDestroy {
 
   onOpponentCellClick(cell: ICell) { }
 
-  // onCellClicked(event: { player: IPlayer, cell: ICell }) {
-  //   console.log(`${event.player.name} clicked cell:`, event.cell);
-  //   if (this.gameStarted) {
-  //     this._gameService.attack(event.player, event.cell.coordinates);
-  //   }
-  // }
 
   private _initializePlayer(): void {
     const player = this._createPlayer(tempPlayer);
@@ -87,7 +81,6 @@ export class GameComponent implements OnInit, OnDestroy {
     this._playerSubscription = this._gameService.player$.subscribe(player => {
       if (player) {
         this.player = player
-        console.log('player', this.player);
         if (this.player.isReady && this.opponent.isReady) {
           this.gameStarted = true;
         }
