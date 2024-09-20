@@ -28,6 +28,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   winningScore: number = GAME.WINNING_SCORE;
   showModal: boolean = false;
   modalMessage: string = 'Welcome to Battleship!';
+  challengerId: string = '';
+  requestId: string = '';
 
   private _playerSubscription!: Subscription;
   private _opponentSubscription!: Subscription;
@@ -69,6 +71,20 @@ export class HomeComponent implements OnInit, OnDestroy {
   onChallengeResponseEvent(response: boolean): void {
     console.log('response', response);
     this.showModal = false;
+    if (response) {
+      console.log('challengerId', this.challengerId);
+      console.log('requestId', this.requestId);
+      this._dataService.acceptRequest(this.requestId);
+      this._dataService.getIndividualPlayer(this.challengerId).pipe(
+        take(1)
+      ).subscribe(opponent => {
+        if (opponent) {
+          const opponentData = opponent as IPlayer;
+          console.log('opponentData', opponentData);
+          this._gameService.updateOpponent(opponentData);
+        }
+      });
+    }
   }
 
   onLoginOrRegEvent(event: boolean): void {
@@ -130,7 +146,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this._opponentSubscription = this._gameService.opponent$.subscribe(opponent => {
       if (opponent) {
         this.opponent = opponent
-        // console.log('opponent', this.opponent);
+        console.log('opponent', this.opponent);
       };
     });
   }
@@ -143,21 +159,13 @@ export class HomeComponent implements OnInit, OnDestroy {
           const playerId = this.player.playerId;
           // console.log('playerId', playerId);
           const request = requests.find(request => request.opponentId === playerId && request.accepted === false);
-          console.log('request', request);
+          // console.log('request', request);
           if (request) {
             this.showModal = true;
             this.modalMessage = `You have a challenge from ${request.challengerName}`;
-            // const requestId = request.id;
-            // const opponentId = request.opponentId;
-            // this._dataService.acceptRequest(requestId);
-            // this._dataService.getIndividualPlayer(opponentId).pipe(
-            //   take(1)
-            // ).subscribe(opponent => {
-            //   if (opponent) {
-            //     const opponentData = opponent as IPlayer;
-            //     this._gameService.updateOpponent(opponentData);
-            //   }
-            // });
+            this.challengerId = request.challengerId;
+            this.requestId = request.id;;
+
           }
         }
 
