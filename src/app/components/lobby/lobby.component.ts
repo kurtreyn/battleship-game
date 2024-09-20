@@ -49,8 +49,6 @@ export class LobbyComponent implements OnInit, OnDestroy {
     if (this.player) {
       const challengerId = this.player.playerId;
       const challengerName = this.player.name;
-      console.log('requestId', requestId);
-      console.log('challenging player', opponentId);
       this._dataService.sendRequests(requestId, challengerId, challengerName, opponentId, opponentName);
     }
 

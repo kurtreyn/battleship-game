@@ -69,21 +69,36 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   onChallengeResponseEvent(response: boolean): void {
-    console.log('response', response);
     this.showModal = false;
+    const responded = true;
     if (response) {
-      console.log('challengerId', this.challengerId);
-      console.log('requestId', this.requestId);
-      this._dataService.acceptRequest(this.requestId);
-      this._dataService.getIndividualPlayer(this.challengerId).pipe(
-        take(1)
-      ).subscribe(opponent => {
-        if (opponent) {
-          const opponentData = opponent as IPlayer;
-          console.log('opponentData', opponentData);
-          this._gameService.updateOpponent(opponentData);
-        }
-      });
+      const challenger = this.activePlayers?.find(player => player.playerId === this.challengerId);
+      const challengerId = challenger?.id;
+      this._dataService.respondToRequest(this.requestId, responded, response);
+      if (challengerId) {
+        this._dataService.getIndividualPlayer(challengerId).pipe(
+          take(1)
+        ).subscribe(opponent => {
+          if (opponent) {
+            const opponentData = {
+              ...opponent,
+              isReady: false,
+              score: 0,
+              readyToEnterGame: true,
+              session: this.requestId
+            } as IPlayer;
+            this._gameService.updateOpponent(opponentData);
+          }
+        });
+      }
+      const updatedPlayerData = {
+        ...this.player,
+        readyToEnterGame: true,
+        session: this.requestId
+      } as IPlayer;
+      this._gameService.updatePlayer(updatedPlayerData);
+    } else {
+      this._dataService.respondToRequest(this.requestId, responded, response);
     }
   }
 
@@ -131,7 +146,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         // console.log('THIS.PLAYER', this.player);
 
         if (this.player && this.opponent) {
-          if (this.player.isReady && this.opponent.isReady) {
+          if (this.player.readyToEnterGame && this.opponent.readyToEnterGame) {
             this.gameStarted = true;
           }
 
@@ -158,7 +173,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         if (this.player) {
           const playerId = this.player.playerId;
           // console.log('playerId', playerId);
-          const request = requests.find(request => request.opponentId === playerId && request.accepted === false);
+          const request = requests.find(request => request.opponentId === playerId && request.accepted === false && request.responded === false);
           // console.log('request', request);
           if (request) {
             this.showModal = true;

@@ -52,11 +52,11 @@ export class DataService {
   }
 
   sendRequests(requestId: string, challengerId: string, challengerName: string, opponentId: string, opponentName: string) {
-    return this._afs.collection('/requests').add({ requestId, challengerId, challengerName, opponentId, opponentName, accepted: false })
+    return this._afs.collection('/requests').add({ requestId, challengerId, challengerName, opponentId, opponentName, accepted: false, responded: false })
   }
 
-  acceptRequest(requestId: string) {
-    return this._afs.doc('/requests/' + requestId).update({ accepted: true })
+  respondToRequest(requestId: string, responded: boolean, accepted: boolean) {
+    return this._afs.doc('/requests/' + requestId).update({ responded: responded, accepted: accepted })
   }
 
   getRequests() {
