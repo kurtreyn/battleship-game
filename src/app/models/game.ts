@@ -4,10 +4,12 @@ export interface IPlayer {
     email: string;
     isReady: boolean;
     score: number;
+    id?: string;
+    readyToEnterGame?: boolean;
     isTurn?: boolean;
     isWinner?: boolean;
     isActive?: boolean;
-    session?: ISession;
+    session?: string;
     playerNumber?: string;
     shipLocations?: IShipLocations;
     shipArray?: string[];
@@ -18,13 +20,6 @@ export interface IPlayer {
 export interface IBoard {
     cells: ICell[];
     rows: { [key: string]: ICell[] };
-}
-
-export interface ISession {
-    sessionId: string;
-    date: string;
-    time: string;
-    players: IPlayer[];
 }
 
 export interface ICell {

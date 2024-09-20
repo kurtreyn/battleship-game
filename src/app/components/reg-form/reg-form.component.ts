@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -10,8 +10,11 @@ export class RegFormComponent {
   email: string = ''
   name: string = ''
   password: string = ''
+  @Output() onReg = new EventEmitter<boolean>();
 
-  constructor(private auth: AuthService) { }
+  constructor(
+    private _authService: AuthService
+  ) { }
 
 
   register() {
@@ -27,9 +30,12 @@ export class RegFormComponent {
       alert('Please enter your password')
       return
     }
-    this.auth.register(this.email, this.password, this.name)
+    this._authService.register(this.email, this.password, this.name)
     this.email = ''
     this.password = ''
     this.name = ''
+    this.onReg.emit(true);
   }
+
+
 }

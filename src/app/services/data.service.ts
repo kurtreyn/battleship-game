@@ -1,32 +1,71 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { v4 as uuidv4 } from 'uuid';
 import { IPlayer } from '../models/game';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
+  private _requests = new BehaviorSubject<any>(null);
+  requests$: Observable<any> = this._requests.asObservable();
 
-  constructor(private afs: AngularFirestore) { }
+  constructor(
+    private _afs: AngularFirestore
+  ) { }
 
   addPlayer(player: IPlayer) {
-    player.playerId = uuidv4()
-    player.email = player.email
     player.name = player.name
-    return this.afs.collection('/players').add(player)
+    player.email = player.email
+    player.isReady = player.isReady
+    player.score = player.score
+    player.readyToEnterGame = player.readyToEnterGame
+
+    return this._afs.collection('/players').add(player)
   }
 
   getAllPlayers() {
-    return this.afs.collection('/players').snapshotChanges()
+    return this._afs.collection('/players').snapshotChanges().pipe(
+      map(actions => actions.map(a => {
+        const data = a.payload.doc.data() as IPlayer;
+        const id = a.payload.doc.id;
+        return { id, ...data };
+      }))
+    )
+  }
+
+  getIndividualPlayer(id: string) {
+    return this._afs.doc('/players/' + id).valueChanges()
   }
 
   deletePlayer(player: IPlayer) {
-    return this.afs.doc('/players/' + player.playerId).delete()
+    return this._afs.doc('/players/' + player.id).delete()
   }
 
   updatePlayer(player: IPlayer) {
-    this.deletePlayer(player);
-    this.addPlayer(player);
+    return this._afs.doc('/players/' + player.id).update(player)
+  }
+
+  challengePlayer(player: IPlayer) {
+    return this._afs.doc('/players/' + player.id).update(player)
+  }
+
+  sendRequests(requestId: string, challengerId: string, challengerName: string, opponentId: string, opponentName: string) {
+    return this._afs.collection('/requests').add({ requestId, challengerId, challengerName, opponentId, opponentName, accepted: false, responded: false })
+  }
+
+  respondToRequest(requestId: string, responded: boolean, accepted: boolean) {
+    return this._afs.doc('/requests/' + requestId).update({ responded: responded, accepted: accepted })
+  }
+
+  getRequests() {
+    return this._afs.collection('/requests').snapshotChanges().pipe(
+      map(actions => actions.map(a => {
+        const data = a.payload.doc.data() as any;
+        const id = a.payload.doc.id;
+        return { id, ...data };
+      }))
+    )
   }
 }

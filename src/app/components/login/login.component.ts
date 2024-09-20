@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, Input, EventEmitter } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -9,8 +9,9 @@ import { AuthService } from '../../services/auth.service';
 export class LoginComponent implements OnInit {
   email: string = ''
   password: string = ''
+  @Output() onLogin = new EventEmitter<boolean>();
 
-  constructor(private auth: AuthService) { }
+  constructor(private _authService: AuthService) { }
 
   ngOnInit(): void {
   }
@@ -24,8 +25,11 @@ export class LoginComponent implements OnInit {
       alert('Please enter your password')
       return
     }
-    this.auth.login(this.email, this.password)
+    this._authService.login(this.email, this.password)
     this.email = ''
     this.password = ''
+    this.onLogin.emit(true);
   }
+
+
 }

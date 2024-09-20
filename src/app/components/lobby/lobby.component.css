@@ -1,0 +1,61 @@
+.lobby-area {
+  display: flex;
+  width: 100%;
+  border: solid 1px #444;
+}
+
+.player-section {
+  display: flex;
+  flex-direction: column;
+  width: 30%;
+}
+
+.player-details {
+  list-style: none;
+  width: 100%;
+}
+
+.player-name {
+  width: 60px;
+}
+
+.active-user-section {
+  display: flex;
+  flex-direction: column;
+  width: 70%;
+  border-left: solid 1px #000;
+}
+
+.active-users {
+  list-style: none;
+}
+
+.status-icon {
+  width: 20px;
+  height: 20px;
+  margin-left: 10px;
+}
+
+.fr {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.fc {
+  display: flex;
+  flex-direction: column;
+}
+
+.change-status-btn {
+  margin-left: 10px;
+}
+
+.challenge-btn {
+  margin-left: 10px;
+}
+
+.title {
+  margin-left: 10px;
+  color: #444;
+}

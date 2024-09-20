@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { BoardService } from '../../services/board.service'
 import { GameService } from 'src/app/services/game.service';
@@ -24,7 +24,10 @@ export class GameComponent implements OnInit, OnDestroy {
 
 
 
-  constructor(private _boardService: BoardService, private _gameService: GameService) { }
+  constructor(
+    private _boardService: BoardService,
+    private _gameService: GameService
+  ) { }
 
 
   ngOnInit(): void {
@@ -89,8 +92,10 @@ export class GameComponent implements OnInit, OnDestroy {
           this.gameStarted = true;
         }
 
-        if (this.player.score === this.winningScore || this.opponent.score === this.winningScore) {
-          this.gameCompleted = true;
+        if (this.opponent) {
+          if (this.player.score === this.winningScore || this.opponent.score === this.winningScore) {
+            this.gameCompleted = true;
+          }
         }
       };
     });
