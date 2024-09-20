@@ -146,8 +146,16 @@ export class HomeComponent implements OnInit, OnDestroy {
         // console.log('THIS.PLAYER', this.player);
 
         if (this.player && this.opponent) {
-          if (this.player.readyToEnterGame && this.opponent.readyToEnterGame) {
-            this.gameStarted = true;
+          if (this.player && this.opponent) {
+            if (this.player.readyToEnterGame && this.opponent.readyToEnterGame) {
+              console.log('both players ready to enter game');
+              this.showLobby = false;
+              this.gameStarted = true;
+            }
+
+            if (this.player.score === this.winningScore || this.opponent.score === this.winningScore) {
+              this.gameCompleted = true;
+            }
           }
 
           if (this.player.score === this.winningScore || this.opponent.score === this.winningScore) {
@@ -162,6 +170,17 @@ export class HomeComponent implements OnInit, OnDestroy {
       if (opponent) {
         this.opponent = opponent
         console.log('opponent', this.opponent);
+        if (this.player && this.opponent) {
+          if (this.player.readyToEnterGame && this.opponent.readyToEnterGame) {
+            console.log('game on')
+            this.showLobby = false;
+            this.gameStarted = true;
+          }
+
+          if (this.player.score === this.winningScore || this.opponent.score === this.winningScore) {
+            this.gameCompleted = true;
+          }
+        }
       };
     });
   }

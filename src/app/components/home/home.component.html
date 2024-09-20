@@ -46,10 +46,7 @@
       ></app-lobby>
     </section>
 
-    <section
-      class="game-section"
-      *ngIf="player?.readyToEnterGame && !showLobby"
-    >
+    <section class="game-section" *ngIf="gameStarted && !showLobby">
       <app-game></app-game>
     </section>
   </ng-template>
