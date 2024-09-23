@@ -205,9 +205,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
 
     this._opponentSubscription = this._gameService.opponent$.subscribe(opponent => {
+      // console.log('OPPONENT - HOME', opponent);
       if (opponent) {
         this.opponent = opponent
-        console.log('OPPONENT - HOME', this.opponent);
+        // console.log('THIS.OPPONENT - HOME', this.opponent);
       };
     });
   }
@@ -283,13 +284,11 @@ export class HomeComponent implements OnInit, OnDestroy {
               if (playerOne.id && playerTwo.id) {
                 if (playerOne.id === playerId) {
                   // on the challenger's side, the opponent is player two
-                  this.opponent = playerTwo;
                   this._gameService.updateOpponent(playerTwo);
 
                 }
                 if (playerTwo.id === playerId) {
                   // on the opponent's side, the opponent is player one
-                  this.opponent = playerOne;
                   this._gameService.updateOpponent(playerOne);
                 }
               }

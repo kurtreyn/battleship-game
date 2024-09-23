@@ -10,7 +10,9 @@
         <td class="grid-cell">{{ row }}</td>
         <td
           class="grid-cell"
-          *ngFor="let cell of getRowCells(row)"
+          *ngFor="
+            let cell of isOpponent ? getOpponentRowCells(row) : getRowCells(row)
+          "
           [ngClass]="{
             ship: !isOpponent && cell.occupied,
             hit: cell.hit,

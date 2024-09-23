@@ -51,13 +51,15 @@ export class GameService {
     const opponent = this.getOpponent();
     const player = this.getPlayer();
     console.log('player', player);
+    console.log('opponent', opponent);
     if (!opponent || !player) {
       return;
     }
     if (opponent?.shipArray?.includes(coordinates) && opponent.board !== undefined) {
       const cell = opponent.board.cells.find(cell => cell.coordinates === coordinates);
-      // console.log('cell', cell);
+      console.log('cell', cell);
       if (cell) {
+        console.log('HIT')
         cell.hit = true;
         this.updateOpponent({
           ...opponent,
@@ -89,6 +91,7 @@ export class GameService {
     } else {
       const cell = opponent?.board!.cells.find(cell => cell.coordinates === coordinates);
       // console.log('cell', cell);
+      console.log('MISS')
       if (cell) {
         cell.miss = true;
         this.updateOpponent({
