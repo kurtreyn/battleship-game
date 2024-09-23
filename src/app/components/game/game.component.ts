@@ -1,9 +1,8 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { BoardService } from '../../services/board.service'
 import { GameService } from 'src/app/services/game.service';
-import { ICell, IPlayer } from 'src/app/models/game';
-import { tempPlayer, tempOpponent, oppShipLocations, oppShipArray, oppBoardSetup, oppCells } from 'src/app/shared/temp/tempPlayers';
+import { IPlayer } from 'src/app/models/game';
 import { GAME } from '../../enums/enums'
 
 @Component({
@@ -14,9 +13,9 @@ import { GAME } from '../../enums/enums'
 export class GameComponent implements OnInit, OnDestroy {
   player!: IPlayer
   opponent!: IPlayer
-  // isOpponent: boolean = false;
-  gameStarted: boolean = true;
-  gameCompleted: boolean = false;
+  @Input() sessionId!: string;
+  @Input() gameStarted!: boolean;
+  @Input() gameCompleted!: boolean;
   winningScore: number = GAME.WINNING_SCORE;
 
   private _playerSubscription!: Subscription;
@@ -32,7 +31,6 @@ export class GameComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this._subscribeToPlayerUpdates();
-    this._initializePlayer();
   }
 
   ngOnDestroy(): void {
@@ -40,63 +38,21 @@ export class GameComponent implements OnInit, OnDestroy {
     this._opponentSubscription.unsubscribe();
   }
 
-  onPlayerCellClick(cell: ICell) { }
 
-  onOpponentCellClick(cell: ICell) { }
-
-
-  private _initializePlayer(): void {
-    const player = this._createPlayer(tempPlayer);
-    const board = this._boardService.createBoard(player);
-    this._gameService.updatePlayer(player);
-    const newTempOpp = {
-      ...tempOpponent,
-      board: board,
-      shipLocations: oppShipLocations,
-      shipArray: oppShipArray,
-      boardSetup: oppBoardSetup,
-      isReady: true
-    }
-
-    const opponent = this._createPlayer(newTempOpp);
-    this._gameService.updateOpponent(opponent);
-  }
-
-  private _createPlayer(player: IPlayer): IPlayer {
-    const board = this._boardService.createBoard(player);
-    return {
-      playerId: player.playerId,
-      name: player.name,
-      email: player.email,
-      isReady: player.isReady,
-      score: player.score,
-      board,
-      shipLocations: this._boardService.initializeShipLocations(),
-      boardSetup: this._boardService.initializeBoardSetup(),
-      shipArray: oppShipArray
-    }
-  }
 
   private _subscribeToPlayerUpdates(): void {
     this._playerSubscription = this._gameService.player$.subscribe(player => {
       if (player) {
         this.player = player
-        if (this.player.isReady && this.opponent.isReady) {
-          this.gameStarted = true;
-        }
-
-        if (this.opponent) {
-          if (this.player.score === this.winningScore || this.opponent.score === this.winningScore) {
-            this.gameCompleted = true;
-          }
-        }
+        // console.log('THIS.PLAYER IN GAME COMPONENT', this.player);
       };
     });
 
     this._opponentSubscription = this._gameService.opponent$.subscribe(opponent => {
+      // console.log('opponent in game component', opponent);
       if (opponent) {
         this.opponent = opponent
-        // console.log('opponent', this.opponent);
+        // console.log('THIS.OPPONENT IN GAME COMPONENT', this.opponent);
       };
     });
   }

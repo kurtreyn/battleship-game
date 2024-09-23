@@ -49,7 +49,11 @@
     </section>
 
     <section class="game-section" *ngIf="gameStarted && !showLobby">
-      <app-game></app-game>
+      <app-game
+        [gameStarted]="gameStarted"
+        [gameCompleted]="gameCompleted"
+        [sessionId]="sessionId"
+      ></app-game>
     </section>
   </ng-template>
 </main>

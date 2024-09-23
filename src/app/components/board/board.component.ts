@@ -1,6 +1,8 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { BoardService } from '../../services/board.service';
 import { GameService } from 'src/app/services/game.service';
+import { DataService } from 'src/app/services/data.service';
 import { ICell, IPlayer } from '../../models/game';
 import { SHIP_LEN, SHIP_NAME } from '../../enums/enums';
 
@@ -12,7 +14,9 @@ import { SHIP_LEN, SHIP_NAME } from '../../enums/enums';
 export class BoardComponent implements OnInit {
   @Input() player!: IPlayer;
   @Input() isOpponent: boolean = false;
-  @Input() gameStarted: boolean = false;
+  @Input() gameStarted!: boolean;
+  @Input() sessionId!: string;
+  opponent!: IPlayer;
   displayRows: string[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
   displayColumns: string[] = ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
   shipsToSet: string[] = [SHIP_NAME.CARRIER, SHIP_NAME.BATTLESHIP, SHIP_NAME.CRUISER, SHIP_NAME.SUBMARINE, SHIP_NAME.DESTROYER];
@@ -21,13 +25,26 @@ export class BoardComponent implements OnInit {
   dragEndCell: ICell | null = null;
   currentShipLength: number = 0;
 
-  constructor(private _boardService: BoardService, private _gameService: GameService) { }
+  private _opponentSubscription!: Subscription;
+
+  constructor(
+    private _boardService: BoardService,
+    private _gameService: GameService,
+    private _dataService: DataService
+  ) { }
 
 
 
   ngOnInit(): void {
     this.player.boardSetup!.settingShip = this.shipsToSet[0];
     this.currentShipLength = this._boardService.getShipLength(this.player.boardSetup!.settingShip);
+    this._subscribeToOpponentUpdates();
+
+    // console.log('player in board component', this.player);
+  }
+
+  ngOnDestroy(): void {
+    this._opponentSubscription.unsubscribe();
   }
 
   getRowCells(row: string): ICell[] {
@@ -37,19 +54,15 @@ export class BoardComponent implements OnInit {
 
     const cells = this.player.board.rows[row.toLowerCase()] || [];
 
-    if (this.isOpponent) {
-      if (cells.length === 0) {
-        return [];
-      }
-      const opponentCells = cells.map(cell => ({
-        ...cell,
-        occupied: false, // Hide opponent's ship placements
-        hit: cell.hit,
-        miss: cell.miss
-      }));
+    return cells;
+  }
 
-      return opponentCells;
+  getOpponentRowCells(row: string): ICell[] {
+    if (!this.opponent.board || !this.opponent.board.rows) {
+      return [];
     }
+
+    const cells = this.opponent.board.rows[row.toLowerCase()] || [];
 
     return cells;
   }
@@ -80,21 +93,23 @@ export class BoardComponent implements OnInit {
   }
 
   onCellClick(cell: ICell) {
-    const playerId = this.player.playerId;
+    // const playerId = this.player.playerId;
     const opponent = this._gameService.getOpponent();
-    let opponentId = '';
-
+    let opponentId;
     if (opponent) {
-      opponentId = opponent.playerId;
-      console.log(`playerId: ${playerId}, opponentId: ${opponentId}`);
-    }
+      opponentId = opponent.id;
+      if (opponentId === this.opponent.id) {
+        // console.log('opponent:', opponent.name);
+        // console.log('opponentId:', opponentId);
+        if (cell) {
+          const cellInfo = this._getCellInfo(cell);
+          const { coordinates } = cellInfo;
+          // console.log('Cell Clicked:', cellInfo);
+          console.log('coordinates:', coordinates);
+          this._gameService.attack(coordinates);
+        }
 
-    if (cell) {
-      const cellInfo = this._getCellInfo(cell);
-      const { coordinates } = cellInfo;
-      // console.log('Cell Clicked:', cellInfo);
-      console.log('coordinates:', coordinates);
-      this._gameService.attack(coordinates);
+      }
     }
   }
 
@@ -155,6 +170,7 @@ export class BoardComponent implements OnInit {
 
   private _setPlayerAsReady() {
     this.player.isReady = true;
+    this._dataService.updatePlayer(this.player);
     this._gameService.updatePlayer(this.player);
 
   }
@@ -283,9 +299,32 @@ export class BoardComponent implements OnInit {
     }
 
     if (this.player.boardSetup!.isFinishedSettingUp) {
-      console.log('this.player FINISHED SETUP', this.player)
-      this._gameService.updatePlayer(this.player);
+      // console.log('this.player FINISHED SETUP', this.player)
+      const shipArr = Object.values(this.player.shipLocations!).flat();
+
+      const updatedPlayerData = {
+        ...this.player,
+        session: this.sessionId,
+        finishedSetup: true,
+        shipArray: shipArr
+      }
+
+      // console.log('updated player data', updatedPlayerData);
+      this.player = updatedPlayerData;
+      // this._dataService.updatePlayer(updatedPlayerData);
+      // this._gameService.updatePlayer(updatedPlayerData);
     }
+  }
+
+  private _subscribeToOpponentUpdates(): void {
+    this._opponentSubscription = this._gameService.opponent$.subscribe(opponent => {
+      // console.log('opponent in game component', opponent);
+      if (opponent) {
+        this.opponent = opponent
+        // console.log('THIS.OPPONENT IN BOARD COMPONENT', this.opponent.name);
+
+      };
+    });
   }
 
 
