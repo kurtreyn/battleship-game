@@ -28,7 +28,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   gameCompleted: boolean = false;
   winningScore: number = GAME.WINNING_SCORE;
   showModal: boolean = false;
-  modalMessage: string = 'Welcome to Battleship!';
+  modalMessage: string = '';
   challengerId: string = '';
   requestId: string = '';
 
@@ -239,6 +239,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                   } as IPlayer;
                   const board = this._boardService.createBoard(opponentData);
                   opponentData.board = board;
+                  // this._gameService.updateOpponent(opponentData);
                   console.log('opponent data', opponentData);
                 }
               });
