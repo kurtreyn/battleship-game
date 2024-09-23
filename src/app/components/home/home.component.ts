@@ -29,6 +29,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   winningScore: number = GAME.WINNING_SCORE;
   showModal: boolean = false;
   modalMessage: string = '';
+  beginSetupMode: boolean = false;
   challengerId: string = '';
   requestId: string = '';
 
@@ -70,12 +71,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.showModal = !this.showModal;
   }
 
-  onChallengeResponseEvent(response: boolean): void {
+  onChallengeResponse(response: boolean): void {
     this.showModal = false;
     const responded = true;
     if (response) {
       const challenger = this.activePlayers?.find(player => player.playerId === this.challengerId);
       const challengerId = challenger?.id;
+
       this._dataService.respondToRequest(this.requestId, responded, response);
       if (challengerId) {
         this._dataService.getIndividualPlayer(challengerId).pipe(
@@ -102,6 +104,29 @@ export class HomeComponent implements OnInit, OnDestroy {
     } else {
       this._dataService.respondToRequest(this.requestId, responded, response);
     }
+  }
+
+  onStartBoardSetup(response: boolean): void {
+    this.showModal = false;
+
+    if (response) {
+      console.log('response', response);
+      const updatedPlayerData = {
+        ...this.player,
+        readyToEnterGame: true
+      } as IPlayer;
+      this._gameService.updatePlayer(updatedPlayerData);
+      // console.log('updated player data', updatedPlayerData);
+    }
+  }
+
+  onResponseEvent(response: boolean): void {
+    if (this.beginSetupMode) {
+      this.onStartBoardSetup(response);
+    } else {
+      this.onChallengeResponse(response);
+    }
+
   }
 
   onLoginOrRegEvent(event: boolean): void {
@@ -198,32 +223,46 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private _subscribeToRequests(): void {
     this._requestsSubscription = this._dataService.getRequests().subscribe(requests => {
-      console.log('requests', requests);
+      // console.log('requests', requests);
       if (requests) {
+
         if (this.player) {
           const playerId = this.player.playerId;
-          const unrespondedRequest = requests.find(request => request.opponentId === playerId && request.accepted === false && request.responded === false);
+          // console.log('this.player', this.player);
+          // console.log('playerId', playerId);
+          // unresponded requests from the opponent's POV
+          const unrespondedRequestFromOpponent = requests.find(request => request.opponentId === playerId && request.accepted === false && request.responded === false);
 
-          const respondedRequest = requests.find(request => request.opponentId === playerId && request.accepted === true && request.responded === true);
+          // responded requests from the opponent's POV
+          const respondedRequestFromOpponent = requests.find(request => request.opponentId === playerId && request.accepted === true && request.responded === true);
 
-          if (unrespondedRequest) {
+          // unresponded requests from the challenger's POV
+          const unrespondedRequestFromChallenger = requests.find(request => request.challengerId === playerId && request.accepted === false && request.responded === false);
+
+          // responded requests from the challenger's POV
+          const respondedRequestFromChallenger = requests.find(request => request.challengerId === playerId && request.accepted === true && request.responded === true);
+
+
+          if (unrespondedRequestFromOpponent) {
             this.showModal = true;
-            this.modalMessage = `You have a challenge from ${unrespondedRequest.challengerName}`;
-            this.challengerId = unrespondedRequest.challengerId;
-            this.requestId = unrespondedRequest.id;;
+            this.modalMessage = `You have a challenge from ${unrespondedRequestFromOpponent.challengerName}`;
+            this.challengerId = unrespondedRequestFromOpponent.challengerId;
+            this.requestId = unrespondedRequestFromOpponent.id;;
 
           }
 
-          if (respondedRequest) {
+          if (respondedRequestFromOpponent) {
+            // the challenger is the person who initiated the request and will be the opponent
+            const challenger = this.activePlayers?.find(player => player.playerId === this.challengerId);
+            const challengerId = challenger?.id;
+
             const updatedPlayerData = {
               ...this.player,
               readyToEnterGame: true,
-              session: respondedRequest.id
+              session: respondedRequestFromOpponent.id
             } as IPlayer;
 
 
-            const challenger = this.activePlayers?.find(player => player.playerId === this.challengerId);
-            const challengerId = challenger?.id;
             if (challengerId) {
               this._dataService.getIndividualPlayer(challengerId).pipe(
                 take(1)
@@ -235,7 +274,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                     isReady: false,
                     score: 0,
                     readyToEnterGame: true,
-                    session: respondedRequest.id,
+                    session: respondedRequestFromOpponent.id,
                   } as IPlayer;
                   const board = this._boardService.createBoard(opponentData);
                   opponentData.board = board;
@@ -247,6 +286,21 @@ export class HomeComponent implements OnInit, OnDestroy {
 
 
             this._gameService.updatePlayer(updatedPlayerData);
+          }
+
+          if (respondedRequestFromChallenger) {
+            // console.log('responded request from challenger', respondedRequestFromChallenger);
+
+            // here we are getting the player who initiated the request
+            const scopedPlayer = this.activePlayers?.find(player => player.playerId === respondedRequestFromChallenger.challengerId);
+            const scopedPlayerId = scopedPlayer?.playerId;
+            // console.log('scoped player', scopedPlayer);
+
+            if (scopedPlayerId === this.player?.playerId) {
+              this.beginSetupMode = true;
+              this.showModal = true;
+              this.modalMessage = 'Ready to setup your board?';
+            }
           }
         }
       }

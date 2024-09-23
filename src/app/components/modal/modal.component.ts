@@ -8,7 +8,9 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 export class ModalComponent {
   @Output() onClose = new EventEmitter<void>();
   @Output() onChalleneResponse = new EventEmitter<boolean>();
+  @Output() onStartBoardSetup = new EventEmitter<boolean>();
   @Input() modalMessage: string = '';
+  @Input() beginSetupMode!: boolean;
 
 
   constructor() { }
@@ -17,8 +19,12 @@ export class ModalComponent {
     this.onClose.emit();
   }
 
-  respondToChallenge(response: boolean) {
-    this.onChalleneResponse.emit(response);
+  respond(response: boolean) {
+    if (this.beginSetupMode) {
+      this.onStartBoardSetup.emit(response);
+    } else {
+      this.onChalleneResponse.emit(response);
+    }
   }
 
 
