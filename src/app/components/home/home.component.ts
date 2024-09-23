@@ -74,11 +74,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   onChallengeResponse(response: boolean): void {
     this.showModal = false;
     const responded = true;
+    const gameStarted = false;
     if (response) {
       const challenger = this.activePlayers?.find(player => player.playerId === this.challengerId);
       const challengerId = challenger?.id;
 
-      this._dataService.respondToRequest(this.requestId, responded, response);
+      this._dataService.respondToRequest(this.requestId, responded, response, gameStarted);
       if (challengerId) {
         this._dataService.getIndividualPlayer(challengerId).pipe(
           take(1)
@@ -110,13 +111,16 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.showModal = false;
 
     if (response) {
-      console.log('response', response);
       const updatedPlayerData = {
         ...this.player,
         readyToEnterGame: true
       } as IPlayer;
       this._gameService.updatePlayer(updatedPlayerData);
       // console.log('updated player data', updatedPlayerData);
+      const respoded = true;
+      const accepted = true;
+      const gameStarted = true;
+      this._dataService.respondToRequest(this.requestId, respoded, accepted, gameStarted);
     }
   }
 
@@ -231,23 +235,26 @@ export class HomeComponent implements OnInit, OnDestroy {
           // console.log('this.player', this.player);
           // console.log('playerId', playerId);
           // unresponded requests from the opponent's POV
-          const unrespondedRequestFromOpponent = requests.find(request => request.opponentId === playerId && request.accepted === false && request.responded === false);
+          const unrespondedRequestFromOpponent = requests.find(request => request.opponentId === playerId && request.accepted === false && request.responded === false && request.gameStarted === false);
 
           // responded requests from the opponent's POV
-          const respondedRequestFromOpponent = requests.find(request => request.opponentId === playerId && request.accepted === true && request.responded === true);
+          const respondedRequestFromOpponent = requests.find(request => request.opponentId === playerId && request.accepted === true && request.responded === true && request.gameStarted === false);
 
           // unresponded requests from the challenger's POV
-          const unrespondedRequestFromChallenger = requests.find(request => request.challengerId === playerId && request.accepted === false && request.responded === false);
+          const unrespondedRequestFromChallenger = requests.find(request => request.challengerId === playerId && request.accepted === false && request.responded === false && request.gameStarted === false);
 
           // responded requests from the challenger's POV
-          const respondedRequestFromChallenger = requests.find(request => request.challengerId === playerId && request.accepted === true && request.responded === true);
+          const respondedRequestFromChallenger = requests.find(request => request.challengerId === playerId && request.accepted === true && request.responded === true && request.gameStarted === false);
+
+          const gamesInProgress = requests.filter(request => request.gameStarted === true);
+          console.log('games in progress', gamesInProgress);
 
 
           if (unrespondedRequestFromOpponent) {
             this.showModal = true;
             this.modalMessage = `You have a challenge from ${unrespondedRequestFromOpponent.challengerName}`;
             this.challengerId = unrespondedRequestFromOpponent.challengerId;
-            this.requestId = unrespondedRequestFromOpponent.id;;
+            this.requestId = unrespondedRequestFromOpponent.id;
 
           }
 
@@ -289,12 +296,10 @@ export class HomeComponent implements OnInit, OnDestroy {
           }
 
           if (respondedRequestFromChallenger) {
-            // console.log('responded request from challenger', respondedRequestFromChallenger);
-
             // here we are getting the player who initiated the request
             const scopedPlayer = this.activePlayers?.find(player => player.playerId === respondedRequestFromChallenger.challengerId);
             const scopedPlayerId = scopedPlayer?.playerId;
-            // console.log('scoped player', scopedPlayer);
+            this.requestId = respondedRequestFromChallenger.id;
 
             if (scopedPlayerId === this.player?.playerId) {
               this.beginSetupMode = true;
