@@ -52,11 +52,15 @@ export class DataService {
   }
 
   sendRequests(requestId: string, challengerId: string, challengerName: string, opponentId: string, opponentName: string) {
-    return this._afs.collection('/requests').add({ requestId, challengerId, challengerName, opponentId, opponentName, accepted: false, responded: false })
+    return this._afs.collection('/requests').add({ requestId, challengerId, challengerName, opponentId, opponentName, accepted: false, responded: false, gameStarted: false })
   }
 
-  respondToRequest(requestId: string, responded: boolean, accepted: boolean) {
-    return this._afs.doc('/requests/' + requestId).update({ responded: responded, accepted: accepted })
+  respondToRequest(requestId: string, responded: boolean, accepted: boolean, gameStarted?: boolean) {
+    console.log('requestId', requestId);
+    console.log('responded', responded);
+    console.log('accepted', accepted);
+    console.log('gameStarted', gameStarted);
+    return this._afs.doc('/requests/' + requestId).update({ responded: responded, accepted: accepted, gameStarted: gameStarted })
   }
 
   getRequests() {

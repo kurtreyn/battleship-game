@@ -6,6 +6,7 @@ export interface IPlayer {
     score: number;
     id?: string;
     readyToEnterGame?: boolean;
+    finishedSetup?: boolean;
     isTurn?: boolean;
     isWinner?: boolean;
     isActive?: boolean;
