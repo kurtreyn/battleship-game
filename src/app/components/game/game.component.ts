@@ -34,6 +34,9 @@ export class GameComponent implements OnInit, OnDestroy {
     // this._subscribeToPlayerUpdates();
     // this._initializePlayer();
     // console.log('player in game component', this.player);
+    if (this.opponent) {
+      console.log('opponent in game component', this.opponent);
+    }
   }
 
   ngOnDestroy(): void {

@@ -246,9 +246,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
           if (respondedRequestFromOpponent) {
             // the challenger is the person who initiated the request and will be the opponent
-            const challenger = this.activePlayers?.find(player => player.playerId === this.challengerId);
-            const challengerId = challenger?.id;
-
             const updatedPlayerData = {
               ...this.player,
               readyToEnterGame: true,
@@ -272,38 +269,31 @@ export class HomeComponent implements OnInit, OnDestroy {
           }
 
           if (gamesInProgress) {
-            // console.log('games in progress', gamesInProgress);
-            // console.log('this.sessionId', this.sessionId);
-
+            // find a game in progress that matches the current session id
             const thisGame = gamesInProgress.find(game => game.id === this.sessionId);
-            // console.log('this game', thisGame);
             const playerId = this.player?.id;
-            // console.log('playerId', playerId);
+
+            // find the player who initiated the challenge/game and make them player one
             const playerOne = this.activePlayers?.find(player => player.playerId === thisGame?.challengerId);
-            // console.log('playerOne', playerOne);
+
+            // find the player who accepted the challenge/game and make them player two
             const playerTwo = this.activePlayers?.find(player => player.playerId === thisGame?.opponentId);
-            // console.log('playerTwo', playerTwo);
 
             if (playerOne && playerTwo) {
               if (playerOne.id && playerTwo.id) {
-                // console.log('playerOne.id', playerOne.id);
-                // console.log('playerTwo.id', playerTwo.id);
-
                 if (playerOne.id === playerId) {
-                  // console.log(`${playerOne.name} is player one`);
+                  // on the challenger's side, the opponent is player two
+                  this.opponent = playerTwo;
                   this._gameService.updateOpponent(playerTwo);
+
                 }
                 if (playerTwo.id === playerId) {
-                  // console.log(`${playerTwo.name} is player two`);
+                  // on the opponent's side, the opponent is player one
+                  this.opponent = playerOne;
                   this._gameService.updateOpponent(playerOne);
                 }
-
-
               }
             }
-
-            // const opponent = this.activePlayers?.find(player => player.playerId === thisGame?.opponentId);
-            // console.log('opponent', opponent);
           }
         }
       }
