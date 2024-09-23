@@ -32,6 +32,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   beginSetupMode: boolean = false;
   challengerId: string = '';
   requestId: string = '';
+  sessionId: string = '';
 
   private _playerSubscription!: Subscription;
   private _opponentSubscription!: Subscription;
@@ -76,9 +77,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     const responded = true;
     const gameStarted = false;
     if (response) {
-      // const challenger = this.activePlayers?.find(player => player.playerId === this.challengerId);
-      // const challengerId = challenger?.id;
-
       this._dataService.respondToRequest(this.requestId, responded, response, gameStarted);
 
       const updatedPlayerData = {
@@ -103,8 +101,10 @@ export class HomeComponent implements OnInit, OnDestroy {
         readyToEnterGame: true,
         session: this.requestId,
         finishedSetup: false,
+        isReady: false,
       } as IPlayer;
       this._dataService.updatePlayer(updatedPlayerData);
+      this._gameService.updatePlayer(updatedPlayerData);
       // console.log('updated player data', updatedPlayerData);
       const respoded = true;
       const accepted = true;
@@ -148,26 +148,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
-  private _initializePlayer(player: IPlayer): void {
-    const initPlayer = this._createPlayer(player);
-    this._gameService.updatePlayer(initPlayer);
-    console.log('initPlayer', initPlayer);
-  }
-
-  private _createPlayer(player: IPlayer): IPlayer {
-    const board = this._boardService.createBoard(player);
-    return {
-      playerId: player.playerId,
-      name: player.name,
-      email: player.email,
-      isReady: player.isReady,
-      score: player.score,
-      board,
-      shipLocations: this._boardService.initializeShipLocations(),
-      boardSetup: this._boardService.initializeBoardSetup(),
-      shipArray: []
-    }
-  }
 
 
 
@@ -176,7 +156,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       if (players) {
         const activePlayers = players.filter(player => player.isActive === true && player.playerId !== this.player?.playerId);
         this.activePlayers = activePlayers;
-        console.log('active players', this.activePlayers);
+        // console.log('active players', this.activePlayers);
       }
     });
   }
@@ -185,13 +165,35 @@ export class HomeComponent implements OnInit, OnDestroy {
     this._playerSubscription = this._gameService.player$.subscribe(player => {
       // console.log('player', player);
       if (player) {
-        this.player = player
-        console.log('HOME -- THIS.PLAYER', this.player);
+        if (player.isReady) {
+          this.player = player;
+          this.showLobby = false;
+          this.gameStarted = true;
 
-        if (this.player) {
-          if (this.player.readyToEnterGame) {
-            this.showLobby = false;
-            this.gameStarted = true;
+        } else {
+          const board = this._boardService.createBoard(player);
+          const initPlayerData = {
+            ...player,
+            board: board,
+            shipLocations: this._boardService.initializeShipLocations(),
+            boardSetup: this._boardService.initializeBoardSetup(),
+            shipArray: [],
+          } as IPlayer;
+
+          // console.log('INIT PLAYER DATA', initPlayerData);
+          this.player = initPlayerData;
+          console.log('HOME -- THIS.PLAYER', this.player);
+
+          if (this.player) {
+            if (this.player.readyToEnterGame) {
+              this.showLobby = false;
+              this.gameStarted = true;
+            }
+
+            if (this.player.session) {
+              this.sessionId = this.player.session;
+              console.log('SESSION ID', this.sessionId);
+            }
           }
         }
 
@@ -213,8 +215,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
         if (this.player) {
           const playerId = this.player.playerId;
-          // console.log('this.player', this.player);
-          // console.log('playerId', playerId);
+
           // unresponded requests from the opponent's POV
           const unrespondedRequestFromOpponent = requests.find(request => request.opponentId === playerId && request.accepted === false && request.responded === false && request.gameStarted === false);
 
@@ -252,24 +253,24 @@ export class HomeComponent implements OnInit, OnDestroy {
 
 
             if (challengerId) {
-              this._dataService.getIndividualPlayer(challengerId).pipe(
-                take(1)
-              ).subscribe(opponent => {
-                if (opponent) {
+              // this._dataService.getIndividualPlayer(challengerId).pipe(
+              //   take(1)
+              // ).subscribe(opponent => {
+              //   if (opponent) {
 
-                  const opponentData = {
-                    ...opponent,
-                    isReady: false,
-                    score: 0,
-                    readyToEnterGame: true,
-                    session: respondedRequestFromOpponent.id,
-                  } as IPlayer;
-                  const board = this._boardService.createBoard(opponentData);
-                  opponentData.board = board;
-                  // this._gameService.updateOpponent(opponentData);
-                  console.log('opponent data', opponentData);
-                }
-              });
+              //     const opponentData = {
+              //       ...opponent,
+              //       isReady: false,
+              //       score: 0,
+              //       readyToEnterGame: true,
+              //       session: respondedRequestFromOpponent.id,
+              //     } as IPlayer;
+              //     const board = this._boardService.createBoard(opponentData);
+              //     opponentData.board = board;
+              //     // this._gameService.updateOpponent(opponentData);
+              //     console.log('opponent data', opponentData);
+              //   }
+              // });
             }
 
 

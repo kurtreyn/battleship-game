@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { BoardService } from '../../services/board.service';
 import { GameService } from 'src/app/services/game.service';
+import { DataService } from 'src/app/services/data.service';
 import { ICell, IPlayer } from '../../models/game';
 import { SHIP_LEN, SHIP_NAME } from '../../enums/enums';
 
@@ -12,7 +13,8 @@ import { SHIP_LEN, SHIP_NAME } from '../../enums/enums';
 export class BoardComponent implements OnInit {
   @Input() player!: IPlayer;
   @Input() isOpponent: boolean = false;
-  @Input() gameStarted: boolean = false;
+  @Input() gameStarted!: boolean;
+  @Input() sessionId!: string;
   displayRows: string[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
   displayColumns: string[] = ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
   shipsToSet: string[] = [SHIP_NAME.CARRIER, SHIP_NAME.BATTLESHIP, SHIP_NAME.CRUISER, SHIP_NAME.SUBMARINE, SHIP_NAME.DESTROYER];
@@ -21,13 +23,19 @@ export class BoardComponent implements OnInit {
   dragEndCell: ICell | null = null;
   currentShipLength: number = 0;
 
-  constructor(private _boardService: BoardService, private _gameService: GameService) { }
+  constructor(
+    private _boardService: BoardService,
+    private _gameService: GameService,
+    private _dataService: DataService
+  ) { }
 
 
 
   ngOnInit(): void {
     this.player.boardSetup!.settingShip = this.shipsToSet[0];
     this.currentShipLength = this._boardService.getShipLength(this.player.boardSetup!.settingShip);
+
+    // console.log('player in board component', this.player);
   }
 
   getRowCells(row: string): ICell[] {
@@ -155,6 +163,7 @@ export class BoardComponent implements OnInit {
 
   private _setPlayerAsReady() {
     this.player.isReady = true;
+    this._dataService.updatePlayer(this.player);
     this._gameService.updatePlayer(this.player);
 
   }
@@ -284,7 +293,19 @@ export class BoardComponent implements OnInit {
 
     if (this.player.boardSetup!.isFinishedSettingUp) {
       console.log('this.player FINISHED SETUP', this.player)
-      this._gameService.updatePlayer(this.player);
+      const shipArr = Object.values(this.player.shipLocations!).flat();
+
+      const updatedPlayerData = {
+        ...this.player,
+        session: this.sessionId,
+        finishedSetup: true,
+        shipArray: shipArr
+      }
+
+      console.log('updated player data', updatedPlayerData);
+      this.player = updatedPlayerData;
+      // this._dataService.updatePlayer(updatedPlayerData);
+      // this._gameService.updatePlayer(updatedPlayerData);
     }
   }
 

@@ -30,7 +30,7 @@
   </table>
 </section>
 
-<section class="staging-area" *ngIf="!this.player.readyToEnterGame">
+<section class="staging-area" *ngIf="!this.player.isReady">
   <button
     class="btn btn-custom"
     [ngClass]="{

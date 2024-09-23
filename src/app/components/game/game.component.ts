@@ -14,6 +14,7 @@ import { GAME } from '../../enums/enums'
 export class GameComponent implements OnInit, OnDestroy {
   @Input() player!: IPlayer
   @Input() opponent!: IPlayer
+  @Input() sessionId!: string;
   @Input() gameStarted!: boolean;
   @Input() gameCompleted!: boolean;
   winningScore: number = GAME.WINNING_SCORE;
@@ -32,7 +33,7 @@ export class GameComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // this._subscribeToPlayerUpdates();
     // this._initializePlayer();
-    console.log('player in game component', this.player);
+    // console.log('player in game component', this.player);
   }
 
   ngOnDestroy(): void {

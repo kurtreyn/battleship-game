@@ -6,10 +6,11 @@
       [player]="player"
       [isOpponent]="false"
       [gameStarted]="gameStarted"
+      [sessionId]="sessionId"
     ></app-board>
   </div>
   <div
-    *ngIf="gameStarted && opponent.finishedSetup"
+    *ngIf="gameStarted && opponent?.finishedSetup"
     class="opponent-board board"
   >
     <span>Opponent's Board</span>
@@ -17,6 +18,7 @@
       [player]="opponent"
       [isOpponent]="false"
       [gameStarted]="gameStarted"
+      [sessionId]="sessionId"
     ></app-board>
   </div>
 </section>
