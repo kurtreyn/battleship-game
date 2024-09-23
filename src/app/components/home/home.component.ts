@@ -170,6 +170,10 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.showLobby = false;
           this.gameStarted = true;
 
+          if (this.player.session) {
+            this.sessionId = this.player.session;
+          }
+
         } else {
           const board = this._boardService.createBoard(player);
           const initPlayerData = {
@@ -229,7 +233,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           const respondedRequestFromChallenger = requests.find(request => request.challengerId === playerId && request.accepted === true && request.responded === true && request.gameStarted === false);
 
           const gamesInProgress = requests.filter(request => request.gameStarted === true);
-          console.log('games in progress', gamesInProgress);
+
 
 
           if (unrespondedRequestFromOpponent) {
@@ -251,29 +255,6 @@ export class HomeComponent implements OnInit, OnDestroy {
               session: respondedRequestFromOpponent.id
             } as IPlayer;
 
-
-            if (challengerId) {
-              // this._dataService.getIndividualPlayer(challengerId).pipe(
-              //   take(1)
-              // ).subscribe(opponent => {
-              //   if (opponent) {
-
-              //     const opponentData = {
-              //       ...opponent,
-              //       isReady: false,
-              //       score: 0,
-              //       readyToEnterGame: true,
-              //       session: respondedRequestFromOpponent.id,
-              //     } as IPlayer;
-              //     const board = this._boardService.createBoard(opponentData);
-              //     opponentData.board = board;
-              //     // this._gameService.updateOpponent(opponentData);
-              //     console.log('opponent data', opponentData);
-              //   }
-              // });
-            }
-
-
             this._gameService.updatePlayer(updatedPlayerData);
           }
 
@@ -288,6 +269,41 @@ export class HomeComponent implements OnInit, OnDestroy {
               this.showModal = true;
               this.modalMessage = 'Ready to setup your board?';
             }
+          }
+
+          if (gamesInProgress) {
+            // console.log('games in progress', gamesInProgress);
+            // console.log('this.sessionId', this.sessionId);
+
+            const thisGame = gamesInProgress.find(game => game.id === this.sessionId);
+            // console.log('this game', thisGame);
+            const playerId = this.player?.id;
+            // console.log('playerId', playerId);
+            const playerOne = this.activePlayers?.find(player => player.playerId === thisGame?.challengerId);
+            // console.log('playerOne', playerOne);
+            const playerTwo = this.activePlayers?.find(player => player.playerId === thisGame?.opponentId);
+            // console.log('playerTwo', playerTwo);
+
+            if (playerOne && playerTwo) {
+              if (playerOne.id && playerTwo.id) {
+                // console.log('playerOne.id', playerOne.id);
+                // console.log('playerTwo.id', playerTwo.id);
+
+                if (playerOne.id === playerId) {
+                  // console.log(`${playerOne.name} is player one`);
+                  this._gameService.updateOpponent(playerTwo);
+                }
+                if (playerTwo.id === playerId) {
+                  // console.log(`${playerTwo.name} is player two`);
+                  this._gameService.updateOpponent(playerOne);
+                }
+
+
+              }
+            }
+
+            // const opponent = this.activePlayers?.find(player => player.playerId === thisGame?.opponentId);
+            // console.log('opponent', opponent);
           }
         }
       }
