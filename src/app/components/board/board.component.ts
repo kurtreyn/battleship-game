@@ -95,8 +95,8 @@ export class BoardComponent implements OnInit {
   onCellClick(cell: ICell) {
     const player = this._gameService.getPlayer();
     if (player) {
-      console.log('player in board component', player.name);
-      console.log('player.isTurn:', player.isTurn);
+      // console.log('player in board component', player.name);
+      // console.log('player.isTurn:', player.isTurn);
       if (cell && this.gameStarted && player.isTurn) {
         console.log(`player.name: ${player.name} is attacking ${this.opponent.name}`);
         const cellInfo = this._getCellInfo(cell);
@@ -125,11 +125,57 @@ export class BoardComponent implements OnInit {
             }
           };
           console.log('updated opponent data', updatedOpponentData);
+
+
+          const updatedPlayerData = {
+            ...player,
+            isTurn: false,
+            score: player.score! + 1,
+            board: {
+              ...player.board,
+              cells: player.board!.cells.map(cell => {
+                if (cell.x === x && cell.y === y) {
+                  return { ...cell, hit: true };
+                }
+                return cell;
+              }),
+              rows: player.board!.rows
+            }
+          }
+
+          console.log('updated player data', updatedPlayerData);
           // this._dataService.updatePlayer(this.opponent);
+          // this._dataService.updatePlayer(player);
         } else {
           console.log('MISS')
           cell.miss = true;
+
+          const updatedOpponentData = {
+            ...this.opponent,
+            isTurn: true,
+            board: {
+              ...this.opponent.board,
+              cells: this.opponent.board!.cells.map(cell => {
+                if (cell.x === x && cell.y === y) {
+                  return { ...cell, miss: true };
+                }
+                return cell;
+              }),
+              rows: this.opponent.board!.rows
+            }
+          };
+          console.log('updated opponent data', updatedOpponentData);
+
+
+          const updatedPlayerData = {
+            ...player,
+            isTurn: false,
+          }
+
+          console.log('updated player data', updatedPlayerData);
+
           // this._dataService.updatePlayer(this.opponent);
+          // this._dataService.updatePlayer(player);
         }
       }
     }

@@ -32,6 +32,19 @@
   </table>
 </section>
 
+<div class="turn-indicator">
+  <span>Turn: </span>
+  <img
+    [src]="
+      player.isTurn
+        ? 'assets/images/green-circle.png'
+        : 'assets/images/red-circle.png'
+    "
+    alt="turn indicator"
+    class="turn-icon"
+  />
+</div>
+
 <section class="staging-area" *ngIf="!this.player.isReady">
   <button
     class="btn btn-custom"

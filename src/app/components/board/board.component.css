@@ -70,3 +70,15 @@
   margin-top: 20px;
   margin-left: 10px;
 }
+
+.turn-indicator {
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.turn-icon {
+  width: 30px;
+  height: 30px;
+  margin-left: 15px;
+}
