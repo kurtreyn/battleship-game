@@ -146,10 +146,10 @@ export class BoardComponent implements OnInit {
           // console.log('updated player data', updatedPlayerData);
           // update opponent data
           this._dataService.updatePlayer(updatedOpponentData);
-          this._gameService.updateOpponent(updatedOpponentData);
+          // this._gameService.updateOpponent(updatedOpponentData);
           // update player data
           this._dataService.updatePlayer(updatedPlayerData);
-          this._gameService.updatePlayer(updatedPlayerData);
+          // this._gameService.updatePlayer(updatedPlayerData);
 
         } else {
           console.log('MISS')
@@ -178,10 +178,10 @@ export class BoardComponent implements OnInit {
           // console.log('updated player data', updatedPlayerData);
           // update opponent data
           this._dataService.updatePlayer(updatedOpponentData);
-          this._gameService.updateOpponent(updatedOpponentData);
+          // this._gameService.updateOpponent(updatedOpponentData);
           // update player data
           this._dataService.updatePlayer(updatedPlayerData);
-          this._gameService.updatePlayer(updatedPlayerData);
+          // this._gameService.updatePlayer(updatedPlayerData);
 
         }
       }
