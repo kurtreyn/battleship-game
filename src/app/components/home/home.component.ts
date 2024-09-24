@@ -101,8 +101,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         isReady: false,
         isTurn: false,
       } as IPlayer;
-      this._dataService.updatePlayer(updatedPlayerData);
       this._gameService.updatePlayer(updatedPlayerData);
+      this._dataService.updatePlayer(updatedPlayerData);
+
     } else {
       this._dataService.respondToRequest(this.requestId, responded, response);
     }
@@ -119,8 +120,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         isReady: false,
         isTurn: true,
       } as IPlayer;
-      this._dataService.updatePlayer(updatedPlayerData);
       this._gameService.updatePlayer(updatedPlayerData);
+      this._dataService.updatePlayer(updatedPlayerData);
+
       // console.log('updated player data', updatedPlayerData);
       const responded = true;
       const accepted = true;

@@ -107,7 +107,10 @@ export class BoardComponent implements OnInit {
 
   toggleBoardSetup() {
     if (!this.player.boardSetup!.isFinishedSettingUp) {
+      console.log('this.player.boardSetup!.isSettingUp', this.player.boardSetup!.isSettingUp);
       this.player.boardSetup!.isSettingUp = !this.player.boardSetup!.isSettingUp;
+      this.player.boardSetup!.settingShip = this.shipsToSet[0];
+      this.currentShipLength = this._boardService.getShipLength(this.player.boardSetup!.settingShip);
     } else {
       this._setPlayerAsReady();
     }
@@ -162,9 +165,8 @@ export class BoardComponent implements OnInit {
 
   private _setPlayerAsReady() {
     this.player.isReady = true;
-    this._dataService.updatePlayer(this.player);
     this._gameService.updatePlayer(this.player);
-
+    this._dataService.updatePlayer(this.player);
   }
 
   private _getCellInfo(cell: ICell) {
