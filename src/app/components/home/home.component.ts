@@ -265,7 +265,8 @@ export class HomeComponent implements OnInit, OnDestroy {
             if (scopedPlayerId === this.player?.playerId) {
               this.beginSetupMode = true;
               this.showModal = true;
-              this.modalMessage = 'Ready to setup your board?';
+              // this.modalMessage = 'Ready to setup your board?';
+              this.modalMessage = `${respondedRequestFromChallenger.opponentName} accepted your challenge. Are you ready to setup your board?`;
             }
           }
 
