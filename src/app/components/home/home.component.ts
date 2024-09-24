@@ -310,7 +310,11 @@ export class HomeComponent implements OnInit, OnDestroy {
             const thisGame = gamesInProgress.find(game => game.id === this.sessionId);
             const playerId = this.player?.id;
             this.lastUpdated = thisGame?.lastUpdated;
+            const currentTime = new Date().getTime();
             console.log('last updated', this.lastUpdated);
+            this.requestId = thisGame?.id;
+
+
 
             this._dataService.getAllPlayers().pipe(
               take(1)
@@ -323,13 +327,26 @@ export class HomeComponent implements OnInit, OnDestroy {
 
               if (playerOne && playerTwo) {
                 if (playerOne.id && playerTwo.id) {
+
                   if (playerOne.id === playerId) {
                     // on the challenger's side, the opponent is player two
                     this._gameService.updateOpponent(playerTwo);
+
+                    // TODO: may need to erase this block of code
+                    if (currentTime > this.lastUpdated + 30000) {
+                      this._gameService.updatePlayer(playerOne)
+                      this._gameService.updateOpponent(playerTwo)
+                    }
                   }
                   if (playerTwo.id === playerId) {
                     // on the opponent's side, the opponent is player one
                     this._gameService.updateOpponent(playerOne);
+
+                    // TODO: may need to erase this block of code
+                    if (currentTime > this.lastUpdated + 30000) {
+                      this._gameService.updatePlayer(playerTwo)
+                      this._gameService.updateOpponent(playerOne)
+                    }
                   }
                 }
               }

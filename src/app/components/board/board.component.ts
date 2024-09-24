@@ -17,6 +17,7 @@ export class BoardComponent implements OnInit {
   @Input() gameStarted!: boolean;
   @Input() sessionId!: string;
   @Input() lastUpdated!: number;
+  @Input() requestId!: string;
   opponent!: IPlayer;
   displayRows: string[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
   displayColumns: string[] = ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
@@ -25,6 +26,7 @@ export class BoardComponent implements OnInit {
   dragStartCell: ICell | null = null;
   dragEndCell: ICell | null = null;
   currentShipLength: number = 0;
+  sendUpdate: boolean = false;
 
   private _opponentSubscription!: Subscription;
 
@@ -143,10 +145,10 @@ export class BoardComponent implements OnInit {
           }
           // console.log('updated opponent data', updatedOpponentData);
           // console.log('updated player data', updatedPlayerData);
-          this._dataService.updatePlayer(updatedOpponentData);
-          this._dataService.updatePlayer(updatedPlayerData);
-          this._gameService.updatePlayer(updatedPlayerData);
-          this._gameService.updateOpponent(updatedOpponentData);
+          // this._dataService.updatePlayer(updatedOpponentData);
+          // this._dataService.updatePlayer(updatedPlayerData);
+          // this._gameService.updatePlayer(updatedPlayerData);
+          // this._gameService.updateOpponent(updatedOpponentData);
 
         } else {
           console.log('MISS')
@@ -173,13 +175,14 @@ export class BoardComponent implements OnInit {
           }
           // console.log('updated opponent data', updatedOpponentData);
           // console.log('updated player data', updatedPlayerData);
-          this._dataService.updatePlayer(this.opponent);
-          this._dataService.updatePlayer(player);
-          this._gameService.updatePlayer(updatedPlayerData);
-          this._gameService.updateOpponent(updatedOpponentData);
+          // this._dataService.updatePlayer(updatedOpponentData);
+          // this._dataService.updatePlayer(player);
+          // this._gameService.updatePlayer(updatedPlayerData);
+          // this._gameService.updateOpponent(updatedOpponentData);
         }
       }
     }
+    this.sendUpdate = true;
   }
 
   toggleBoardSetup() {
@@ -392,6 +395,15 @@ export class BoardComponent implements OnInit {
       if (opponent) {
         this.opponent = opponent
         console.log('THIS.OPPONENT IN BOARD COMPONENT', this.opponent.name);
+        console.log('lastUpdated in board component', this.lastUpdated);
+        console.log('requestId in board component', this.requestId);
+
+        if (this.sendUpdate) {
+          const updatedTime = new Date().getTime();
+          console.log('updatedTime in board component', updatedTime);
+          // this._dataService.sendUpdate(this.requestId, updatedTime);
+          // this.sendUpdate = false;
+        }
 
       };
     });

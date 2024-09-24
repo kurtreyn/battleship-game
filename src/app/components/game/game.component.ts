@@ -17,6 +17,7 @@ export class GameComponent implements OnInit, OnDestroy {
   @Input() gameStarted!: boolean;
   @Input() gameCompleted!: boolean;
   @Input() lastUpdated!: number;
+  @Input() requestId!: string;
   winningScore: number = GAME.WINNING_SCORE;
 
   private _playerSubscription!: Subscription;

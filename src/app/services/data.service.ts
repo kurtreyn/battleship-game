@@ -65,6 +65,13 @@ export class DataService {
     })
   }
 
+  sendUpdate(requestId: string, lastUpdated: number) {
+    return this._afs.collection('/requests').add({
+      requestId,
+      lastUpdated: lastUpdated
+    })
+  }
+
   respondToRequest(requestId: string, responded: boolean, accepted: boolean, gameStarted?: boolean) {
     console.log('requestId', requestId);
     console.log('responded', responded);
