@@ -72,18 +72,23 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   cancelGame(): void {
     console.log(this.requestId)
-    // this._dataService.deleteRequest(this.requestId);
-
+    this._dataService.deleteRequest(this.requestId);
+    const board = this._boardService.createBoard(this.player);
     const defaultPlayerData = {
       ...this.player,
+      board: board,
+      shipLocations: this._boardService.initializeShipLocations(),
+      boardSetup: this._boardService.initializeBoardSetup(),
+      shipArray: [],
       readyToEnterGame: false,
       session: '',
       finishedSetup: false,
       isReady: false,
-      isTurn: false,
     } as IPlayer;
-    // this._dataService.updatePlayer(defaultPlayerData);
-    // this._gameService.updatePlayer(defaultPlayerData);
+    this._gameService.updatePlayer(defaultPlayerData);
+    this._dataService.updatePlayer(defaultPlayerData);
+    this.gameStarted = false;
+    this.showLobby = true;
   }
 
   onChallengeResponse(response: boolean): void {
