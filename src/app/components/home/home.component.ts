@@ -83,17 +83,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this._dataService.updatePlayer(defaultPlayerData);
     this._gameService.updatePlayer(defaultPlayerData);
 
-    // TODO: rework the following for the opponent
-    const defaultOpponentData = {
-      ...this.opponent,
-      readyToEnterGame: false,
-      session: '',
-      finishedSetup: false,
-      isReady: false,
-      isTurn: false,
-    } as IPlayer;
-    this._dataService.updatePlayer(defaultOpponentData);
-    this._gameService.updateOpponent(defaultOpponentData);
+
   }
 
   onChallengeResponse(response: boolean): void {
