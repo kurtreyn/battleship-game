@@ -71,7 +71,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   cancelGame(): void {
-    this._dataService.deleteRequest(this.requestId);
+    console.log(this.requestId)
+    // this._dataService.deleteRequest(this.requestId);
+
     const defaultPlayerData = {
       ...this.player,
       readyToEnterGame: false,
@@ -80,10 +82,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       isReady: false,
       isTurn: false,
     } as IPlayer;
-    this._dataService.updatePlayer(defaultPlayerData);
-    this._gameService.updatePlayer(defaultPlayerData);
-
-
+    // this._dataService.updatePlayer(defaultPlayerData);
+    // this._gameService.updatePlayer(defaultPlayerData);
   }
 
   onChallengeResponse(response: boolean): void {
