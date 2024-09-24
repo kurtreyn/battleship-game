@@ -26,7 +26,6 @@ export class BoardComponent implements OnInit {
   dragStartCell: ICell | null = null;
   dragEndCell: ICell | null = null;
   currentShipLength: number = 0;
-  sendUpdate: boolean = false;
 
   private _opponentSubscription!: Subscription;
 
@@ -109,7 +108,7 @@ export class BoardComponent implements OnInit {
         console.log('coordinates:', coordinates);
         if (this.opponent.shipArray?.includes(coordinates) && this.opponent.board !== undefined) {
           console.log('HIT')
-          this.opponent.isTurn
+          // this.opponent.isTurn
           cell.hit = true;
           // console.log(`x: ${x}, y: ${y}`);
 
@@ -145,10 +144,12 @@ export class BoardComponent implements OnInit {
           }
           // console.log('updated opponent data', updatedOpponentData);
           // console.log('updated player data', updatedPlayerData);
-          // this._dataService.updatePlayer(updatedOpponentData);
-          // this._dataService.updatePlayer(updatedPlayerData);
-          // this._gameService.updatePlayer(updatedPlayerData);
-          // this._gameService.updateOpponent(updatedOpponentData);
+          // update opponent data
+          this._dataService.updatePlayer(updatedOpponentData);
+          this._gameService.updateOpponent(updatedOpponentData);
+          // update player data
+          this._dataService.updatePlayer(updatedPlayerData);
+          this._gameService.updatePlayer(updatedPlayerData);
 
         } else {
           console.log('MISS')
@@ -175,14 +176,19 @@ export class BoardComponent implements OnInit {
           }
           // console.log('updated opponent data', updatedOpponentData);
           // console.log('updated player data', updatedPlayerData);
-          // this._dataService.updatePlayer(updatedOpponentData);
-          // this._dataService.updatePlayer(player);
-          // this._gameService.updatePlayer(updatedPlayerData);
-          // this._gameService.updateOpponent(updatedOpponentData);
+          // update opponent data
+          this._dataService.updatePlayer(updatedOpponentData);
+          this._gameService.updateOpponent(updatedOpponentData);
+          // update player data
+          this._dataService.updatePlayer(updatedPlayerData);
+          this._gameService.updatePlayer(updatedPlayerData);
+
         }
       }
     }
-    this.sendUpdate = true;
+    const updatedTime = new Date().getTime();
+    console.log('updatedTime in board component', updatedTime);
+    this._dataService.sendUpdate(this.requestId, updatedTime);
   }
 
   toggleBoardSetup() {
@@ -398,12 +404,6 @@ export class BoardComponent implements OnInit {
         console.log('lastUpdated in board component', this.lastUpdated);
         console.log('requestId in board component', this.requestId);
 
-        if (this.sendUpdate) {
-          const updatedTime = new Date().getTime();
-          console.log('updatedTime in board component', updatedTime);
-          // this._dataService.sendUpdate(this.requestId, updatedTime);
-          // this.sendUpdate = false;
-        }
 
       };
     });
