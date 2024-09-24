@@ -14,9 +14,9 @@
             let cell of isOpponent ? getOpponentRowCells(row) : getRowCells(row)
           "
           [ngClass]="{
-            ship: !isOpponent && cell.occupied,
             hit: cell.hit,
             miss: cell.miss,
+            ship: !isOpponent && cell.occupied,
             isSelected: cell.isSelected,
             isDragging: isDragging && cell.highlighted,
             highlighted: cell.highlighted

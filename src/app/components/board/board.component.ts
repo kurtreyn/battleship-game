@@ -140,10 +140,13 @@ export class BoardComponent implements OnInit {
               rows: player.board!.rows
             }
           }
-          console.log('updated opponent data', updatedOpponentData);
-          console.log('updated player data', updatedPlayerData);
-          this._dataService.updatePlayer(this.opponent);
-          this._dataService.updatePlayer(player);
+          // console.log('updated opponent data', updatedOpponentData);
+          // console.log('updated player data', updatedPlayerData);
+          this._dataService.updatePlayer(updatedOpponentData);
+          this._dataService.updatePlayer(updatedPlayerData);
+          this._gameService.updatePlayer(updatedPlayerData);
+          this._gameService.updateOpponent(updatedOpponentData);
+
         } else {
           console.log('MISS')
           cell.miss = true;
@@ -167,10 +170,12 @@ export class BoardComponent implements OnInit {
             ...player,
             isTurn: false,
           }
-          console.log('updated opponent data', updatedOpponentData);
-          console.log('updated player data', updatedPlayerData);
+          // console.log('updated opponent data', updatedOpponentData);
+          // console.log('updated player data', updatedPlayerData);
           this._dataService.updatePlayer(this.opponent);
           this._dataService.updatePlayer(player);
+          this._gameService.updatePlayer(updatedPlayerData);
+          this._gameService.updateOpponent(updatedOpponentData);
         }
       }
     }
