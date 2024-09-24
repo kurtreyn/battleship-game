@@ -16,6 +16,7 @@ export class BoardComponent implements OnInit {
   @Input() isOpponent: boolean = false;
   @Input() gameStarted!: boolean;
   @Input() sessionId!: string;
+  @Input() lastUpdated!: number;
   opponent!: IPlayer;
   displayRows: string[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
   displayColumns: string[] = ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
