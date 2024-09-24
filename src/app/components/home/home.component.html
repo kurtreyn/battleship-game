@@ -50,13 +50,7 @@
     </section>
 
     <section class="game-section" *ngIf="gameStarted && !showLobby">
-      <app-game
-        [gameStarted]="gameStarted"
-        [gameCompleted]="gameCompleted"
-        [sessionId]="sessionId"
-        [lastUpdated]="lastUpdated"
-        [requestId]="requestId"
-      ></app-game>
+      <app-game></app-game>
       <button (click)="cancelGame()">Cancel Game</button>
     </section>
   </ng-template>

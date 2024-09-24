@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { AbstractGame } from '../../shared/game/abstractGame'
 import { Subscription } from 'rxjs';
 import { BoardService } from '../../services/board.service'
 import { GameService } from 'src/app/services/game.service';
@@ -10,54 +11,8 @@ import { GAME } from '../../enums/enums'
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.css']
 })
-export class GameComponent implements OnInit, OnDestroy {
-  player!: IPlayer
-  opponent!: IPlayer
-  @Input() sessionId!: string;
-  @Input() gameStarted!: boolean;
-  @Input() gameCompleted!: boolean;
-  @Input() lastUpdated!: number;
-  @Input() requestId!: string;
-  winningScore: number = GAME.WINNING_SCORE;
+export class GameComponent extends AbstractGame {
 
-  private _playerSubscription!: Subscription;
-  private _opponentSubscription!: Subscription;
-
-
-
-  constructor(
-    private _boardService: BoardService,
-    private _gameService: GameService
-  ) { }
-
-
-  ngOnInit(): void {
-    this._subscribeToPlayerUpdates();
-  }
-
-  ngOnDestroy(): void {
-    this._playerSubscription.unsubscribe();
-    this._opponentSubscription.unsubscribe();
-  }
-
-
-
-  private _subscribeToPlayerUpdates(): void {
-    this._playerSubscription = this._gameService.player$.subscribe(player => {
-      if (player) {
-        this.player = player
-        // console.log('THIS.PLAYER IN GAME COMPONENT', this.player);
-      };
-    });
-
-    this._opponentSubscription = this._gameService.opponent$.subscribe(opponent => {
-      // console.log('opponent in game component', opponent);
-      if (opponent) {
-        this.opponent = opponent
-        // console.log('THIS.OPPONENT IN GAME COMPONENT', this.opponent);
-      };
-    });
-  }
 }
 
 

@@ -2,27 +2,13 @@
 <section class="game-boards">
   <div class="player-board board">
     <span>Your Board</span>
-    <app-board
-      [player]="player"
-      [isOpponent]="false"
-      [gameStarted]="gameStarted"
-      [sessionId]="sessionId"
-      [lastUpdated]="lastUpdated"
-      [requestId]="requestId"
-    ></app-board>
+    <app-board [isOpponent]="false"></app-board>
   </div>
   <div
     *ngIf="gameStarted && opponent?.finishedSetup"
     class="opponent-board board"
   >
     <span>Opponent's Board</span>
-    <app-board
-      [player]="opponent"
-      [isOpponent]="true"
-      [gameStarted]="gameStarted"
-      [sessionId]="sessionId"
-      [lastUpdated]="lastUpdated"
-      [requestId]="requestId"
-    ></app-board>
+    <app-board [isOpponent]="true"></app-board>
   </div>
 </section>
