@@ -93,14 +93,44 @@ export class BoardComponent implements OnInit {
   }
 
   onCellClick(cell: ICell) {
-    if (cell && this.gameStarted && this.player.isTurn) {
-      const cellInfo = this._getCellInfo(cell);
-      const { coordinates } = cellInfo;
-      // console.log('Cell Clicked:', cellInfo);
-      console.log('coordinates:', coordinates);
-      if (this.opponent.shipArray?.includes(coordinates) && this.opponent.board !== undefined) {
-        cell.hit = true;
-        this._dataService.updatePlayer(this.opponent);
+    const player = this._gameService.getPlayer();
+    if (player) {
+      console.log('player in board component', player.name);
+      console.log('player.isTurn:', player.isTurn);
+      if (cell && this.gameStarted && player.isTurn) {
+        console.log(`player.name: ${player.name} is attacking ${this.opponent.name}`);
+        const cellInfo = this._getCellInfo(cell);
+        const { coordinates } = cellInfo;
+        const { x, y } = cell;
+        // console.log('Cell Clicked:', cellInfo);
+        console.log('coordinates:', coordinates);
+        if (this.opponent.shipArray?.includes(coordinates) && this.opponent.board !== undefined) {
+          console.log('HIT')
+          this.opponent.isTurn
+          cell.hit = true;
+          console.log(`x: ${x}, y: ${y}`);
+
+          const updatedOpponentData = {
+            ...this.opponent,
+            isTurn: true,
+            board: {
+              ...this.opponent.board,
+              cells: this.opponent.board.cells.map(cell => {
+                if (cell.x === x && cell.y === y) {
+                  return { ...cell, hit: true };
+                }
+                return cell;
+              }),
+              rows: this.opponent.board!.rows
+            }
+          };
+          console.log('updated opponent data', updatedOpponentData);
+          // this._dataService.updatePlayer(this.opponent);
+        } else {
+          console.log('MISS')
+          cell.miss = true;
+          // this._dataService.updatePlayer(this.opponent);
+        }
       }
     }
   }
@@ -314,7 +344,7 @@ export class BoardComponent implements OnInit {
       // console.log('opponent in game component', opponent);
       if (opponent) {
         this.opponent = opponent
-        // console.log('THIS.OPPONENT IN BOARD COMPONENT', this.opponent.name);
+        console.log('THIS.OPPONENT IN BOARD COMPONENT', this.opponent.name);
 
       };
     });
