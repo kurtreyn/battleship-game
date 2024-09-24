@@ -91,6 +91,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.showLobby = true;
   }
 
+  onLogout(): void {
+    this._authService.logout();
+    this.isLoggedIn = false;
+    this.showLobby = false;
+    this.showLogin = true;
+  }
+
   onChallengeResponse(response: boolean): void {
     this.showModal = false;
     const responded = true;
