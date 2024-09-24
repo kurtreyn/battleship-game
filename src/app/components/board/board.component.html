@@ -16,7 +16,7 @@
           [ngClass]="{
             hit: cell.hit,
             miss: cell.miss,
-            ship: !isOpponent && cell.occupied,
+            ship: !isOpponent && cell.occupied && !cell.hit,
             isSelected: cell.isSelected,
             isDragging: isDragging && cell.highlighted,
             highlighted: cell.highlighted
