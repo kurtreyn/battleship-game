@@ -4,11 +4,9 @@ import { DataService } from 'src/app/services/data.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { BoardService } from 'src/app/services/board.service';
 import { IPlayer } from 'src/app/models/game';
-import { Subscription } from 'rxjs';
+import { Subscription, BehaviorSubject } from 'rxjs';
 import { GAME } from 'src/app/enums/enums';
-import { take } from 'rxjs/operators';
-
-
+import { take, switchMap, filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-home',
@@ -22,8 +20,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   showLobby: boolean = false;
   activePlayers?: IPlayer[];
   isLoggedIn: boolean = false;
-  player!: IPlayer
-  opponent!: IPlayer
+  player!: IPlayer;
+  opponent!: IPlayer;
   gameStarted: boolean = false;
   gameCompleted: boolean = false;
   winningScore: number = GAME.WINNING_SCORE;
@@ -39,7 +37,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private _activePlayersSubscription!: Subscription;
   private _currentUserSubscription!: Subscription;
   private _requestsSubscription!: Subscription;
-
+  private _playerSubject: BehaviorSubject<IPlayer | null> = new BehaviorSubject<IPlayer | null>(null);
 
   constructor(
     private _gameService: GameService,
@@ -49,10 +47,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    this._subscribeToPlayerUpdates();
-    this._getActivePlayers();
     this._getCurrentUser();
+    this._subscribeToPlayerUpdates();
     this._subscribeToRequests();
+    this._subscribeToActivePlayers();
   }
 
   ngOnDestroy(): void {
@@ -64,7 +62,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   toggleShowLogin(): void {
-    this.showLogin = !this.showLogin
+    this.showLogin = !this.showLogin;
   }
 
   toggleShowModal(): void {
@@ -106,10 +104,10 @@ export class HomeComponent implements OnInit, OnDestroy {
       this._dataService.updatePlayer(updatedPlayerData);
       this._gameService.updatePlayer(updatedPlayerData);
       // console.log('updated player data', updatedPlayerData);
-      const respoded = true;
+      const responded = true;
       const accepted = true;
       const gameStarted = true;
-      this._dataService.respondToRequest(this.requestId, respoded, accepted, gameStarted);
+      this._dataService.respondToRequest(this.requestId, responded, accepted, gameStarted);
     }
   }
 
@@ -119,7 +117,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     } else {
       this.onChallengeResponse(response);
     }
-
   }
 
   onLoginOrRegEvent(event: boolean): void {
@@ -140,6 +137,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           const player = players.find(player => player.playerId === user.uid);
           if (player) {
             this._gameService.setPlayer(player);
+            this._playerSubject.next(player); // Emit the player value
           }
         });
       } else {
@@ -148,15 +146,14 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
-
-
-
-  private _getActivePlayers(): void {
-    this._activePlayersSubscription = this._dataService.getAllPlayers().subscribe(players => {
+  private _subscribeToActivePlayers(): void {
+    this._activePlayersSubscription = this._playerSubject.pipe(
+      filter(player => player !== null), // Ensure player is not null
+      switchMap(player => this._dataService.getAllPlayers())
+    ).subscribe(players => {
       if (players) {
         const activePlayers = players.filter(player => player.isActive === true && player.playerId !== this.player?.playerId);
         this.activePlayers = activePlayers;
-        // console.log('active players', this.activePlayers);
       }
     });
   }
@@ -200,16 +197,15 @@ export class HomeComponent implements OnInit, OnDestroy {
             }
           }
         }
-
-      };
+      }
     });
 
     this._opponentSubscription = this._gameService.opponent$.subscribe(opponent => {
       // console.log('OPPONENT - HOME', opponent);
       if (opponent) {
-        this.opponent = opponent
+        this.opponent = opponent;
         // console.log('THIS.OPPONENT - HOME', this.opponent);
-      };
+      }
     });
   }
 
@@ -217,7 +213,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     this._requestsSubscription = this._dataService.getRequests().subscribe(requests => {
       // console.log('requests', requests);
       if (requests) {
-
         if (this.player) {
           const playerId = this.player.playerId;
 
@@ -235,14 +230,11 @@ export class HomeComponent implements OnInit, OnDestroy {
 
           const gamesInProgress = requests.filter(request => request.gameStarted === true);
 
-
-
           if (unrespondedRequestFromOpponent) {
             this.showModal = true;
             this.modalMessage = `You have a challenge from ${unrespondedRequestFromOpponent.challengerName}`;
             this.challengerId = unrespondedRequestFromOpponent.challengerId;
             this.requestId = unrespondedRequestFromOpponent.id;
-
           }
 
           if (respondedRequestFromOpponent) {
@@ -286,7 +278,6 @@ export class HomeComponent implements OnInit, OnDestroy {
                 if (playerOne.id === playerId) {
                   // on the challenger's side, the opponent is player two
                   this._gameService.updateOpponent(playerTwo);
-
                 }
                 if (playerTwo.id === playerId) {
                   // on the opponent's side, the opponent is player one
