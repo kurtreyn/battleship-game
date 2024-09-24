@@ -66,7 +66,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   toggleShowModal(): void {
-    console.log('show modal');
     this.showModal = !this.showModal;
   }
 
@@ -198,6 +197,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.player = player;
           this.showLobby = false;
           this.gameStarted = true;
+          // console.log('HOME -- THIS.PLAYER', this.player);
 
           if (this.player.session) {
             this.sessionId = this.player.session;
@@ -215,7 +215,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
           // console.log('INIT PLAYER DATA', initPlayerData);
           this.player = initPlayerData;
-          console.log('HOME -- THIS.PLAYER', this.player);
+          // console.log('HOME -- THIS.PLAYER', this.player);
 
           if (this.player) {
             if (this.player.readyToEnterGame) {
@@ -265,11 +265,6 @@ export class HomeComponent implements OnInit, OnDestroy {
           const respondedRequestFromChallenger = requests.find(request => request.challengerId === playerId && request.accepted === true && request.responded === true && request.gameStarted === false);
 
           const gamesInProgress = requests.filter(request => request.gameStarted === true);
-          // console.log('unrespondedRequestFromOpponent', unrespondedRequestFromOpponent);
-          // console.log('respondedRequestFromOpponent', respondedRequestFromOpponent);
-          // console.log('unrespondedRequestFromChallenger', unrespondedRequestFromChallenger);
-
-
 
 
           if (unrespondedRequestFromOpponent) {
@@ -314,25 +309,28 @@ export class HomeComponent implements OnInit, OnDestroy {
             const thisGame = gamesInProgress.find(game => game.id === this.sessionId);
             const playerId = this.player?.id;
 
-            // find the player who initiated the challenge/game and make them player one
-            const playerOne = this.activePlayers?.find(player => player.playerId === thisGame?.challengerId);
+            this._dataService.getAllPlayers().pipe(
+              take(1)
+            ).subscribe(players => {
+              // find the player who initiated the challenge/game and make them player one
+              const playerOne = players.find(player => player.playerId === thisGame?.challengerId);
 
-            // find the player who accepted the challenge/game and make them player two
-            const playerTwo = this.activePlayers?.find(player => player.playerId === thisGame?.opponentId);
+              // find the player who accepted the challenge/game and make them player two
+              const playerTwo = players.find(player => player.playerId === thisGame?.opponentId);
 
-            if (playerOne && playerTwo) {
-              if (playerOne.id && playerTwo.id) {
-                if (playerOne.id === playerId) {
-                  // on the challenger's side, the opponent is player two
-                  this._gameService.updateOpponent(playerTwo);
-
-                }
-                if (playerTwo.id === playerId) {
-                  // on the opponent's side, the opponent is player one
-                  this._gameService.updateOpponent(playerOne);
+              if (playerOne && playerTwo) {
+                if (playerOne.id && playerTwo.id) {
+                  if (playerOne.id === playerId) {
+                    // on the challenger's side, the opponent is player two
+                    this._gameService.updateOpponent(playerTwo);
+                  }
+                  if (playerTwo.id === playerId) {
+                    // on the opponent's side, the opponent is player one
+                    this._gameService.updateOpponent(playerOne);
+                  }
                 }
               }
-            }
+            })
           }
         }
       }
