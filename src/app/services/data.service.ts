@@ -72,4 +72,8 @@ export class DataService {
       }))
     )
   }
+
+  deleteRequest(requestId: string) {
+    return this._afs.doc('/requests/' + requestId).delete()
+  }
 }

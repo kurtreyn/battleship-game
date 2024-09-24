@@ -70,6 +70,32 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.showModal = !this.showModal;
   }
 
+  cancelGame(): void {
+    this._dataService.deleteRequest(this.requestId);
+    const defaultPlayerData = {
+      ...this.player,
+      readyToEnterGame: false,
+      session: '',
+      finishedSetup: false,
+      isReady: false,
+      isTurn: false,
+    } as IPlayer;
+    this._dataService.updatePlayer(defaultPlayerData);
+    this._gameService.updatePlayer(defaultPlayerData);
+
+    // TODO: rework the following for the opponent
+    const defaultOpponentData = {
+      ...this.opponent,
+      readyToEnterGame: false,
+      session: '',
+      finishedSetup: false,
+      isReady: false,
+      isTurn: false,
+    } as IPlayer;
+    this._dataService.updatePlayer(defaultOpponentData);
+    this._gameService.updateOpponent(defaultOpponentData);
+  }
+
   onChallengeResponse(response: boolean): void {
     this.showModal = false;
     const responded = true;
@@ -83,6 +109,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         session: this.requestId,
         finishedSetup: false,
         isReady: false,
+        isTurn: false,
       } as IPlayer;
       this._dataService.updatePlayer(updatedPlayerData);
       this._gameService.updatePlayer(updatedPlayerData);
@@ -100,6 +127,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         session: this.requestId,
         finishedSetup: false,
         isReady: false,
+        isTurn: true,
       } as IPlayer;
       this._dataService.updatePlayer(updatedPlayerData);
       this._gameService.updatePlayer(updatedPlayerData);
@@ -210,9 +238,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private _subscribeToRequests(): void {
-    this._requestsSubscription = this._dataService.getRequests().subscribe(requests => {
+    this._requestsSubscription = this._playerSubject.pipe(
+      filter(player => player !== null),
+      switchMap(player => this._dataService.getRequests())
+    ).subscribe(requests => {
       // console.log('requests', requests);
       if (requests) {
+
         if (this.player) {
           const playerId = this.player.playerId;
 
@@ -229,12 +261,19 @@ export class HomeComponent implements OnInit, OnDestroy {
           const respondedRequestFromChallenger = requests.find(request => request.challengerId === playerId && request.accepted === true && request.responded === true && request.gameStarted === false);
 
           const gamesInProgress = requests.filter(request => request.gameStarted === true);
+          // console.log('unrespondedRequestFromOpponent', unrespondedRequestFromOpponent);
+          // console.log('respondedRequestFromOpponent', respondedRequestFromOpponent);
+          // console.log('unrespondedRequestFromChallenger', unrespondedRequestFromChallenger);
+
+
+
 
           if (unrespondedRequestFromOpponent) {
             this.showModal = true;
             this.modalMessage = `You have a challenge from ${unrespondedRequestFromOpponent.challengerName}`;
             this.challengerId = unrespondedRequestFromOpponent.challengerId;
             this.requestId = unrespondedRequestFromOpponent.id;
+
           }
 
           if (respondedRequestFromOpponent) {
@@ -250,16 +289,20 @@ export class HomeComponent implements OnInit, OnDestroy {
 
           if (respondedRequestFromChallenger) {
             // here we are getting the player who initiated the request
-            const scopedPlayer = this.activePlayers?.find(player => player.playerId === respondedRequestFromChallenger.challengerId);
-            const scopedPlayerId = scopedPlayer?.playerId;
-            this.requestId = respondedRequestFromChallenger.id;
+            this._dataService.getAllPlayers().pipe(
+              take(1)
+            ).subscribe(players => {
+              const scopedPlayer = players.find(player => player.playerId === respondedRequestFromChallenger.challengerId);
+              const scopedPlayerId = scopedPlayer?.playerId;
+              this.requestId = respondedRequestFromChallenger.id;
 
-            if (scopedPlayerId === this.player?.playerId) {
-              this.beginSetupMode = true;
-              this.showModal = true;
-              // this.modalMessage = 'Ready to setup your board?';
-              this.modalMessage = `${respondedRequestFromChallenger.opponentName} accepted your challenge. Are you ready to setup your board?`;
-            }
+              if (scopedPlayerId === this.player?.playerId) {
+                this.beginSetupMode = true;
+                this.showModal = true;
+                this.modalMessage = `${respondedRequestFromChallenger.opponentName} accepted your challenge. Are you ready to setup your board?`;
+              }
+            });
+
           }
 
           if (gamesInProgress) {
@@ -278,6 +321,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                 if (playerOne.id === playerId) {
                   // on the challenger's side, the opponent is player two
                   this._gameService.updateOpponent(playerTwo);
+
                 }
                 if (playerTwo.id === playerId) {
                   // on the opponent's side, the opponent is player one
