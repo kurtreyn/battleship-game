@@ -14,9 +14,9 @@
             let cell of isOpponent ? getOpponentRowCells(row) : getRowCells(row)
           "
           [ngClass]="{
-            ship: !isOpponent && cell.occupied,
             hit: cell.hit,
             miss: cell.miss,
+            ship: !isOpponent && cell.occupied && !cell.hit,
             isSelected: cell.isSelected,
             isDragging: isDragging && cell.highlighted,
             highlighted: cell.highlighted
@@ -31,6 +31,19 @@
     </tbody>
   </table>
 </section>
+
+<div class="turn-indicator">
+  <span>{{ player.name }}'s Turn: </span>
+  <img
+    [src]="
+      player.isTurn
+        ? 'assets/images/green-circle.png'
+        : 'assets/images/red-circle.png'
+    "
+    alt="turn indicator"
+    class="turn-icon"
+  />
+</div>
 
 <section class="staging-area" *ngIf="!this.player.isReady">
   <button

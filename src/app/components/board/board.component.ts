@@ -16,6 +16,8 @@ export class BoardComponent implements OnInit {
   @Input() isOpponent: boolean = false;
   @Input() gameStarted!: boolean;
   @Input() sessionId!: string;
+  @Input() lastUpdated!: number;
+  @Input() requestId!: string;
   opponent!: IPlayer;
   displayRows: string[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
   displayColumns: string[] = ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
@@ -93,29 +95,107 @@ export class BoardComponent implements OnInit {
   }
 
   onCellClick(cell: ICell) {
-    // const playerId = this.player.playerId;
-    const opponent = this._gameService.getOpponent();
-    let opponentId;
-    if (opponent) {
-      opponentId = opponent.id;
-      if (opponentId === this.opponent.id) {
-        // console.log('opponent:', opponent.name);
-        // console.log('opponentId:', opponentId);
-        if (cell) {
-          const cellInfo = this._getCellInfo(cell);
-          const { coordinates } = cellInfo;
-          // console.log('Cell Clicked:', cellInfo);
-          console.log('coordinates:', coordinates);
-          this._gameService.attack(coordinates);
-        }
+    const player = this._gameService.getPlayer();
+    if (player) {
+      // console.log('player in board component', player.name);
+      // console.log('player.isTurn:', player.isTurn);
+      if (cell && this.gameStarted && player.isTurn) {
+        console.log(`player.name: ${player.name} is attacking ${this.opponent.name}`);
+        const cellInfo = this._getCellInfo(cell);
+        const { coordinates } = cellInfo;
+        const { x, y } = cell;
+        // console.log('Cell Clicked:', cellInfo);
+        console.log('coordinates:', coordinates);
+        if (this.opponent.shipArray?.includes(coordinates) && this.opponent.board !== undefined) {
+          console.log('HIT')
+          // this.opponent.isTurn
+          cell.hit = true;
+          // console.log(`x: ${x}, y: ${y}`);
 
+          const updatedOpponentData = {
+            ...this.opponent,
+            isTurn: true,
+            board: {
+              ...this.opponent.board,
+              cells: this.opponent.board.cells.map(cell => {
+                if (cell.x === x && cell.y === y) {
+                  return { ...cell, hit: true };
+                }
+                return cell;
+              }),
+              rows: this.opponent.board!.rows
+            }
+          };
+
+          const updatedPlayerData = {
+            ...player,
+            isTurn: false,
+            score: player.score! + 1,
+            board: {
+              ...player.board,
+              cells: player.board!.cells.map(cell => {
+                if (cell.x === x && cell.y === y) {
+                  return { ...cell, hit: true };
+                }
+                return cell;
+              }),
+              rows: player.board!.rows
+            }
+          }
+          // console.log('updated opponent data', updatedOpponentData);
+          // console.log('updated player data', updatedPlayerData);
+          // update opponent data
+          this._dataService.updatePlayer(updatedOpponentData);
+          // this._gameService.updateOpponent(updatedOpponentData);
+          // update player data
+          this._dataService.updatePlayer(updatedPlayerData);
+          // this._gameService.updatePlayer(updatedPlayerData);
+
+        } else {
+          console.log('MISS')
+          cell.miss = true;
+
+          const updatedOpponentData = {
+            ...this.opponent,
+            isTurn: true,
+            board: {
+              ...this.opponent.board,
+              cells: this.opponent.board!.cells.map(cell => {
+                if (cell.x === x && cell.y === y) {
+                  return { ...cell, miss: true };
+                }
+                return cell;
+              }),
+              rows: this.opponent.board!.rows
+            }
+          };
+
+          const updatedPlayerData = {
+            ...player,
+            isTurn: false,
+          }
+          // console.log('updated opponent data', updatedOpponentData);
+          // console.log('updated player data', updatedPlayerData);
+          // update opponent data
+          this._dataService.updatePlayer(updatedOpponentData);
+          // this._gameService.updateOpponent(updatedOpponentData);
+          // update player data
+          this._dataService.updatePlayer(updatedPlayerData);
+          // this._gameService.updatePlayer(updatedPlayerData);
+
+        }
       }
     }
+    const updatedTime = new Date().getTime();
+    console.log('updatedTime in board component', updatedTime);
+    this._dataService.sendUpdate(this.requestId, updatedTime);
   }
 
   toggleBoardSetup() {
     if (!this.player.boardSetup!.isFinishedSettingUp) {
       this.player.boardSetup!.isSettingUp = !this.player.boardSetup!.isSettingUp;
+      this.player.boardSetup!.settingShip = this.shipsToSet[0];
+      this.currentShipLength = this._boardService.getShipLength(this.player.boardSetup!.settingShip);
     } else {
       this._setPlayerAsReady();
     }
@@ -170,9 +250,8 @@ export class BoardComponent implements OnInit {
 
   private _setPlayerAsReady() {
     this.player.isReady = true;
-    this._dataService.updatePlayer(this.player);
     this._gameService.updatePlayer(this.player);
-
+    this._dataService.updatePlayer(this.player);
   }
 
   private _getCellInfo(cell: ICell) {
@@ -311,8 +390,8 @@ export class BoardComponent implements OnInit {
 
       // console.log('updated player data', updatedPlayerData);
       this.player = updatedPlayerData;
-      // this._dataService.updatePlayer(updatedPlayerData);
-      // this._gameService.updatePlayer(updatedPlayerData);
+      this._dataService.updatePlayer(updatedPlayerData);
+      this._gameService.updatePlayer(updatedPlayerData);
     }
   }
 
@@ -321,7 +400,10 @@ export class BoardComponent implements OnInit {
       // console.log('opponent in game component', opponent);
       if (opponent) {
         this.opponent = opponent
-        // console.log('THIS.OPPONENT IN BOARD COMPONENT', this.opponent.name);
+        console.log('THIS.OPPONENT IN BOARD COMPONENT', this.opponent.name);
+        console.log('lastUpdated in board component', this.lastUpdated);
+        console.log('requestId in board component', this.requestId);
+
 
       };
     });

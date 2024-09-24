@@ -1,3 +1,4 @@
+<app-nav (onLogout)="onLogout()"></app-nav>
 <main class="main-home">
   <section class="logo-section">
     <div class="game-logo-wrapper">
@@ -53,7 +54,10 @@
         [gameStarted]="gameStarted"
         [gameCompleted]="gameCompleted"
         [sessionId]="sessionId"
+        [lastUpdated]="lastUpdated"
+        [requestId]="requestId"
       ></app-game>
+      <button (click)="cancelGame()">Cancel Game</button>
     </section>
   </ng-template>
 </main>
