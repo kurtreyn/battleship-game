@@ -71,7 +71,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   cancelGame(): void {
     console.log(this.requestId)
-    this._dataService.deleteRequest(this.requestId);
+    // this._dataService.deleteRequest(this.requestId);
     const board = this._boardService.createBoard(this.player);
     const defaultPlayerData = {
       ...this.player,

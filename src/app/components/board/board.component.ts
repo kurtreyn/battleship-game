@@ -304,8 +304,8 @@ export class BoardComponent implements OnInit {
 
       // console.log('updated player data', updatedPlayerData);
       this.player = updatedPlayerData;
-      // this._dataService.updatePlayer(updatedPlayerData);
-      // this._gameService.updatePlayer(updatedPlayerData);
+      this._dataService.updatePlayer(updatedPlayerData);
+      this._gameService.updatePlayer(updatedPlayerData);
     }
   }
 
