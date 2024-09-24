@@ -31,6 +31,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   challengerId: string = '';
   requestId: string = '';
   sessionId: string = '';
+  lastUpdated: number = 0;
 
   private _playerSubscription!: Subscription;
   private _opponentSubscription!: Subscription;
@@ -308,6 +309,8 @@ export class HomeComponent implements OnInit, OnDestroy {
             // find a game in progress that matches the current session id
             const thisGame = gamesInProgress.find(game => game.id === this.sessionId);
             const playerId = this.player?.id;
+            this.lastUpdated = thisGame?.lastUpdated;
+            console.log('last updated', this.lastUpdated);
 
             this._dataService.getAllPlayers().pipe(
               take(1)

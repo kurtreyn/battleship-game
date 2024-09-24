@@ -52,7 +52,17 @@ export class DataService {
   }
 
   sendRequests(requestId: string, challengerId: string, challengerName: string, opponentId: string, opponentName: string) {
-    return this._afs.collection('/requests').add({ requestId, challengerId, challengerName, opponentId, opponentName, accepted: false, responded: false, gameStarted: false })
+    return this._afs.collection('/requests').add({
+      requestId,
+      challengerId,
+      challengerName,
+      opponentId,
+      opponentName,
+      accepted: false,
+      responded: false,
+      gameStarted: false,
+      lastUpdated: new Date().getTime()
+    })
   }
 
   respondToRequest(requestId: string, responded: boolean, accepted: boolean, gameStarted?: boolean) {
