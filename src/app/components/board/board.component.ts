@@ -93,22 +93,14 @@ export class BoardComponent implements OnInit {
   }
 
   onCellClick(cell: ICell) {
-    // const playerId = this.player.playerId;
-    const opponent = this._gameService.getOpponent();
-    let opponentId;
-    if (opponent) {
-      opponentId = opponent.id;
-      if (opponentId === this.opponent.id) {
-        // console.log('opponent:', opponent.name);
-        // console.log('opponentId:', opponentId);
-        if (cell) {
-          const cellInfo = this._getCellInfo(cell);
-          const { coordinates } = cellInfo;
-          // console.log('Cell Clicked:', cellInfo);
-          console.log('coordinates:', coordinates);
-          this._gameService.attack(coordinates);
-        }
-
+    if (cell && this.gameStarted && this.player.isTurn) {
+      const cellInfo = this._getCellInfo(cell);
+      const { coordinates } = cellInfo;
+      // console.log('Cell Clicked:', cellInfo);
+      console.log('coordinates:', coordinates);
+      if (this.opponent.shipArray?.includes(coordinates) && this.opponent.board !== undefined) {
+        cell.hit = true;
+        this._dataService.updatePlayer(this.opponent);
       }
     }
   }
