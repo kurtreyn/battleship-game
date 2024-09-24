@@ -108,7 +108,7 @@ export class BoardComponent implements OnInit {
           console.log('HIT')
           this.opponent.isTurn
           cell.hit = true;
-          console.log(`x: ${x}, y: ${y}`);
+          // console.log(`x: ${x}, y: ${y}`);
 
           const updatedOpponentData = {
             ...this.opponent,
