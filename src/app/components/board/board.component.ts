@@ -107,7 +107,6 @@ export class BoardComponent implements OnInit {
 
   toggleBoardSetup() {
     if (!this.player.boardSetup!.isFinishedSettingUp) {
-      console.log('this.player.boardSetup!.isSettingUp', this.player.boardSetup!.isSettingUp);
       this.player.boardSetup!.isSettingUp = !this.player.boardSetup!.isSettingUp;
       this.player.boardSetup!.settingShip = this.shipsToSet[0];
       this.currentShipLength = this._boardService.getShipLength(this.player.boardSetup!.settingShip);
