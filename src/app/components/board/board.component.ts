@@ -232,6 +232,12 @@ export class BoardComponent extends AbstractGame {
       }
       this.dataService.updatePlayer(updatedPlayerData);
       this.gameService.updatePlayer(updatedPlayerData);
+      const updatedTime = new Date().getTime();
+      const responded = true;
+      const accepted = true;
+      const gameStarted = true;
+      // used to trigger update on opponent's screen
+      this.dataService.sendUpdate(this.requestId, responded, accepted, gameStarted, updatedTime);
     }
   }
 

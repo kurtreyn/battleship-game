@@ -17,6 +17,8 @@ import { BoardService } from 'src/app/services/board.service';
 export class HomeComponent extends AbstractGame {
   hasAccountMessage: string = 'Already have an account? Click here to login';
   doesNotHaveAccountMessage: string = 'Don\'t have an account? Click here to register';
+  gameInstructions: string = `Click on the opponent's board to make a move. The opponent will make a move after you.`;
+  waitingInstructions: string = `Waiting for opponent to finish setting up their board.`;
 
 
   constructor(
