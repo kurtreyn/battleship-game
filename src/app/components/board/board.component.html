@@ -33,10 +33,14 @@
 </section>
 
 <div class="turn-indicator">
-  <span>{{ player.name }}'s Turn: </span>
+  <span>{{ isOpponent ? opponent.name : player.name }}'s Turn: </span>
   <img
     [src]="
-      player.isTurn
+      isOpponent
+        ? opponent.isTurn
+          ? 'assets/images/green-circle.png'
+          : 'assets/images/red-circle.png'
+        : player.isTurn
         ? 'assets/images/green-circle.png'
         : 'assets/images/red-circle.png'
     "

@@ -50,13 +50,19 @@
     </section>
 
     <section class="game-section" *ngIf="gameStarted && !showLobby">
-      <app-game
-        [gameStarted]="gameStarted"
-        [gameCompleted]="gameCompleted"
-        [sessionId]="sessionId"
-        [lastUpdated]="lastUpdated"
-        [requestId]="requestId"
-      ></app-game>
+      <section class="game-boards">
+        <div class="player-board board">
+          <span>Your Board</span>
+          <app-board [isOpponent]="false"></app-board>
+        </div>
+        <div
+          *ngIf="gameStarted && opponent?.finishedSetup"
+          class="opponent-board board"
+        >
+          <span>Opponent's Board</span>
+          <app-board [isOpponent]="true"></app-board>
+        </div>
+      </section>
       <button (click)="cancelGame()">Cancel Game</button>
     </section>
   </ng-template>

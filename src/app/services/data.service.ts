@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { GameService } from './game.service';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { IPlayer } from '../models/game';
 import { map } from 'rxjs/operators';
@@ -9,10 +10,15 @@ import { map } from 'rxjs/operators';
 })
 export class DataService {
   private _requests = new BehaviorSubject<any>(null);
+  private _player = new BehaviorSubject<IPlayer | null>(null);
+  private _opponent = new BehaviorSubject<IPlayer | null>(null);
+  player$: Observable<IPlayer | null> = this._player.asObservable();
+  opponent$: Observable<IPlayer | null> = this._opponent.asObservable();
   requests$: Observable<any> = this._requests.asObservable();
 
   constructor(
-    private _afs: AngularFirestore
+    private _afs: AngularFirestore,
+    private _gameService: GameService
   ) { }
 
   addPlayer(player: IPlayer) {
@@ -45,7 +51,14 @@ export class DataService {
 
   updatePlayer(player: IPlayer) {
     return this._afs.doc('/players/' + player.id).update(player)
+      .then(() => {
+        this._gameService.updatePlayer(player);
+      })
+      .catch(error => {
+        console.error('Error updating player:', error);
+      });
   }
+
 
   challengePlayer(player: IPlayer) {
     return this._afs.doc('/players/' + player.id).update(player)
@@ -65,9 +78,18 @@ export class DataService {
     })
   }
 
-  sendUpdate(requestId: string, lastUpdated: number) {
-    return this._afs.collection('/requests').add({
-      requestId,
+  // sendUpdate(requestId: string, lastUpdated: number) {
+  //   return this._afs.collection('/requests').add({
+  //     requestId,
+  //     lastUpdated: lastUpdated
+  //   })
+  // }
+
+  sendUpdate(requestId: string, responded: boolean, accepted: boolean, gameStarted?: boolean, lastUpdated?: number) {
+    return this._afs.doc('/requests/' + requestId).update({
+      responded: responded,
+      accepted: accepted,
+      gameStarted: gameStarted,
       lastUpdated: lastUpdated
     })
   }

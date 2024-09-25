@@ -1,8 +1,10 @@
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { AbstractGame } from '../../shared/game/abstractGame';
 import { Subscription } from 'rxjs';
 import { BoardService } from '../../services/board.service';
 import { GameService } from 'src/app/services/game.service';
 import { DataService } from 'src/app/services/data.service';
+import { AuthService } from 'src/app/services/auth.service';
 import { ICell, IPlayer } from '../../models/game';
 import { SHIP_LEN, SHIP_NAME } from '../../enums/enums';
 
@@ -11,42 +13,16 @@ import { SHIP_LEN, SHIP_NAME } from '../../enums/enums';
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.css']
 })
-export class BoardComponent implements OnInit {
-  @Input() player!: IPlayer;
+export class BoardComponent extends AbstractGame {
   @Input() isOpponent: boolean = false;
-  @Input() gameStarted!: boolean;
-  @Input() sessionId!: string;
-  @Input() lastUpdated!: number;
-  @Input() requestId!: string;
-  opponent!: IPlayer;
-  displayRows: string[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-  displayColumns: string[] = ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
-  shipsToSet: string[] = [SHIP_NAME.CARRIER, SHIP_NAME.BATTLESHIP, SHIP_NAME.CRUISER, SHIP_NAME.SUBMARINE, SHIP_NAME.DESTROYER];
-  isDragging: boolean = false;
-  dragStartCell: ICell | null = null;
-  dragEndCell: ICell | null = null;
-  currentShipLength: number = 0;
-
-  private _opponentSubscription!: Subscription;
 
   constructor(
-    private _boardService: BoardService,
-    private _gameService: GameService,
-    private _dataService: DataService
-  ) { }
-
-
-
-  ngOnInit(): void {
-    this.player.boardSetup!.settingShip = this.shipsToSet[0];
-    this.currentShipLength = this._boardService.getShipLength(this.player.boardSetup!.settingShip);
-    this._subscribeToOpponentUpdates();
-
-    // console.log('player in board component', this.player);
-  }
-
-  ngOnDestroy(): void {
-    this._opponentSubscription.unsubscribe();
+    public gameService: GameService,
+    public dataService: DataService,
+    public authService: AuthService,
+    public boardService: BoardService
+  ) {
+    super(gameService, dataService, authService, boardService)
   }
 
   getRowCells(row: string): ICell[] {
@@ -95,7 +71,7 @@ export class BoardComponent implements OnInit {
   }
 
   onCellClick(cell: ICell) {
-    const player = this._gameService.getPlayer();
+    const player = this.gameService.getPlayer();
     if (player) {
       // console.log('player in board component', player.name);
       // console.log('player.isTurn:', player.isTurn);
@@ -145,11 +121,11 @@ export class BoardComponent implements OnInit {
           // console.log('updated opponent data', updatedOpponentData);
           // console.log('updated player data', updatedPlayerData);
           // update opponent data
-          this._dataService.updatePlayer(updatedOpponentData);
-          // this._gameService.updateOpponent(updatedOpponentData);
+          this.dataService.updatePlayer(updatedOpponentData);
+          // this.gameService.updateOpponent(updatedOpponentData);
           // update player data
-          this._dataService.updatePlayer(updatedPlayerData);
-          // this._gameService.updatePlayer(updatedPlayerData);
+          this.dataService.updatePlayer(updatedPlayerData);
+          // this.gameService.updatePlayer(updatedPlayerData);
 
         } else {
           console.log('MISS')
@@ -177,25 +153,28 @@ export class BoardComponent implements OnInit {
           // console.log('updated opponent data', updatedOpponentData);
           // console.log('updated player data', updatedPlayerData);
           // update opponent data
-          this._dataService.updatePlayer(updatedOpponentData);
-          // this._gameService.updateOpponent(updatedOpponentData);
+          this.dataService.updatePlayer(updatedOpponentData);
+          // this.gameService.updateOpponent(updatedOpponentData);
           // update player data
-          this._dataService.updatePlayer(updatedPlayerData);
-          // this._gameService.updatePlayer(updatedPlayerData);
+          this.dataService.updatePlayer(updatedPlayerData);
+          // this.gameService.updatePlayer(updatedPlayerData);
 
         }
       }
     }
     const updatedTime = new Date().getTime();
     console.log('updatedTime in board component', updatedTime);
-    this._dataService.sendUpdate(this.requestId, updatedTime);
+    const responded = true;
+    const accepted = true;
+    const gameStarted = true;
+    this.dataService.sendUpdate(this.requestId, responded, accepted, gameStarted, updatedTime);
   }
 
   toggleBoardSetup() {
     if (!this.player.boardSetup!.isFinishedSettingUp) {
       this.player.boardSetup!.isSettingUp = !this.player.boardSetup!.isSettingUp;
       this.player.boardSetup!.settingShip = this.shipsToSet[0];
-      this.currentShipLength = this._boardService.getShipLength(this.player.boardSetup!.settingShip);
+      this.currentShipLength = this.boardService.getShipLength(this.player.boardSetup!.settingShip);
     } else {
       this._setPlayerAsReady();
     }
@@ -245,13 +224,26 @@ export class BoardComponent implements OnInit {
       destroyer: []
     }
     this.player.boardSetup!.settingShip = this.shipsToSet[0];
-    this.currentShipLength = this._boardService.getShipLength(this.player.boardSetup!.settingShip);
+    this.currentShipLength = this.boardService.getShipLength(this.player.boardSetup!.settingShip);
   }
 
   private _setPlayerAsReady() {
-    this.player.isReady = true;
-    this._gameService.updatePlayer(this.player);
-    this._dataService.updatePlayer(this.player);
+    if (this.player.boardSetup!.isFinishedSettingUp) {
+      // console.log('this.player FINISHED SETUP', this.player)
+      const shipArr = Object.values(this.player.shipLocations!).flat();
+
+      const updatedPlayerData = {
+        ...this.player,
+        session: this.sessionId,
+        finishedSetup: true,
+        isReady: true,
+        shipArray: shipArr
+      }
+
+      // console.log('updated player data', updatedPlayerData);
+      this.dataService.updatePlayer(updatedPlayerData);
+      this.gameService.updatePlayer(updatedPlayerData);
+    }
   }
 
   private _getCellInfo(cell: ICell) {
@@ -377,36 +369,7 @@ export class BoardComponent implements OnInit {
       }
     }
 
-    if (this.player.boardSetup!.isFinishedSettingUp) {
-      // console.log('this.player FINISHED SETUP', this.player)
-      const shipArr = Object.values(this.player.shipLocations!).flat();
 
-      const updatedPlayerData = {
-        ...this.player,
-        session: this.sessionId,
-        finishedSetup: true,
-        shipArray: shipArr
-      }
-
-      // console.log('updated player data', updatedPlayerData);
-      this.player = updatedPlayerData;
-      this._dataService.updatePlayer(updatedPlayerData);
-      this._gameService.updatePlayer(updatedPlayerData);
-    }
-  }
-
-  private _subscribeToOpponentUpdates(): void {
-    this._opponentSubscription = this._gameService.opponent$.subscribe(opponent => {
-      // console.log('opponent in game component', opponent);
-      if (opponent) {
-        this.opponent = opponent
-        console.log('THIS.OPPONENT IN BOARD COMPONENT', this.opponent.name);
-        console.log('lastUpdated in board component', this.lastUpdated);
-        console.log('requestId in board component', this.requestId);
-
-
-      };
-    });
   }
 
 
