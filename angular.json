@@ -47,8 +47,7 @@
                   "maximumError": "4kb"
                 }
               ],
-              "outputHashing": "all",
-              "aot": true
+              "outputHashing": "all"
             },
             "development": {
               "buildOptimizer": false,
@@ -56,8 +55,7 @@
               "vendorChunk": true,
               "extractLicenses": false,
               "sourceMap": true,
-              "namedChunks": true,
-              "aot": true
+              "namedChunks": true
             }
           },
           "defaultConfiguration": "production"
@@ -66,12 +64,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "battleship-game:build:production",
-              "aot": true
+              "browserTarget": "battleship-game:build:production"
             },
             "development": {
-              "browserTarget": "battleship-game:build:development",
-              "aot": true
+              "browserTarget": "battleship-game:build:development"
             }
           },
           "defaultConfiguration": "development"
