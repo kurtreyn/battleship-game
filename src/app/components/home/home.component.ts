@@ -15,6 +15,8 @@ import { take, switchMap, filter } from 'rxjs/operators';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent extends AbstractGame {
+  hasAccountMessage: string = 'Already have an account? Click here to login';
+  doesNotHaveAccountMessage: string = 'Don\'t have an account? Click here to register';
 
 
   constructor(
@@ -26,7 +28,13 @@ export class HomeComponent extends AbstractGame {
     super(gameService, dataService, authService, boardService)
   }
 
+  toggleShowLogin(): void {
+    this.showLogin = !this.showLogin;
+  }
 
+  toggleShowModal(): void {
+    this.showModal = !this.showModal;
+  }
 
 
 
