@@ -10,10 +10,6 @@ import { map } from 'rxjs/operators';
 })
 export class DataService {
   private _requests = new BehaviorSubject<any>(null);
-  private _player = new BehaviorSubject<IPlayer | null>(null);
-  private _opponent = new BehaviorSubject<IPlayer | null>(null);
-  player$: Observable<IPlayer | null> = this._player.asObservable();
-  opponent$: Observable<IPlayer | null> = this._opponent.asObservable();
   requests$: Observable<any> = this._requests.asObservable();
 
   constructor(

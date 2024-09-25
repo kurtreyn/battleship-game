@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { AbstractGame } from '../../shared/game/abstractGame';
-import { Subscription } from 'rxjs';
+// import { Subscription } from 'rxjs';
 import { BoardService } from '../../services/board.service';
 import { GameService } from 'src/app/services/game.service';
 import { DataService } from 'src/app/services/data.service';
@@ -22,16 +22,19 @@ export class BoardComponent extends AbstractGame {
     public authService: AuthService,
     public boardService: BoardService
   ) {
-    super(gameService, dataService, authService, boardService)
+    super(
+      gameService,
+      dataService,
+      authService,
+      boardService
+    )
   }
 
   getRowCells(row: string): ICell[] {
     if (!this.player.board || !this.player.board.rows) {
       return [];
     }
-
     const cells = this.player.board.rows[row.toLowerCase()] || [];
-
     return cells;
   }
 
@@ -39,9 +42,7 @@ export class BoardComponent extends AbstractGame {
     if (!this.opponent.board || !this.opponent.board.rows) {
       return [];
     }
-
     const cells = this.opponent.board.rows[row.toLowerCase()] || [];
-
     return cells;
   }
 
@@ -73,20 +74,13 @@ export class BoardComponent extends AbstractGame {
   onCellClick(cell: ICell) {
     const player = this.gameService.getPlayer();
     if (player) {
-      // console.log('player in board component', player.name);
-      // console.log('player.isTurn:', player.isTurn);
       if (cell && this.gameStarted && player.isTurn) {
-        console.log(`player.name: ${player.name} is attacking ${this.opponent.name}`);
         const cellInfo = this._getCellInfo(cell);
         const { coordinates } = cellInfo;
         const { x, y } = cell;
-        // console.log('Cell Clicked:', cellInfo);
-        console.log('coordinates:', coordinates);
+
         if (this.opponent.shipArray?.includes(coordinates) && this.opponent.board !== undefined) {
-          console.log('HIT')
-          // this.opponent.isTurn
           cell.hit = true;
-          // console.log(`x: ${x}, y: ${y}`);
 
           const updatedOpponentData = {
             ...this.opponent,
@@ -118,17 +112,13 @@ export class BoardComponent extends AbstractGame {
               rows: player.board!.rows
             }
           }
-          // console.log('updated opponent data', updatedOpponentData);
-          // console.log('updated player data', updatedPlayerData);
+
           // update opponent data
           this.dataService.updatePlayer(updatedOpponentData);
-          // this.gameService.updateOpponent(updatedOpponentData);
+
           // update player data
           this.dataService.updatePlayer(updatedPlayerData);
-          // this.gameService.updatePlayer(updatedPlayerData);
-
         } else {
-          console.log('MISS')
           cell.miss = true;
 
           const updatedOpponentData = {
@@ -150,23 +140,21 @@ export class BoardComponent extends AbstractGame {
             ...player,
             isTurn: false,
           }
-          // console.log('updated opponent data', updatedOpponentData);
-          // console.log('updated player data', updatedPlayerData);
+
           // update opponent data
           this.dataService.updatePlayer(updatedOpponentData);
-          // this.gameService.updateOpponent(updatedOpponentData);
+
           // update player data
           this.dataService.updatePlayer(updatedPlayerData);
-          // this.gameService.updatePlayer(updatedPlayerData);
-
         }
       }
     }
+
     const updatedTime = new Date().getTime();
-    console.log('updatedTime in board component', updatedTime);
     const responded = true;
     const accepted = true;
     const gameStarted = true;
+    // used to trigger update on opponent's screen
     this.dataService.sendUpdate(this.requestId, responded, accepted, gameStarted, updatedTime);
   }
 
@@ -178,7 +166,6 @@ export class BoardComponent extends AbstractGame {
     } else {
       this._setPlayerAsReady();
     }
-
   }
 
   hasShipBeenSet(ship: string): boolean {
@@ -229,7 +216,6 @@ export class BoardComponent extends AbstractGame {
 
   private _setPlayerAsReady() {
     if (this.player.boardSetup!.isFinishedSettingUp) {
-      // console.log('this.player FINISHED SETUP', this.player)
       const shipArr = Object.values(this.player.shipLocations!).flat();
 
       const updatedPlayerData = {
@@ -239,8 +225,6 @@ export class BoardComponent extends AbstractGame {
         isReady: true,
         shipArray: shipArr
       }
-
-      // console.log('updated player data', updatedPlayerData);
       this.dataService.updatePlayer(updatedPlayerData);
       this.gameService.updatePlayer(updatedPlayerData);
     }
@@ -257,7 +241,6 @@ export class BoardComponent extends AbstractGame {
       miss: cell.miss,
       playerId: cell.playerId,
     }
-    // console.log('Cell Info:', cellInfo);
     return cellInfo;
   }
 
@@ -368,8 +351,6 @@ export class BoardComponent extends AbstractGame {
         this.player.boardSetup!.isFinishedSettingUp = true;
       }
     }
-
-
   }
 
 

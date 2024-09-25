@@ -4,10 +4,10 @@ import { GameService } from 'src/app/services/game.service';
 import { DataService } from 'src/app/services/data.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { BoardService } from 'src/app/services/board.service';
-import { IPlayer } from 'src/app/models/game';
-import { Subscription, BehaviorSubject } from 'rxjs';
-import { GAME } from 'src/app/enums/enums';
-import { take, switchMap, filter } from 'rxjs/operators';
+// import { IPlayer } from 'src/app/models/game';
+// import { Subscription, BehaviorSubject } from 'rxjs';
+// import { GAME } from 'src/app/enums/enums';
+// import { take, switchMap, filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-home',
@@ -25,7 +25,12 @@ export class HomeComponent extends AbstractGame {
     public authService: AuthService,
     public boardService: BoardService
   ) {
-    super(gameService, dataService, authService, boardService)
+    super(
+      gameService,
+      dataService,
+      authService,
+      boardService
+    )
   }
 
   toggleShowLogin(): void {
