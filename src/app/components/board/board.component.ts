@@ -1,8 +1,10 @@
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { AbstractGame } from '../../shared/game/abstractGame';
+// import { Subscription } from 'rxjs';
 import { BoardService } from '../../services/board.service';
 import { GameService } from 'src/app/services/game.service';
 import { DataService } from 'src/app/services/data.service';
+import { AuthService } from 'src/app/services/auth.service';
 import { ICell, IPlayer } from '../../models/game';
 import { SHIP_LEN, SHIP_NAME } from '../../enums/enums';
 
@@ -11,49 +13,28 @@ import { SHIP_LEN, SHIP_NAME } from '../../enums/enums';
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.css']
 })
-export class BoardComponent implements OnInit {
-  @Input() player!: IPlayer;
+export class BoardComponent extends AbstractGame {
   @Input() isOpponent: boolean = false;
-  @Input() gameStarted!: boolean;
-  @Input() sessionId!: string;
-  opponent!: IPlayer;
-  displayRows: string[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-  displayColumns: string[] = ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
-  shipsToSet: string[] = [SHIP_NAME.CARRIER, SHIP_NAME.BATTLESHIP, SHIP_NAME.CRUISER, SHIP_NAME.SUBMARINE, SHIP_NAME.DESTROYER];
-  isDragging: boolean = false;
-  dragStartCell: ICell | null = null;
-  dragEndCell: ICell | null = null;
-  currentShipLength: number = 0;
-
-  private _opponentSubscription!: Subscription;
 
   constructor(
-    private _boardService: BoardService,
-    private _gameService: GameService,
-    private _dataService: DataService
-  ) { }
-
-
-
-  ngOnInit(): void {
-    this.player.boardSetup!.settingShip = this.shipsToSet[0];
-    this.currentShipLength = this._boardService.getShipLength(this.player.boardSetup!.settingShip);
-    this._subscribeToOpponentUpdates();
-
-    // console.log('player in board component', this.player);
-  }
-
-  ngOnDestroy(): void {
-    this._opponentSubscription.unsubscribe();
+    public gameService: GameService,
+    public dataService: DataService,
+    public authService: AuthService,
+    public boardService: BoardService
+  ) {
+    super(
+      gameService,
+      dataService,
+      authService,
+      boardService
+    )
   }
 
   getRowCells(row: string): ICell[] {
     if (!this.player.board || !this.player.board.rows) {
       return [];
     }
-
     const cells = this.player.board.rows[row.toLowerCase()] || [];
-
     return cells;
   }
 
@@ -61,9 +42,7 @@ export class BoardComponent implements OnInit {
     if (!this.opponent.board || !this.opponent.board.rows) {
       return [];
     }
-
     const cells = this.opponent.board.rows[row.toLowerCase()] || [];
-
     return cells;
   }
 
@@ -93,33 +72,105 @@ export class BoardComponent implements OnInit {
   }
 
   onCellClick(cell: ICell) {
-    // const playerId = this.player.playerId;
-    const opponent = this._gameService.getOpponent();
-    let opponentId;
-    if (opponent) {
-      opponentId = opponent.id;
-      if (opponentId === this.opponent.id) {
-        // console.log('opponent:', opponent.name);
-        // console.log('opponentId:', opponentId);
-        if (cell) {
-          const cellInfo = this._getCellInfo(cell);
-          const { coordinates } = cellInfo;
-          // console.log('Cell Clicked:', cellInfo);
-          console.log('coordinates:', coordinates);
-          this._gameService.attack(coordinates);
-        }
+    const player = this.gameService.getPlayer();
+    if (player) {
+      if (cell && this.gameStarted && player.isTurn) {
+        const cellInfo = this._getCellInfo(cell);
+        const { coordinates } = cellInfo;
+        const { x, y } = cell;
 
+        if (this.opponent.shipArray?.includes(coordinates) && this.opponent.board !== undefined) {
+          cell.hit = true;
+
+          const updatedOpponentData = {
+            ...this.opponent,
+            isTurn: true,
+            board: {
+              ...this.opponent.board,
+              cells: this.opponent.board.cells.map(cell => {
+                if (cell.x === x && cell.y === y) {
+                  return { ...cell, hit: true };
+                }
+                return cell;
+              }),
+              rows: this.opponent.board!.rows
+            }
+          };
+
+          const updatedPlayerData = {
+            ...player,
+            isTurn: false,
+            score: player.score! + 1,
+            isWinner: player.score === this.winningScore ? true : false,
+            board: {
+              ...player.board,
+              cells: player.board!.cells.map(cell => {
+                if (cell.x === x && cell.y === y) {
+                  return { ...cell, hit: true };
+                }
+                return cell;
+              }),
+              rows: player.board!.rows
+            }
+          }
+
+          if (player.score === this.winningScore) {
+            console.log(`${player.name} wins!`);
+          }
+
+          // update opponent data
+          this.dataService.updatePlayer(updatedOpponentData);
+
+          // update player data
+          this.dataService.updatePlayer(updatedPlayerData);
+        } else {
+          cell.miss = true;
+
+          const updatedOpponentData = {
+            ...this.opponent,
+            isTurn: true,
+            board: {
+              ...this.opponent.board,
+              cells: this.opponent.board!.cells.map(cell => {
+                if (cell.x === x && cell.y === y) {
+                  return { ...cell, miss: true };
+                }
+                return cell;
+              }),
+              rows: this.opponent.board!.rows
+            }
+          };
+
+          const updatedPlayerData = {
+            ...player,
+            isTurn: false,
+          }
+
+          // update opponent data
+          this.dataService.updatePlayer(updatedOpponentData);
+
+          // update player data
+          this.dataService.updatePlayer(updatedPlayerData);
+        }
       }
     }
+
+    const updatedTime = new Date().getTime();
+    const responded = true;
+    const accepted = true;
+    const gameStarted = true;
+    // used to trigger update on opponent's screen
+    this.dataService.sendUpdate(this.requestId, responded, accepted, gameStarted, updatedTime);
   }
 
   toggleBoardSetup() {
     if (!this.player.boardSetup!.isFinishedSettingUp) {
       this.player.boardSetup!.isSettingUp = !this.player.boardSetup!.isSettingUp;
+      this.player.boardSetup!.settingShip = this.shipsToSet[0];
+      this.currentShipLength = this.boardService.getShipLength(this.player.boardSetup!.settingShip);
     } else {
       this._setPlayerAsReady();
     }
-
   }
 
   hasShipBeenSet(ship: string): boolean {
@@ -165,14 +216,29 @@ export class BoardComponent implements OnInit {
       destroyer: []
     }
     this.player.boardSetup!.settingShip = this.shipsToSet[0];
-    this.currentShipLength = this._boardService.getShipLength(this.player.boardSetup!.settingShip);
+    this.currentShipLength = this.boardService.getShipLength(this.player.boardSetup!.settingShip);
   }
 
   private _setPlayerAsReady() {
-    this.player.isReady = true;
-    this._dataService.updatePlayer(this.player);
-    this._gameService.updatePlayer(this.player);
+    if (this.player.boardSetup!.isFinishedSettingUp) {
+      const shipArr = Object.values(this.player.shipLocations!).flat();
 
+      const updatedPlayerData = {
+        ...this.player,
+        session: this.sessionId,
+        finishedSetup: true,
+        isReady: true,
+        shipArray: shipArr
+      }
+      this.dataService.updatePlayer(updatedPlayerData);
+      this.gameService.updatePlayer(updatedPlayerData);
+      const updatedTime = new Date().getTime();
+      const responded = true;
+      const accepted = true;
+      const gameStarted = true;
+      // used to trigger update on opponent's screen
+      this.dataService.sendUpdate(this.requestId, responded, accepted, gameStarted, updatedTime);
+    }
   }
 
   private _getCellInfo(cell: ICell) {
@@ -186,7 +252,6 @@ export class BoardComponent implements OnInit {
       miss: cell.miss,
       playerId: cell.playerId,
     }
-    // console.log('Cell Info:', cellInfo);
     return cellInfo;
   }
 
@@ -297,34 +362,6 @@ export class BoardComponent implements OnInit {
         this.player.boardSetup!.isFinishedSettingUp = true;
       }
     }
-
-    if (this.player.boardSetup!.isFinishedSettingUp) {
-      // console.log('this.player FINISHED SETUP', this.player)
-      const shipArr = Object.values(this.player.shipLocations!).flat();
-
-      const updatedPlayerData = {
-        ...this.player,
-        session: this.sessionId,
-        finishedSetup: true,
-        shipArray: shipArr
-      }
-
-      // console.log('updated player data', updatedPlayerData);
-      this.player = updatedPlayerData;
-      // this._dataService.updatePlayer(updatedPlayerData);
-      // this._gameService.updatePlayer(updatedPlayerData);
-    }
-  }
-
-  private _subscribeToOpponentUpdates(): void {
-    this._opponentSubscription = this._gameService.opponent$.subscribe(opponent => {
-      // console.log('opponent in game component', opponent);
-      if (opponent) {
-        this.opponent = opponent
-        // console.log('THIS.OPPONENT IN BOARD COMPONENT', this.opponent.name);
-
-      };
-    });
   }
 
 

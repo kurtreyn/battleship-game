@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { AuthService } from '../../services/auth.service';
+import { Component, Output, EventEmitter } from '@angular/core';
+
 
 @Component({
   selector: 'app-nav',
@@ -7,14 +7,17 @@ import { AuthService } from '../../services/auth.service';
   styleUrls: ['./nav.component.css']
 })
 export class NavComponent {
+  @Output() onLogout = new EventEmitter<void>();
 
-  constructor(private _authService: AuthService) { }
+  constructor(
+
+  ) { }
 
   ngOnInit(): void {
   }
 
   logOut() {
-    this._authService.logout();
+    this.onLogout.emit();
   }
 
 }

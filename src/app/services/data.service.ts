@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { GameService } from './game.service';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { IPlayer } from '../models/game';
 import { map } from 'rxjs/operators';
@@ -12,7 +13,8 @@ export class DataService {
   requests$: Observable<any> = this._requests.asObservable();
 
   constructor(
-    private _afs: AngularFirestore
+    private _afs: AngularFirestore,
+    private _gameService: GameService
   ) { }
 
   addPlayer(player: IPlayer) {
@@ -45,14 +47,47 @@ export class DataService {
 
   updatePlayer(player: IPlayer) {
     return this._afs.doc('/players/' + player.id).update(player)
+      .then(() => {
+        this._gameService.updatePlayer(player);
+      })
+      .catch(error => {
+        console.error('Error updating player:', error);
+      });
   }
+
 
   challengePlayer(player: IPlayer) {
     return this._afs.doc('/players/' + player.id).update(player)
   }
 
   sendRequests(requestId: string, challengerId: string, challengerName: string, opponentId: string, opponentName: string) {
-    return this._afs.collection('/requests').add({ requestId, challengerId, challengerName, opponentId, opponentName, accepted: false, responded: false, gameStarted: false })
+    return this._afs.collection('/requests').add({
+      requestId,
+      challengerId,
+      challengerName,
+      opponentId,
+      opponentName,
+      accepted: false,
+      responded: false,
+      gameStarted: false,
+      lastUpdated: new Date().getTime()
+    })
+  }
+
+  // sendUpdate(requestId: string, lastUpdated: number) {
+  //   return this._afs.collection('/requests').add({
+  //     requestId,
+  //     lastUpdated: lastUpdated
+  //   })
+  // }
+
+  sendUpdate(requestId: string, responded: boolean, accepted: boolean, gameStarted?: boolean, lastUpdated?: number) {
+    return this._afs.doc('/requests/' + requestId).update({
+      responded: responded,
+      accepted: accepted,
+      gameStarted: gameStarted,
+      lastUpdated: lastUpdated
+    })
   }
 
   respondToRequest(requestId: string, responded: boolean, accepted: boolean, gameStarted?: boolean) {
@@ -71,5 +106,9 @@ export class DataService {
         return { id, ...data };
       }))
     )
+  }
+
+  deleteRequest(requestId: string) {
+    return this._afs.doc('/requests/' + requestId).delete()
   }
 }
