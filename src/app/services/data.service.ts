@@ -49,29 +49,14 @@ export class DataService {
     return this._afs.doc('/players/' + player.id).delete()
   }
 
-  // updatePlayer(player: IPlayer) {
-  //   return this._afs.doc('/players/' + player.id).update(player)
-  //     .then(() => {
-  //       this._gameService.updatePlayer(player);
-  //     })
-  //     .catch(error => {
-  //       console.error('Error updating player:', error);
-  //     });
-  // }
   updatePlayer(player: IPlayer) {
-    return this._afs.doc('/players/' + player.id).update(player).then(() => {
-      this._player.next(player);
-    }).catch(error => {
-      console.error('Error updating player:', error);
-    });
-  }
-
-  updateOpponent(opponent: IPlayer) {
-    return this._afs.doc('/players/' + opponent.id).update(opponent).then(() => {
-      this._opponent.next(opponent);
-    }).catch(error => {
-      console.error('Error updating opponent:', error);
-    });
+    return this._afs.doc('/players/' + player.id).update(player)
+      .then(() => {
+        this._gameService.updatePlayer(player);
+      })
+      .catch(error => {
+        console.error('Error updating player:', error);
+      });
   }
 
 
