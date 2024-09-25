@@ -18,7 +18,7 @@ import { NavComponent } from './components/nav/nav.component';
 import { BoardComponent } from './components/board/board.component';
 import { LobbyComponent } from './components/lobby/lobby.component';
 import { ModalComponent } from './components/modal/modal.component';
-import { SubscriptionService } from './services/subscription.service';
+import { GameService } from './services/game.service';
 
 
 @NgModule({
@@ -44,7 +44,7 @@ import { SubscriptionService } from './services/subscription.service';
     FormsModule,
     ReactiveFormsModule
   ],
-  providers: [SubscriptionService],
+  providers: [GameService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

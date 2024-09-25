@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { GameService } from './game.service';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { IPlayer } from '../models/game';
 import { map } from 'rxjs/operators';
@@ -16,7 +17,8 @@ export class DataService {
   requests$: Observable<any> = this._requests.asObservable();
 
   constructor(
-    private _afs: AngularFirestore
+    private _afs: AngularFirestore,
+    private _gameService: GameService
   ) { }
 
   addPlayer(player: IPlayer) {
@@ -47,16 +49,31 @@ export class DataService {
     return this._afs.doc('/players/' + player.id).delete()
   }
 
-  updatePlayer(player: IPlayer) {
-    return this._afs.doc('/players/' + player.id).update(player)
-  }
   // updatePlayer(player: IPlayer) {
-  //   return this._afs.doc('/players/' + player.id).update(player).then(() => {
-  //     this._player.next(player);
-  //   }).catch(error => {
-  //     console.error('Error updating player:', error);
-  //   });
+  //   return this._afs.doc('/players/' + player.id).update(player)
+  //     .then(() => {
+  //       this._gameService.updatePlayer(player);
+  //     })
+  //     .catch(error => {
+  //       console.error('Error updating player:', error);
+  //     });
   // }
+  updatePlayer(player: IPlayer) {
+    return this._afs.doc('/players/' + player.id).update(player).then(() => {
+      this._player.next(player);
+    }).catch(error => {
+      console.error('Error updating player:', error);
+    });
+  }
+
+  updateOpponent(opponent: IPlayer) {
+    return this._afs.doc('/players/' + opponent.id).update(opponent).then(() => {
+      this._opponent.next(opponent);
+    }).catch(error => {
+      console.error('Error updating opponent:', error);
+    });
+  }
+
 
   challengePlayer(player: IPlayer) {
     return this._afs.doc('/players/' + player.id).update(player)

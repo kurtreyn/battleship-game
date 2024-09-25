@@ -5,7 +5,6 @@ import { BoardService } from '../../services/board.service';
 import { GameService } from 'src/app/services/game.service';
 import { DataService } from 'src/app/services/data.service';
 import { AuthService } from 'src/app/services/auth.service';
-import { SubscriptionService } from 'src/app/services/subscription.service';
 import { ICell, IPlayer } from '../../models/game';
 import { SHIP_LEN, SHIP_NAME } from '../../enums/enums';
 
@@ -21,10 +20,9 @@ export class BoardComponent extends AbstractGame {
     public gameService: GameService,
     public dataService: DataService,
     public authService: AuthService,
-    public subscriptionService: SubscriptionService,
-    public boardService: BoardService,
+    public boardService: BoardService
   ) {
-    super(gameService, dataService, authService, subscriptionService, boardService)
+    super(gameService, dataService, authService, boardService)
   }
 
   getRowCells(row: string): ICell[] {
