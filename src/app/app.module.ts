@@ -16,7 +16,6 @@ import { ForgotPasswordComponent } from './components/forgot-password/forgot-pas
 import { VerifyEmailComponent } from './components/verify-email/verify-email.component';
 import { NavComponent } from './components/nav/nav.component';
 import { BoardComponent } from './components/board/board.component';
-import { GameComponent } from './components/game/game.component';
 import { LobbyComponent } from './components/lobby/lobby.component';
 import { ModalComponent } from './components/modal/modal.component';
 
@@ -31,7 +30,6 @@ import { ModalComponent } from './components/modal/modal.component';
     VerifyEmailComponent,
     NavComponent,
     BoardComponent,
-    GameComponent,
     LobbyComponent,
     ModalComponent,
   ],
