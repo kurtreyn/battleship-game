@@ -4,6 +4,7 @@ import { GameService } from 'src/app/services/game.service';
 import { DataService } from 'src/app/services/data.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { BoardService } from 'src/app/services/board.service';
+import { SubscriptionService } from 'src/app/services/subscription.service';
 import { IPlayer, ICell } from 'src/app/models/game';
 import { Subscription, BehaviorSubject } from 'rxjs';
 import { GAME } from 'src/app/enums/enums';
@@ -50,6 +51,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     private _gameService: GameService,
     private _dataService: DataService,
     private _authService: AuthService,
+    private _subscriptionService: SubscriptionService,
     private _boardService: BoardService
   ) { }
 
@@ -216,7 +218,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
 
           // console.log('INIT PLAYER DATA', initPlayerData);
           this.player = initPlayerData;
-          // console.log('HOME -- THIS.PLAYER', this.player);
+          // console.log('HOME -- THIS.PLAYER', this.player.name);
 
           if (this.player) {
             if (this.player.readyToEnterGame) {
@@ -237,7 +239,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
       // console.log('OPPONENT - HOME', opponent);
       if (opponent) {
         this.opponent = opponent;
-        // console.log('THIS.OPPONENT - HOME', this.opponent);
+        // console.log('THIS.OPPONENT - HOME', this.opponent.name);
       }
     });
   }

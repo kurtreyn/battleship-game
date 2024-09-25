@@ -5,6 +5,7 @@ import { BoardService } from '../../services/board.service';
 import { GameService } from 'src/app/services/game.service';
 import { DataService } from 'src/app/services/data.service';
 import { AuthService } from 'src/app/services/auth.service';
+import { SubscriptionService } from 'src/app/services/subscription.service';
 import { ICell, IPlayer } from '../../models/game';
 import { SHIP_LEN, SHIP_NAME } from '../../enums/enums';
 
@@ -20,9 +21,10 @@ export class BoardComponent extends AbstractGame {
     public gameService: GameService,
     public dataService: DataService,
     public authService: AuthService,
-    public boardService: BoardService
+    public subscriptionService: SubscriptionService,
+    public boardService: BoardService,
   ) {
-    super(gameService, dataService, authService, boardService)
+    super(gameService, dataService, authService, subscriptionService, boardService)
   }
 
   getRowCells(row: string): ICell[] {
@@ -164,7 +166,10 @@ export class BoardComponent extends AbstractGame {
     }
     const updatedTime = new Date().getTime();
     console.log('updatedTime in board component', updatedTime);
-    this.dataService.sendUpdate(this.requestId, updatedTime);
+    const responded = true;
+    const accepted = true;
+    const gameStarted = true;
+    this.dataService.sendUpdate(this.requestId, responded, accepted, gameStarted, updatedTime);
   }
 
   toggleBoardSetup() {
@@ -225,9 +230,22 @@ export class BoardComponent extends AbstractGame {
   }
 
   private _setPlayerAsReady() {
-    this.player.isReady = true;
-    this.gameService.updatePlayer(this.player);
-    this.dataService.updatePlayer(this.player);
+    if (this.player.boardSetup!.isFinishedSettingUp) {
+      // console.log('this.player FINISHED SETUP', this.player)
+      const shipArr = Object.values(this.player.shipLocations!).flat();
+
+      const updatedPlayerData = {
+        ...this.player,
+        session: this.sessionId,
+        finishedSetup: true,
+        isReady: true,
+        shipArray: shipArr
+      }
+
+      // console.log('updated player data', updatedPlayerData);
+      this.dataService.updatePlayer(updatedPlayerData);
+      this.gameService.updatePlayer(updatedPlayerData);
+    }
   }
 
   private _getCellInfo(cell: ICell) {
@@ -353,22 +371,7 @@ export class BoardComponent extends AbstractGame {
       }
     }
 
-    if (this.player.boardSetup!.isFinishedSettingUp) {
-      // console.log('this.player FINISHED SETUP', this.player)
-      const shipArr = Object.values(this.player.shipLocations!).flat();
 
-      const updatedPlayerData = {
-        ...this.player,
-        session: this.sessionId,
-        finishedSetup: true,
-        shipArray: shipArr
-      }
-
-      // console.log('updated player data', updatedPlayerData);
-      this.player = updatedPlayerData;
-      this.dataService.updatePlayer(updatedPlayerData);
-      this.gameService.updatePlayer(updatedPlayerData);
-    }
   }
 
 
