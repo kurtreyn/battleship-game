@@ -101,6 +101,7 @@ export class BoardComponent extends AbstractGame {
             ...player,
             isTurn: false,
             score: player.score! + 1,
+            isWinner: player.score === this.winningScore ? true : false,
             board: {
               ...player.board,
               cells: player.board!.cells.map(cell => {
@@ -111,6 +112,10 @@ export class BoardComponent extends AbstractGame {
               }),
               rows: player.board!.rows
             }
+          }
+
+          if (player.score === this.winningScore) {
+            console.log(`${player.name} wins!`);
           }
 
           // update opponent data

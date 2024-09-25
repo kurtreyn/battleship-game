@@ -315,10 +315,10 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
             const currentTime = new Date().getTime();
 
             if (thisGame) {
-              console.log('thisGame.id', thisGame.id);
+              // console.log('thisGame.id', thisGame.id);
               this.requestId = thisGame?.id;
             }
-            console.log('last updated', this.lastUpdated);
+            // console.log('last updated', this.lastUpdated);
 
             this._dataService.getAllPlayers().pipe(
               take(1)
@@ -335,7 +335,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
                     // on the challenger's side, the opponent is player two
                     this._gameService.updateOpponent(playerTwo);
 
-                    // TODO: may need to erase this block of code
+                    // used to trigger updates to the opponent's side
                     if (currentTime > this.lastUpdated) {
                       this._gameService.updatePlayer(playerOne)
                       this._gameService.updateOpponent(playerTwo)
@@ -345,7 +345,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
                     // on the opponent's side, the opponent is player one
                     this._gameService.updateOpponent(playerOne);
 
-                    // TODO: may need to erase this block of code
+                    // used to trigger updates to the opponent's side
                     if (currentTime > this.lastUpdated) {
                       this._gameService.updatePlayer(playerTwo)
                       this._gameService.updateOpponent(playerOne)
