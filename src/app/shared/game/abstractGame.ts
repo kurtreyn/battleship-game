@@ -37,6 +37,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   showLobby: boolean = false;
   showModal: boolean = false;
   modalMessage: string = '';
+  acknowledgeGameOver: boolean = false;
 
   private _playerSubscription!: Subscription;
   private _opponentSubscription!: Subscription;
@@ -75,9 +76,10 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     if (this.requestId) {
       this._dataService.deleteRequest(this.requestId);
     }
+    const player = this._gameService.getPlayer();
     const board = this._boardService.createBoard(this.player);
     const defaultPlayerData = {
-      ...this.player,
+      ...player,
       board: board,
       shipLocations: this._boardService.initializeShipLocations(),
       boardSetup: this._boardService.initializeBoardSetup(),
@@ -195,6 +197,54 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
       }
     });
   }
+
+  // TODO: experimental
+  private _handlePlayerUpdate(player: IPlayer, opponent: IPlayer, playerId: string, currentTime: number) {
+    const playerScore = player.score;
+    const opponentScore = opponent.score;
+
+    this._gameService.updateOpponent(opponent);
+
+    if (currentTime > this.lastUpdated) {
+      console.log(`Player (${player.name}) score: ${playerScore}, Opponent (${opponent.name}) score: ${opponentScore}, isWinner: ${player.isWinner}`);
+
+      if (playerScore === GAME.WINNING_SCORE) {
+        this._updateWinner(player);
+      } else if (opponentScore === GAME.WINNING_SCORE) {
+        this._updateWinner(opponent);
+      } else {
+        this._gameService.updatePlayer(player);
+        this._gameService.updateOpponent(opponent);
+      }
+    }
+  }
+
+  // TODO: experimental
+  private _updateWinner(winner: IPlayer) {
+    const updatedWinnerData = {
+      ...winner,
+      isWinner: true
+    } as IPlayer;
+
+    this._dataService.updatePlayer(updatedWinnerData);
+    this._gameService.updatePlayer(updatedWinnerData);
+    this.gameCompleted = true;
+
+    if (this.gameCompleted) {
+      this.showModal = true;
+      this.modalMessage = `${winner.name} has won the game.`;
+    }
+  }
+
+  // TODO: experimental
+  private _checkAndUpdatePlayers(playerOne: IPlayer, playerTwo: IPlayer, playerId: string, currentTime: number) {
+    if (playerOne.id === playerId) {
+      this._handlePlayerUpdate(playerOne, playerTwo, playerId, currentTime);
+    } else if (playerTwo.id === playerId) {
+      this._handlePlayerUpdate(playerTwo, playerOne, playerId, currentTime);
+    }
+  }
+
 
   private _subscribeToActivePlayers(): void {
     this._activePlayersSubscription = this._playerSubject.pipe(
@@ -346,108 +396,109 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
               // find the player who accepted the challenge/game and make them player two
               const playerTwo = players.find(player => player.playerId === thisGame?.opponentId);
 
-              if (playerOne && playerTwo) {
-                if (playerOne.id && playerTwo.id) {
-                  const playerOneScore = playerOne.score;
-                  const playerTwoScore = playerTwo.score;
-                  if (playerOne.id === playerId) {
-                    // on the challenger's side, the opponent is player two
-                    this._gameService.updateOpponent(playerTwo);
+              if (playerOne && playerTwo && playerOne.id && playerTwo.id && playerId) {
+                this._checkAndUpdatePlayers(playerOne, playerTwo, playerId, currentTime);
+                // if (playerOne.id && playerTwo.id) {
+                //   const playerOneScore = playerOne.score;
+                //   const playerTwoScore = playerTwo.score;
+                //   if (playerOne.id === playerId) {
+                //     // on the challenger's side, the opponent is player two
+                //     this._gameService.updateOpponent(playerTwo);
 
-                    // used to trigger updates to the opponent's side
-                    if (currentTime > this.lastUpdated) {
+                //     // used to trigger updates to the opponent's side
+                //     if (currentTime > this.lastUpdated) {
 
-                      console.log(`FIRST: player one (${playerOne.name}) score: ${playerOneScore} player two (${playerTwo.name}) score: ${playerTwoScore}, isWinner: ${playerOne.isWinner}`);
+                //       console.log(`FIRST: player one (${playerOne.name}) score: ${playerOneScore} player two (${playerTwo.name}) score: ${playerTwoScore}, isWinner: ${playerOne.isWinner}`);
 
-                      if (playerOneScore === GAME.WINNING_SCORE) {
-                        const updatedPlayerOneData = {
-                          ...playerOne,
-                          isWinner: true
-                        } as IPlayer;
-                        this._dataService.updatePlayer(updatedPlayerOneData);
-                        this._gameService.updatePlayer(updatedPlayerOneData);
-                        this.gameCompleted = true;
+                //       if (playerOneScore === GAME.WINNING_SCORE) {
+                //         const updatedPlayerOneData = {
+                //           ...playerOne,
+                //           isWinner: true
+                //         } as IPlayer;
+                //         this._dataService.updatePlayer(updatedPlayerOneData);
+                //         this._gameService.updatePlayer(updatedPlayerOneData);
+                //         this.gameCompleted = true;
 
-                        if (this.gameCompleted) {
-                          this.showModal = true;
-                          const winningPlayerName = playerOne.isWinner ? playerOne.name : playerTwo.name;
-                          this.modalMessage = `${winningPlayerName} has won the game.`;
-                        }
+                //         if (this.gameCompleted) {
+                //           this.showModal = true;
+                //           const winningPlayerName = playerOne.isWinner ? playerOne.name : playerTwo.name;
+                //           this.modalMessage = `${winningPlayerName} has won the game.`;
+                //         }
 
-                        // console.log('game completed: ', this.gameCompleted);
-                      } else if (playerTwoScore === GAME.WINNING_SCORE) {
-                        const updatedPlayerTwoData = {
-                          ...playerTwo,
-                          isWinner: true
-                        } as IPlayer;
-                        this._dataService.updatePlayer(updatedPlayerTwoData);
-                        this._gameService.updatePlayer(updatedPlayerTwoData);
-                        this.gameCompleted = true;
+                //         // console.log('game completed: ', this.gameCompleted);
+                //       } else if (playerTwoScore === GAME.WINNING_SCORE) {
+                //         const updatedPlayerTwoData = {
+                //           ...playerTwo,
+                //           isWinner: true
+                //         } as IPlayer;
+                //         this._dataService.updatePlayer(updatedPlayerTwoData);
+                //         this._gameService.updatePlayer(updatedPlayerTwoData);
+                //         this.gameCompleted = true;
 
-                        if (this.gameCompleted) {
-                          this.showModal = true;
-                          const winningPlayerName = playerOne.isWinner ? playerOne.name : playerTwo.name;
-                          this.modalMessage = `${winningPlayerName} has won the game.`;
-                        }
-                        // console.log('game completed: ', this.gameCompleted);
-                      } else {
-                        this._gameService.updatePlayer(playerOne)
-                        this._gameService.updateOpponent(playerTwo)
-                      }
-
-
-                    }
-                  }
+                //         if (this.gameCompleted) {
+                //           this.showModal = true;
+                //           const winningPlayerName = playerOne.isWinner ? playerOne.name : playerTwo.name;
+                //           this.modalMessage = `${winningPlayerName} has won the game.`;
+                //         }
+                //         // console.log('game completed: ', this.gameCompleted);
+                //       } else {
+                //         this._gameService.updatePlayer(playerOne)
+                //         this._gameService.updateOpponent(playerTwo)
+                //       }
 
 
-                  if (playerTwo.id === playerId) {
-                    // on the opponent's side, the opponent is player one
-                    this._gameService.updateOpponent(playerOne);
-
-                    // used to trigger updates to the opponent's side
-                    if (currentTime > this.lastUpdated) {
-
-                      console.log(`SECOND: player one (${playerOne.name}) score: ${playerOneScore} player two (${playerTwo.name}) score: ${playerTwoScore}, isWinner: ${playerTwo.isWinner}`);
-
-                      if (playerTwoScore === GAME.WINNING_SCORE) {
-                        const updatedPlayerTwoData = {
-                          ...playerTwo,
-                          isWinner: true
-                        } as IPlayer;
-                        this._dataService.updatePlayer(updatedPlayerTwoData);
-                        this._gameService.updatePlayer(updatedPlayerTwoData);
-                        this.gameCompleted = true;
-
-                        if (this.gameCompleted) {
-                          this.showModal = true;
-                          const winningPlayerName = playerOne.isWinner ? playerOne.name : playerTwo.name;
-                          this.modalMessage = `${winningPlayerName} has won the game.`;
-                        }
-                        console.log('game completed: ', this.gameCompleted);
-                      } else if (playerOneScore === GAME.WINNING_SCORE) {
-                        const updatedPlayerOneData = {
-                          ...playerOne,
-                          isWinner: true
-                        } as IPlayer;
-                        this._dataService.updatePlayer(updatedPlayerOneData);
-                        this._gameService.updatePlayer(updatedPlayerOneData);
-                        this.gameCompleted = true;
-
-                        if (this.gameCompleted) {
-                          this.showModal = true;
-                          const winningPlayerName = playerOne.isWinner ? playerOne.name : playerTwo.name;
-                          this.modalMessage = `${winningPlayerName} has won the game.`;
-                        }
-                        console.log('game completed: ', this.gameCompleted);
-                      } else {
-                        this._gameService.updatePlayer(playerTwo)
-                        this._gameService.updateOpponent(playerOne)
-                      }
+                //     }
+                //   }
 
 
-                    }
-                  }
-                }
+                //   if (playerTwo.id === playerId) {
+                //     // on the opponent's side, the opponent is player one
+                //     this._gameService.updateOpponent(playerOne);
+
+                //     // used to trigger updates to the opponent's side
+                //     if (currentTime > this.lastUpdated) {
+
+                //       console.log(`SECOND: player one (${playerOne.name}) score: ${playerOneScore} player two (${playerTwo.name}) score: ${playerTwoScore}, isWinner: ${playerTwo.isWinner}`);
+
+                //       if (playerTwoScore === GAME.WINNING_SCORE) {
+                //         const updatedPlayerTwoData = {
+                //           ...playerTwo,
+                //           isWinner: true
+                //         } as IPlayer;
+                //         this._dataService.updatePlayer(updatedPlayerTwoData);
+                //         this._gameService.updatePlayer(updatedPlayerTwoData);
+                //         this.gameCompleted = true;
+
+                //         if (this.gameCompleted) {
+                //           this.showModal = true;
+                //           const winningPlayerName = playerOne.isWinner ? playerOne.name : playerTwo.name;
+                //           this.modalMessage = `${winningPlayerName} has won the game.`;
+                //         }
+                //         console.log('game completed: ', this.gameCompleted);
+                //       } else if (playerOneScore === GAME.WINNING_SCORE) {
+                //         const updatedPlayerOneData = {
+                //           ...playerOne,
+                //           isWinner: true
+                //         } as IPlayer;
+                //         this._dataService.updatePlayer(updatedPlayerOneData);
+                //         this._gameService.updatePlayer(updatedPlayerOneData);
+                //         this.gameCompleted = true;
+
+                //         if (this.gameCompleted) {
+                //           this.showModal = true;
+                //           const winningPlayerName = playerOne.isWinner ? playerOne.name : playerTwo.name;
+                //           this.modalMessage = `${winningPlayerName} has won the game.`;
+                //         }
+                //         console.log('game completed: ', this.gameCompleted);
+                //       } else {
+                //         this._gameService.updatePlayer(playerTwo)
+                //         this._gameService.updateOpponent(playerOne)
+                //       }
+
+
+                //     }
+                //   }
+                // }
               }
             })
           }
