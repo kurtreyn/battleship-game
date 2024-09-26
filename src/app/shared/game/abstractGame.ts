@@ -72,31 +72,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
 
 
   cancelGame(): void {
-    console.log('requestId', this.requestId);
-    if (this.requestId) {
-      this._dataService.deleteRequest(this.requestId);
-    }
-    const player = this._gameService.getPlayer();
-    const board = this._boardService.createBoard(this.player);
-    const defaultPlayerData = {
-      ...player,
-      board: board,
-      shipLocations: this._boardService.initializeShipLocations(),
-      boardSetup: this._boardService.initializeBoardSetup(),
-      shipArray: [],
-      readyToEnterGame: false,
-      session: '',
-      score: 0,
-      finishedSetup: false,
-      isReady: false,
-      isWinner: false,
-      isTurn: false,
-    } as IPlayer;
-
-    console.log('default player data', defaultPlayerData);
-    this._gameService.updatePlayer(defaultPlayerData);
-    this._dataService.updatePlayer(defaultPlayerData);
-    this._resetProperties();
+    this._resetGame(this.player);
   }
 
   onLogout(): void {
@@ -167,8 +143,33 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   }
 
   onGameCompletedEvent(): void {
-    // this.cancelGame();
     // TODO: Implement game reset
+    console.log('game completed');
+  }
+
+  private _resetGame(player: IPlayer): void {
+    if (this.requestId) {
+      this._dataService.deleteRequest(this.requestId);
+    }
+    const board = this._boardService.createBoard(player);
+    const updatedPlayerData = {
+      ...player,
+      board: board,
+      shipLocations: this._boardService.initializeShipLocations(),
+      boardSetup: this._boardService.initializeBoardSetup(),
+      shipArray: [],
+      readyToEnterGame: false,
+      session: '',
+      score: 0,
+      finishedSetup: false,
+      isReady: false,
+      isWinner: false,
+      isTurn: false,
+    } as IPlayer;
+
+    this._gameService.updatePlayer(updatedPlayerData);
+    this._dataService.updatePlayer(updatedPlayerData);
+    this._resetProperties();
   }
 
   private _resetProperties(): void {
@@ -385,6 +386,8 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
             const playerId = this.player?.id;
             this.lastUpdated = thisGame?.lastUpdated;
             const currentTime = new Date().getTime();
+            console.log('player.name', this.player?.name);
+
 
             if (thisGame) {
               // console.log('thisGame.id', thisGame.id);
@@ -403,107 +406,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
 
               if (playerOne && playerTwo && playerOne.id && playerTwo.id && playerId) {
                 this._checkAndUpdatePlayers(playerOne, playerTwo, playerId, currentTime);
-                // if (playerOne.id && playerTwo.id) {
-                //   const playerOneScore = playerOne.score;
-                //   const playerTwoScore = playerTwo.score;
-                //   if (playerOne.id === playerId) {
-                //     // on the challenger's side, the opponent is player two
-                //     this._gameService.updateOpponent(playerTwo);
-
-                //     // used to trigger updates to the opponent's side
-                //     if (currentTime > this.lastUpdated) {
-
-                //       console.log(`FIRST: player one (${playerOne.name}) score: ${playerOneScore} player two (${playerTwo.name}) score: ${playerTwoScore}, isWinner: ${playerOne.isWinner}`);
-
-                //       if (playerOneScore === GAME.WINNING_SCORE) {
-                //         const updatedPlayerOneData = {
-                //           ...playerOne,
-                //           isWinner: true
-                //         } as IPlayer;
-                //         this._dataService.updatePlayer(updatedPlayerOneData);
-                //         this._gameService.updatePlayer(updatedPlayerOneData);
-                //         this.gameCompleted = true;
-
-                //         if (this.gameCompleted) {
-                //           this.showModal = true;
-                //           const winningPlayerName = playerOne.isWinner ? playerOne.name : playerTwo.name;
-                //           this.modalMessage = `${winningPlayerName} has won the game.`;
-                //         }
-
-                //         // console.log('game completed: ', this.gameCompleted);
-                //       } else if (playerTwoScore === GAME.WINNING_SCORE) {
-                //         const updatedPlayerTwoData = {
-                //           ...playerTwo,
-                //           isWinner: true
-                //         } as IPlayer;
-                //         this._dataService.updatePlayer(updatedPlayerTwoData);
-                //         this._gameService.updatePlayer(updatedPlayerTwoData);
-                //         this.gameCompleted = true;
-
-                //         if (this.gameCompleted) {
-                //           this.showModal = true;
-                //           const winningPlayerName = playerOne.isWinner ? playerOne.name : playerTwo.name;
-                //           this.modalMessage = `${winningPlayerName} has won the game.`;
-                //         }
-                //         // console.log('game completed: ', this.gameCompleted);
-                //       } else {
-                //         this._gameService.updatePlayer(playerOne)
-                //         this._gameService.updateOpponent(playerTwo)
-                //       }
-
-
-                //     }
-                //   }
-
-
-                //   if (playerTwo.id === playerId) {
-                //     // on the opponent's side, the opponent is player one
-                //     this._gameService.updateOpponent(playerOne);
-
-                //     // used to trigger updates to the opponent's side
-                //     if (currentTime > this.lastUpdated) {
-
-                //       console.log(`SECOND: player one (${playerOne.name}) score: ${playerOneScore} player two (${playerTwo.name}) score: ${playerTwoScore}, isWinner: ${playerTwo.isWinner}`);
-
-                //       if (playerTwoScore === GAME.WINNING_SCORE) {
-                //         const updatedPlayerTwoData = {
-                //           ...playerTwo,
-                //           isWinner: true
-                //         } as IPlayer;
-                //         this._dataService.updatePlayer(updatedPlayerTwoData);
-                //         this._gameService.updatePlayer(updatedPlayerTwoData);
-                //         this.gameCompleted = true;
-
-                //         if (this.gameCompleted) {
-                //           this.showModal = true;
-                //           const winningPlayerName = playerOne.isWinner ? playerOne.name : playerTwo.name;
-                //           this.modalMessage = `${winningPlayerName} has won the game.`;
-                //         }
-                //         console.log('game completed: ', this.gameCompleted);
-                //       } else if (playerOneScore === GAME.WINNING_SCORE) {
-                //         const updatedPlayerOneData = {
-                //           ...playerOne,
-                //           isWinner: true
-                //         } as IPlayer;
-                //         this._dataService.updatePlayer(updatedPlayerOneData);
-                //         this._gameService.updatePlayer(updatedPlayerOneData);
-                //         this.gameCompleted = true;
-
-                //         if (this.gameCompleted) {
-                //           this.showModal = true;
-                //           const winningPlayerName = playerOne.isWinner ? playerOne.name : playerTwo.name;
-                //           this.modalMessage = `${winningPlayerName} has won the game.`;
-                //         }
-                //         console.log('game completed: ', this.gameCompleted);
-                //       } else {
-                //         this._gameService.updatePlayer(playerTwo)
-                //         this._gameService.updateOpponent(playerOne)
-                //       }
-
-
-                //     }
-                //   }
-                // }
+                console.log('acknowledgeGameOver', this.acknowledgeGameOver);
               }
             })
           }
