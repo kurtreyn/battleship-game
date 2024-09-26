@@ -15,6 +15,7 @@ import { SHIP_LEN, SHIP_NAME } from '../../enums/enums';
 })
 export class BoardComponent extends AbstractGame {
   @Input() isOpponent: boolean = false;
+  hideToggleButton: boolean = false;
 
   constructor(
     public gameService: GameService,
@@ -114,9 +115,8 @@ export class BoardComponent extends AbstractGame {
             }
           }
 
-          if (player.score === this.winningScore) {
-            console.log(`${player.name} wins!`);
-          }
+          console.log(`updatedPlayerData.score: ${updatedPlayerData.name} ${updatedPlayerData.score}`);
+          console.log(`updatedOpponentData.score: ${updatedOpponentData.name} ${updatedOpponentData.score}`);
 
           // update opponent data
           this.dataService.updatePlayer(updatedOpponentData);
@@ -145,6 +145,9 @@ export class BoardComponent extends AbstractGame {
             ...player,
             isTurn: false,
           }
+
+          console.log(`ELSE updatedPlayerData.score: ${updatedPlayerData.name} ${updatedPlayerData.score}`);
+          console.log(`ELSE updatedOpponentData.score: ${updatedOpponentData.name} ${updatedOpponentData.score}`);
 
           // update opponent data
           this.dataService.updatePlayer(updatedOpponentData);

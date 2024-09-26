@@ -54,6 +54,16 @@
   margin: 20px;
 }
 
+.instructions-area {
+  display: flex;
+  margin-top: 20px;
+  margin-left: 20px;
+}
+
+.cancel-game-btn {
+  margin: 20px;
+}
+
 .player-board {
   /* outline: solid 2px blue; */
 }

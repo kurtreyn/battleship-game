@@ -71,7 +71,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
 
 
   cancelGame(): void {
-    console.log(this.requestId)
+    console.log('requestId', this.requestId);
     if (this.requestId) {
       this._dataService.deleteRequest(this.requestId);
     }
@@ -84,13 +84,25 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
       shipArray: [],
       readyToEnterGame: false,
       session: '',
+      score: 0,
       finishedSetup: false,
       isReady: false,
+      isWinner: false,
+      isTurn: false,
     } as IPlayer;
+
+    console.log('default player data', defaultPlayerData);
     this._gameService.updatePlayer(defaultPlayerData);
     this._dataService.updatePlayer(defaultPlayerData);
     this.gameStarted = false;
+    this.gameCompleted = false;
+    this.sessionId = '';
+    this.requestId = '';
+    this.modalMessage = '';
+    this.lastUpdated = 0;
+    this.beginSetupMode = false;
     this.showLobby = true;
+    this.showModal = false;
   }
 
   onLogout(): void {
@@ -161,31 +173,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   }
 
   onGameCompletedEvent(): void {
-    this.showModal = false;
-    this.gameCompleted = false;
-    this.gameStarted = false;
-    this.showLobby = true;
-    this.gameCompleted = false;
-    this.beginSetupMode = false;
-    this.modalMessage = '';
-    this.requestId = '';
-    this.sessionId = '';
-    this.lastUpdated = 0;
-    const updatedPlayerData = {
-      ...this.player,
-      readyToEnterGame: false,
-      session: '',
-      finishedSetup: false,
-      isReady: false,
-      isTurn: false,
-      isWinner: false,
-      score: 0,
-    }
-    this._dataService.updatePlayer(updatedPlayerData);
-    this._gameService.updatePlayer(updatedPlayerData);
-    if (this.requestId) {
-      this._dataService.deleteRequest(this.requestId);
-    }
+    this.cancelGame();
   }
 
   private _getCurrentUser(): void {
@@ -256,7 +244,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
 
             if (this.player.session) {
               this.sessionId = this.player.session;
-              console.log('SESSION ID', this.sessionId);
+              // console.log('SESSION ID', this.sessionId);
             }
           }
         }

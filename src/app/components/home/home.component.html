@@ -70,7 +70,12 @@
           {{ opponent.isReady ? gameInstructions : waitingInstructions }}
         </span>
       </div>
-      <button (click)="cancelGame()">Cancel Game</button>
+      <button
+        class="btn btn-outline-danger cancel-game-btn"
+        (click)="cancelGame()"
+      >
+        Cancel Game
+      </button>
     </section>
   </ng-template>
 </main>
