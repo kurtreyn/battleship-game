@@ -175,7 +175,8 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   }
 
   onGameCompletedEvent(): void {
-    this.cancelGame();
+    // this.cancelGame();
+    // TODO: Implement game reset
   }
 
   private _getCurrentUser(): void {
