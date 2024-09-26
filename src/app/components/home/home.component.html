@@ -10,9 +10,11 @@
     *ngIf="showModal"
     [modalMessage]="modalMessage"
     [beginSetupMode]="beginSetupMode"
+    [gameCompleted]="gameCompleted"
     (onClose)="toggleShowModal()"
     (onChalleneResponse)="onResponseEvent($event)"
     (onStartBoardSetup)="onResponseEvent($event)"
+    (onGameCompleted)="onGameCompletedEvent()"
   ></app-modal>
 
   <ng-container *ngIf="!isLoggedIn; else hasPlayer">
