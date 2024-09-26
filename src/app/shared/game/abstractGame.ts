@@ -198,7 +198,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     });
   }
 
-  // TODO: experimental
+
   private _handlePlayerUpdate(player: IPlayer, opponent: IPlayer, playerId: string, currentTime: number) {
     const playerScore = player.score;
     const opponentScore = opponent.score;
@@ -219,7 +219,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     }
   }
 
-  // TODO: experimental
+
   private _updateWinner(winner: IPlayer) {
     const updatedWinnerData = {
       ...winner,
@@ -236,7 +236,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     }
   }
 
-  // TODO: experimental
+
   private _checkAndUpdatePlayers(playerOne: IPlayer, playerTwo: IPlayer, playerId: string, currentTime: number) {
     if (playerOne.id === playerId) {
       this._handlePlayerUpdate(playerOne, playerTwo, playerId, currentTime);
