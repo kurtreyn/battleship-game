@@ -38,6 +38,8 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   showModal: boolean = false;
   modalMessage: string = '';
   acknowledgeGameOver: boolean = false;
+  playerOne: IPlayer | null = null;
+  playerTwo: IPlayer | null = null;
 
   private _playerSubscription!: Subscription;
   private _opponentSubscription!: Subscription;
@@ -144,10 +146,11 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
 
   onGameCompletedEvent(): void {
     // TODO: Implement game reset
-    console.log('game completed');
   }
 
   private _resetGame(player: IPlayer): void {
+    // console.log('reset game');
+    // console.log('player.name', player.name);
     if (this.requestId) {
       this._dataService.deleteRequest(this.requestId);
     }
@@ -239,6 +242,13 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     if (this.gameCompleted) {
       this.showModal = true;
       this.modalMessage = `${winner.name} has won the game.`;
+      console.log('this.playerOne.name', this.playerOne?.name);
+      console.log('this.playerTwo.name', this.playerTwo?.name);
+
+      setTimeout(() => {
+        this._resetGame(this.playerOne!);
+        this._resetGame(this.playerTwo!);
+      }, 2000);
     }
   }
 
@@ -405,8 +415,9 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
               const playerTwo = players.find(player => player.playerId === thisGame?.opponentId);
 
               if (playerOne && playerTwo && playerOne.id && playerTwo.id && playerId) {
+                this.playerOne = playerOne;
+                this.playerTwo = playerTwo;
                 this._checkAndUpdatePlayers(playerOne, playerTwo, playerId, currentTime);
-                console.log('acknowledgeGameOver', this.acknowledgeGameOver);
               }
             })
           }
