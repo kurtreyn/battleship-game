@@ -10,9 +10,11 @@
     *ngIf="showModal"
     [modalMessage]="modalMessage"
     [beginSetupMode]="beginSetupMode"
+    [gameCompleted]="gameCompleted"
     (onClose)="toggleShowModal()"
     (onChalleneResponse)="onResponseEvent($event)"
     (onStartBoardSetup)="onResponseEvent($event)"
+    (onGameCompleted)="onGameCompletedEvent()"
   ></app-modal>
 
   <ng-container *ngIf="!isLoggedIn; else hasPlayer">
@@ -68,7 +70,12 @@
           {{ opponent.isReady ? gameInstructions : waitingInstructions }}
         </span>
       </div>
-      <button (click)="cancelGame()">Cancel Game</button>
+      <button
+        class="btn btn-outline-danger cancel-game-btn"
+        (click)="cancelGame()"
+      >
+        Cancel Game
+      </button>
     </section>
   </ng-template>
 </main>

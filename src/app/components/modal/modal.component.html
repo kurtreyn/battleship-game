@@ -8,20 +8,32 @@
       <span class="modal-message">{{ modalMessage }}</span>
     </div>
     <div class="modal-footer">
-      <button
-        type="button"
-        class="btn btn-sm btn-outline-success modal-action-btn"
-        (click)="respond(true)"
-      >
-        Accept
-      </button>
-      <button
-        type="button"
-        class="btn btn-sm btn-outline-danger modal-action-btn"
-        (click)="respond(false)"
-      >
-        Decline
-      </button>
+      <ng-container *ngIf="!gameCompleted; else acknowledge">
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-success modal-action-btn"
+          (click)="respond(true)"
+        >
+          Accept
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-danger modal-action-btn"
+          (click)="respond(false)"
+        >
+          Decline
+        </button>
+      </ng-container>
+
+      <ng-template #acknowledge>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-success modal-action-btn"
+          (click)="acknowledgeGameCompleted()"
+        >
+          Ok
+        </button>
+      </ng-template>
     </div>
   </div>
 </div>

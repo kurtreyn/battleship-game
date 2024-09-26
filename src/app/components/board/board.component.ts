@@ -15,6 +15,7 @@ import { SHIP_LEN, SHIP_NAME } from '../../enums/enums';
 })
 export class BoardComponent extends AbstractGame {
   @Input() isOpponent: boolean = false;
+  hideToggleButton: boolean = false;
 
   constructor(
     public gameService: GameService,
@@ -71,6 +72,42 @@ export class BoardComponent extends AbstractGame {
     }
   }
 
+  onEndGame() {
+    console.log('requestId', this.requestId);
+    if (this.requestId) {
+      this.dataService.deleteRequest(this.requestId);
+    }
+    const player = this.gameService.getPlayer();
+    const board = this.boardService.createBoard(this.player);
+    const defaultPlayerData = {
+      ...player,
+      board: board,
+      shipLocations: this.boardService.initializeShipLocations(),
+      boardSetup: this.boardService.initializeBoardSetup(),
+      shipArray: [],
+      readyToEnterGame: false,
+      session: '',
+      score: 0,
+      finishedSetup: false,
+      isReady: false,
+      isWinner: false,
+      isTurn: false,
+    } as IPlayer;
+
+    console.log('default player data', defaultPlayerData);
+    this.gameService.updatePlayer(defaultPlayerData);
+    this.dataService.updatePlayer(defaultPlayerData);
+    this.gameStarted = false;
+    this.gameCompleted = false;
+    this.sessionId = '';
+    this.requestId = '';
+    this.modalMessage = '';
+    this.lastUpdated = 0;
+    this.beginSetupMode = false;
+    this.showLobby = true;
+    this.showModal = false;
+  }
+
   onCellClick(cell: ICell) {
     const player = this.gameService.getPlayer();
     if (player) {
@@ -114,9 +151,8 @@ export class BoardComponent extends AbstractGame {
             }
           }
 
-          if (player.score === this.winningScore) {
-            console.log(`${player.name} wins!`);
-          }
+          console.log(`updatedPlayerData.score: ${updatedPlayerData.name} ${updatedPlayerData.score}`);
+          console.log(`updatedOpponentData.score: ${updatedOpponentData.name} ${updatedOpponentData.score}`);
 
           // update opponent data
           this.dataService.updatePlayer(updatedOpponentData);
@@ -145,6 +181,9 @@ export class BoardComponent extends AbstractGame {
             ...player,
             isTurn: false,
           }
+
+          console.log(`ELSE updatedPlayerData.score: ${updatedPlayerData.name} ${updatedPlayerData.score}`);
+          console.log(`ELSE updatedOpponentData.score: ${updatedOpponentData.name} ${updatedOpponentData.score}`);
 
           // update opponent data
           this.dataService.updatePlayer(updatedOpponentData);

@@ -37,6 +37,9 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   showLobby: boolean = false;
   showModal: boolean = false;
   modalMessage: string = '';
+  acknowledgeGameOver: boolean = false;
+  playerOne: IPlayer | null = null;
+  playerTwo: IPlayer | null = null;
 
   private _playerSubscription!: Subscription;
   private _opponentSubscription!: Subscription;
@@ -71,26 +74,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
 
 
   cancelGame(): void {
-    console.log(this.requestId)
-    if (this.requestId) {
-      this._dataService.deleteRequest(this.requestId);
-    }
-    const board = this._boardService.createBoard(this.player);
-    const defaultPlayerData = {
-      ...this.player,
-      board: board,
-      shipLocations: this._boardService.initializeShipLocations(),
-      boardSetup: this._boardService.initializeBoardSetup(),
-      shipArray: [],
-      readyToEnterGame: false,
-      session: '',
-      finishedSetup: false,
-      isReady: false,
-    } as IPlayer;
-    this._gameService.updatePlayer(defaultPlayerData);
-    this._dataService.updatePlayer(defaultPlayerData);
-    this.gameStarted = false;
-    this.showLobby = true;
+    this._resetGame(this.player);
   }
 
   onLogout(): void {
@@ -160,6 +144,49 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     }
   }
 
+  onGameCompletedEvent(): void {
+    // TODO: Implement game reset
+  }
+
+  private _resetGame(player: IPlayer): void {
+    // console.log('reset game');
+    // console.log('player.name', player.name);
+    if (this.requestId) {
+      this._dataService.deleteRequest(this.requestId);
+    }
+    const board = this._boardService.createBoard(player);
+    const updatedPlayerData = {
+      ...player,
+      board: board,
+      shipLocations: this._boardService.initializeShipLocations(),
+      boardSetup: this._boardService.initializeBoardSetup(),
+      shipArray: [],
+      readyToEnterGame: false,
+      session: '',
+      score: 0,
+      finishedSetup: false,
+      isReady: false,
+      isWinner: false,
+      isTurn: false,
+    } as IPlayer;
+
+    this._gameService.updatePlayer(updatedPlayerData);
+    this._dataService.updatePlayer(updatedPlayerData);
+    this._resetProperties();
+  }
+
+  private _resetProperties(): void {
+    this.gameStarted = false;
+    this.gameCompleted = false;
+    this.sessionId = '';
+    this.requestId = '';
+    this.modalMessage = '';
+    this.lastUpdated = 0;
+    this.beginSetupMode = false;
+    this.showLobby = true;
+    this.showModal = false;
+  }
+
   private _getCurrentUser(): void {
     this._currentUserSubscription = this._authService.getCurrentUser().subscribe(user => {
       if (user) {
@@ -179,6 +206,61 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
       }
     });
   }
+
+
+  private _handlePlayerUpdate(player: IPlayer, opponent: IPlayer, playerId: string, currentTime: number) {
+    const playerScore = player.score;
+    const opponentScore = opponent.score;
+
+    this._gameService.updateOpponent(opponent);
+
+    if (currentTime > this.lastUpdated) {
+      console.log(`Player (${player.name}) score: ${playerScore}, Opponent (${opponent.name}) score: ${opponentScore}, isWinner: ${player.isWinner}`);
+
+      if (playerScore === GAME.WINNING_SCORE) {
+        this._updateWinner(player);
+      } else if (opponentScore === GAME.WINNING_SCORE) {
+        this._updateWinner(opponent);
+      } else {
+        this._gameService.updatePlayer(player);
+        this._gameService.updateOpponent(opponent);
+      }
+    }
+  }
+
+
+  private _updateWinner(winner: IPlayer) {
+    const updatedWinnerData = {
+      ...winner,
+      isWinner: true
+    } as IPlayer;
+
+    this._dataService.updatePlayer(updatedWinnerData);
+    this._gameService.updatePlayer(updatedWinnerData);
+    this.gameCompleted = true;
+
+    if (this.gameCompleted) {
+      this.showModal = true;
+      this.modalMessage = `${winner.name} has won the game.`;
+      console.log('this.playerOne.name', this.playerOne?.name);
+      console.log('this.playerTwo.name', this.playerTwo?.name);
+
+      setTimeout(() => {
+        this._resetGame(this.playerOne!);
+        this._resetGame(this.playerTwo!);
+      }, 2000);
+    }
+  }
+
+
+  private _checkAndUpdatePlayers(playerOne: IPlayer, playerTwo: IPlayer, playerId: string, currentTime: number) {
+    if (playerOne.id === playerId) {
+      this._handlePlayerUpdate(playerOne, playerTwo, playerId, currentTime);
+    } else if (playerTwo.id === playerId) {
+      this._handlePlayerUpdate(playerTwo, playerOne, playerId, currentTime);
+    }
+  }
+
 
   private _subscribeToActivePlayers(): void {
     this._activePlayersSubscription = this._playerSubject.pipe(
@@ -228,7 +310,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
 
             if (this.player.session) {
               this.sessionId = this.player.session;
-              console.log('SESSION ID', this.sessionId);
+              // console.log('SESSION ID', this.sessionId);
             }
           }
         }
@@ -314,6 +396,8 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
             const playerId = this.player?.id;
             this.lastUpdated = thisGame?.lastUpdated;
             const currentTime = new Date().getTime();
+            console.log('player.name', this.player?.name);
+
 
             if (thisGame) {
               // console.log('thisGame.id', thisGame.id);
@@ -330,29 +414,10 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
               // find the player who accepted the challenge/game and make them player two
               const playerTwo = players.find(player => player.playerId === thisGame?.opponentId);
 
-              if (playerOne && playerTwo) {
-                if (playerOne.id && playerTwo.id) {
-                  if (playerOne.id === playerId) {
-                    // on the challenger's side, the opponent is player two
-                    this._gameService.updateOpponent(playerTwo);
-
-                    // used to trigger updates to the opponent's side
-                    if (currentTime > this.lastUpdated) {
-                      this._gameService.updatePlayer(playerOne)
-                      this._gameService.updateOpponent(playerTwo)
-                    }
-                  }
-                  if (playerTwo.id === playerId) {
-                    // on the opponent's side, the opponent is player one
-                    this._gameService.updateOpponent(playerOne);
-
-                    // used to trigger updates to the opponent's side
-                    if (currentTime > this.lastUpdated) {
-                      this._gameService.updatePlayer(playerTwo)
-                      this._gameService.updateOpponent(playerOne)
-                    }
-                  }
-                }
+              if (playerOne && playerTwo && playerOne.id && playerTwo.id && playerId) {
+                this.playerOne = playerOne;
+                this.playerTwo = playerTwo;
+                this._checkAndUpdatePlayers(playerOne, playerTwo, playerId, currentTime);
               }
             })
           }
