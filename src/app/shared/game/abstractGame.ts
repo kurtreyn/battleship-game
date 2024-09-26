@@ -96,15 +96,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     console.log('default player data', defaultPlayerData);
     this._gameService.updatePlayer(defaultPlayerData);
     this._dataService.updatePlayer(defaultPlayerData);
-    this.gameStarted = false;
-    this.gameCompleted = false;
-    this.sessionId = '';
-    this.requestId = '';
-    this.modalMessage = '';
-    this.lastUpdated = 0;
-    this.beginSetupMode = false;
-    this.showLobby = true;
-    this.showModal = false;
+    this._resetProperties();
   }
 
   onLogout(): void {
@@ -177,6 +169,18 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   onGameCompletedEvent(): void {
     // this.cancelGame();
     // TODO: Implement game reset
+  }
+
+  private _resetProperties(): void {
+    this.gameStarted = false;
+    this.gameCompleted = false;
+    this.sessionId = '';
+    this.requestId = '';
+    this.modalMessage = '';
+    this.lastUpdated = 0;
+    this.beginSetupMode = false;
+    this.showLobby = true;
+    this.showModal = false;
   }
 
   private _getCurrentUser(): void {
