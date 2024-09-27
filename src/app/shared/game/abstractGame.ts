@@ -37,7 +37,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   showLobby: boolean = false;
   showModal: boolean = false;
   modalMessage: string = '';
-  acknowledgeGameOver: boolean = false;
+  loading: boolean = false;
   playerOne: IPlayer | null = null;
   playerTwo: IPlayer | null = null;
 
@@ -188,6 +188,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   }
 
   private _getCurrentUser(): void {
+    this.loading = true;
     this._currentUserSubscription = this._authService.getCurrentUser().subscribe(user => {
       if (user) {
         this.isLoggedIn = true;
@@ -195,15 +196,24 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
         this._dataService.getAllPlayers().pipe(
           take(1)
         ).subscribe(players => {
+          this.loading = false;
           const player = players.find(player => player.playerId === user.uid);
           if (player) {
             this._gameService.setPlayer(player);
             this._playerSubject.next(player); // Emit the player value
           }
-        });
+        }, error => {
+          this.loading = false;
+          console.error('Error getting players:', error);
+        }
+        );
       } else {
+        this.loading = false;
         console.log('no user');
       }
+    }, error => {
+      this.loading = false;
+      console.error('Error getting current user:', error);
     });
   }
 
@@ -212,7 +222,9 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     const playerScore = player.score;
     const opponentScore = opponent.score;
 
+    this.loading = true;
     this._gameService.updateOpponent(opponent);
+    this.loading = false;
 
     if (currentTime > this.lastUpdated) {
       console.log(`Player (${player.name}) score: ${playerScore}, Opponent (${opponent.name}) score: ${opponentScore}, isWinner: ${player.isWinner}`);
@@ -222,8 +234,10 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
       } else if (opponentScore === GAME.WINNING_SCORE) {
         this._updateWinner(opponent);
       } else {
+        this.loading = true;
         this._gameService.updatePlayer(player);
         this._gameService.updateOpponent(opponent);
+        this.loading = false;
       }
     }
   }
@@ -329,8 +343,12 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   private _subscribeToRequests(): void {
     this._requestsSubscription = this._playerSubject.pipe(
       filter(player => player !== null),
-      switchMap(player => this._dataService.getRequests())
+      switchMap(player => {
+        this.loading = true;
+        return this._dataService.getRequests();
+      })
     ).subscribe(requests => {
+      this.loading = false;
       // console.log('requests', requests);
       if (requests) {
 
@@ -376,6 +394,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
             this._dataService.getAllPlayers().pipe(
               take(1)
             ).subscribe(players => {
+              this.loading = false;
               const scopedPlayer = players.find(player => player.playerId === respondedRequestFromChallenger.challengerId);
               const scopedPlayerId = scopedPlayer?.playerId;
               this.requestId = respondedRequestFromChallenger.id;
@@ -386,6 +405,9 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
                 this.showModal = true;
                 this.modalMessage = `${respondedRequestFromChallenger.opponentName} accepted your challenge. Are you ready to setup your board?`;
               }
+            }, error => {
+              this.loading = false;
+              console.error('Error getting players:', error);
             });
 
           }
@@ -405,9 +427,13 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
             }
             // console.log('last updated', this.lastUpdated);
 
+            this.loading = true;
+            console.log('this.loading', this.loading);
             this._dataService.getAllPlayers().pipe(
               take(1)
             ).subscribe(players => {
+              this.loading = false;
+              console.log('this.loading', this.loading);
               // find the player who initiated the challenge/game and make them player one
               const playerOne = players.find(player => player.playerId === thisGame?.challengerId);
 
@@ -419,6 +445,9 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
                 this.playerTwo = playerTwo;
                 this._checkAndUpdatePlayers(playerOne, playerTwo, playerId, currentTime);
               }
+            }, error => {
+              this.loading = false;
+              console.error('Error getting players:', error);
             })
           }
         }
