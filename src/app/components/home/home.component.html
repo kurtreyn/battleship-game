@@ -65,7 +65,7 @@
           <app-board [isOpponent]="true"></app-board>
         </div>
       </section>
-      <div class="instructions-area" *ngIf="player.isReady">
+      <div class="instructions-area" *ngIf="player.isReady && opponent.isReady">
         <span class="instructions-txt">
           {{ opponent.isReady ? gameInstructions : waitingInstructions }}
         </span>

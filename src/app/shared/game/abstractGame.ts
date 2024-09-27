@@ -424,7 +424,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
             const playerId = this.player?.id;
             this.lastUpdated = thisGame?.lastUpdated;
             const currentTime = new Date().getTime();
-            console.log('player.name', this.player?.name);
+            // console.log('player.name', this.player?.name);
 
 
             if (thisGame) {
