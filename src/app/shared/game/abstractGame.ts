@@ -288,54 +288,60 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     });
   }
 
+  private _managePlayerUpdate(player: IPlayer): void {
+    if (player.isReady) {
+      this._initializePlayer(player);
+    } else {
+      this._initializeNewPlayer(player);
+    }
+  }
+
+  private _manageOpponentUpdate(opponent: IPlayer): void {
+    this.opponent = opponent;
+  }
+
+  private _initializePlayer(player: IPlayer): void {
+    this.player = player;
+    this.showLobby = false;
+    this.gameStarted = true;
+
+    if (this.player.session) {
+      this.sessionId = this.player.session;
+    }
+  }
+
+  private _initializeNewPlayer(player: IPlayer): void {
+    const board = this._boardService.createBoard(player);
+    const initPlayerData = {
+      ...player,
+      board: board,
+      shipLocations: this._boardService.initializeShipLocations(),
+      boardSetup: this._boardService.initializeBoardSetup(),
+      shipArray: [],
+    } as IPlayer;
+
+    this.player = initPlayerData;
+
+    if (this.player.readyToEnterGame) {
+      this.showLobby = false;
+      this.gameStarted = true;
+    }
+
+    if (this.player.session) {
+      this.sessionId = this.player.session;
+    }
+  }
+
   private _subscribeToPlayerUpdates(): void {
     this._playerSubscription = this._gameService.player$.subscribe(player => {
-      // console.log('player', player);
       if (player) {
-        if (player.isReady) {
-          this.player = player;
-          this.showLobby = false;
-          this.gameStarted = true;
-          // console.log('HOME -- THIS.PLAYER', this.player);
-
-          if (this.player.session) {
-            this.sessionId = this.player.session;
-          }
-
-        } else {
-          const board = this._boardService.createBoard(player);
-          const initPlayerData = {
-            ...player,
-            board: board,
-            shipLocations: this._boardService.initializeShipLocations(),
-            boardSetup: this._boardService.initializeBoardSetup(),
-            shipArray: [],
-          } as IPlayer;
-
-          // console.log('INIT PLAYER DATA', initPlayerData);
-          this.player = initPlayerData;
-          // console.log('HOME -- THIS.PLAYER', this.player.name);
-
-          if (this.player) {
-            if (this.player.readyToEnterGame) {
-              this.showLobby = false;
-              this.gameStarted = true;
-            }
-
-            if (this.player.session) {
-              this.sessionId = this.player.session;
-              // console.log('SESSION ID', this.sessionId);
-            }
-          }
-        }
+        this._managePlayerUpdate(player);
       }
     });
 
     this._opponentSubscription = this._gameService.opponent$.subscribe(opponent => {
-      // console.log('OPPONENT - HOME', opponent);
       if (opponent) {
-        this.opponent = opponent;
-        // console.log('THIS.OPPONENT - HOME', this.opponent.name);
+        this._manageOpponentUpdate(opponent);
       }
     });
   }
