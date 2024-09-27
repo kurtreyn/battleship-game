@@ -151,9 +151,6 @@ export class BoardComponent extends AbstractGame {
             }
           }
 
-          console.log(`updatedPlayerData.score: ${updatedPlayerData.name} ${updatedPlayerData.score}`);
-          console.log(`updatedOpponentData.score: ${updatedOpponentData.name} ${updatedOpponentData.score}`);
-
           // update opponent data
           this.dataService.updatePlayer(updatedOpponentData);
 
