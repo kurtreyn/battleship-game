@@ -72,41 +72,41 @@ export class BoardComponent extends AbstractGame {
     }
   }
 
-  onEndGame() {
-    console.log('requestId', this.requestId);
-    if (this.requestId) {
-      this.dataService.deleteRequest(this.requestId);
-    }
-    const player = this.gameService.getPlayer();
-    const board = this.boardService.createBoard(this.player);
-    const defaultPlayerData = {
-      ...player,
-      board: board,
-      shipLocations: this.boardService.initializeShipLocations(),
-      boardSetup: this.boardService.initializeBoardSetup(),
-      shipArray: [],
-      readyToEnterGame: false,
-      session: '',
-      score: 0,
-      finishedSetup: false,
-      isReady: false,
-      isWinner: false,
-      isTurn: false,
-    } as IPlayer;
+  // onEndGame() {
+  //   console.log('requestId', this.requestId);
+  //   if (this.requestId) {
+  //     this.dataService.deleteRequest(this.requestId);
+  //   }
+  //   const player = this.gameService.getPlayer();
+  //   const board = this.boardService.createBoard(this.player);
+  //   const defaultPlayerData = {
+  //     ...player,
+  //     board: board,
+  //     shipLocations: this.boardService.initializeShipLocations(),
+  //     boardSetup: this.boardService.initializeBoardSetup(),
+  //     shipArray: [],
+  //     readyToEnterGame: false,
+  //     session: '',
+  //     score: 0,
+  //     finishedSetup: false,
+  //     isReady: false,
+  //     isWinner: false,
+  //     isTurn: false,
+  //   } as IPlayer;
 
-    console.log('default player data', defaultPlayerData);
-    this.gameService.updatePlayer(defaultPlayerData);
-    this.dataService.updatePlayer(defaultPlayerData);
-    this.gameStarted = false;
-    this.gameCompleted = false;
-    this.sessionId = '';
-    this.requestId = '';
-    this.modalMessage = '';
-    this.lastUpdated = 0;
-    this.beginSetupMode = false;
-    this.showLobby = true;
-    this.showModal = false;
-  }
+  //   console.log('default player data', defaultPlayerData);
+  //   this.gameService.updatePlayer(defaultPlayerData);
+  //   this.dataService.updatePlayer(defaultPlayerData);
+  //   this.gameStarted = false;
+  //   this.gameCompleted = false;
+  //   this.sessionId = '';
+  //   this.requestId = '';
+  //   this.modalMessage = '';
+  //   this.lastUpdated = 0;
+  //   this.beginSetupMode = false;
+  //   this.showLobby = true;
+  //   this.showModal = false;
+  // }
 
   onCellClick(cell: ICell) {
     const player = this.gameService.getPlayer();
@@ -151,11 +151,23 @@ export class BoardComponent extends AbstractGame {
             }
           }
 
-          // update opponent data
-          this.dataService.updatePlayer(updatedOpponentData);
-
           // update player data
-          this.dataService.updatePlayer(updatedPlayerData);
+          this.dataService.updatePlayer(updatedPlayerData)
+            .then(() => {
+              // update opponent data
+              this.dataService.updatePlayer(updatedOpponentData);
+
+            })
+            .then(() => {
+              this.gameService.updatePlayer(updatedPlayerData);
+              this.gameService.updateOpponent(updatedOpponentData);
+            })
+
+
+
+
+
+
         } else {
           cell.miss = true;
 
@@ -179,14 +191,18 @@ export class BoardComponent extends AbstractGame {
             isTurn: false,
           }
 
-          console.log(`ELSE updatedPlayerData.score: ${updatedPlayerData.name} ${updatedPlayerData.score}`);
-          console.log(`ELSE updatedOpponentData.score: ${updatedOpponentData.name} ${updatedOpponentData.score}`);
+          // console.log(`ELSE updatedPlayerData.score: ${updatedPlayerData.name} ${updatedPlayerData.score}`);
+          // console.log(`ELSE updatedOpponentData.score: ${updatedOpponentData.name} ${updatedOpponentData.score}`);
+
+          // update player data
+          this.dataService.updatePlayer(updatedPlayerData);
 
           // update opponent data
           this.dataService.updatePlayer(updatedOpponentData);
 
-          // update player data
-          this.dataService.updatePlayer(updatedPlayerData);
+
+
+
         }
       }
     }

@@ -24,6 +24,7 @@ export class GameService {
   }
 
   updatePlayer(player: IPlayer): void {
+    // console.log(`player.name: ${player.name}`)
     try {
       this._player.next(player);
     } catch (error) {

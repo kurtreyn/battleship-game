@@ -227,7 +227,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     this.loading = false;
 
     if (currentTime > this.lastUpdated) {
-      console.log(`Player (${player.name}) score: ${playerScore}, Opponent (${opponent.name}) score: ${opponentScore}, isWinner: ${player.isWinner}`);
+      // console.log(`Player (${player.name}) score: ${playerScore}, Opponent (${opponent.name}) score: ${opponentScore}, isWinner: ${player.isWinner}`);
 
       if (playerScore === GAME.WINNING_SCORE) {
         this._updateWinner(player);
@@ -289,6 +289,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   }
 
   private _managePlayerUpdate(player: IPlayer): void {
+    // TODO: 2nd
     if (player.isReady) {
       this._initializePlayer(player);
     } else {
@@ -301,6 +302,8 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   }
 
   private _initializePlayer(player: IPlayer): void {
+    // TODO: 3rd
+    console.log(`player.name: ${player.name}`)
     this.player = player;
     this.showLobby = false;
     this.gameStarted = true;
@@ -318,6 +321,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
       shipLocations: this._boardService.initializeShipLocations(),
       boardSetup: this._boardService.initializeBoardSetup(),
       shipArray: [],
+      isReady: false,
     } as IPlayer;
 
     this.player = initPlayerData;
@@ -335,6 +339,8 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   private _subscribeToPlayerUpdates(): void {
     this._playerSubscription = this._gameService.player$.subscribe(player => {
       if (player) {
+        // TODO: 1st
+        // console.log(`player.name: ${player.name}`)
         this._managePlayerUpdate(player);
       }
     });
@@ -434,12 +440,10 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
             // console.log('last updated', this.lastUpdated);
 
             this.loading = true;
-            console.log('this.loading', this.loading);
             this._dataService.getAllPlayers().pipe(
               take(1)
             ).subscribe(players => {
               this.loading = false;
-              console.log('this.loading', this.loading);
               // find the player who initiated the challenge/game and make them player one
               const playerOne = players.find(player => player.playerId === thisGame?.challengerId);
 
