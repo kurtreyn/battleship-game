@@ -20,6 +20,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   opponent!: IPlayer;
   gameStarted: boolean = false;
   gameCompleted: boolean = false;
+  gameCancelled: boolean = false;
   winningScore: number = GAME.WINNING_SCORE;
   beginSetupMode: boolean = false;
   challengerId: string = '';
@@ -74,7 +75,10 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
 
 
   cancelGame(): void {
-    this._resetGame(this.player);
+    this.gameCancelled = true;
+    this.showModal = true;
+    this.modalMessage = 'Game has been cancelled.';
+    // this._resetGame(this.player);
   }
 
   onLogout(): void {
@@ -407,7 +411,6 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
               const scopedPlayer = players.find(player => player.playerId === respondedRequestFromChallenger.challengerId);
               const scopedPlayerId = scopedPlayer?.playerId;
               this.requestId = respondedRequestFromChallenger.id;
-              console.log('this.requestId', this.requestId);
 
               if (scopedPlayerId === this.player?.playerId) {
                 this.beginSetupMode = true;
@@ -427,14 +430,10 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
             const playerId = this.player?.id;
             this.lastUpdated = thisGame?.lastUpdated;
             const currentTime = new Date().getTime();
-            // console.log('player.name', this.player?.name);
-
 
             if (thisGame) {
-              // console.log('thisGame.id', thisGame.id);
               this.requestId = thisGame?.id;
             }
-            // console.log('last updated', this.lastUpdated);
 
             this.loading = true;
             this._dataService.getAllPlayers().pipe(
@@ -450,6 +449,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
               if (playerOne && playerTwo && playerOne.id && playerTwo.id && playerId) {
                 this.playerOne = playerOne;
                 this.playerTwo = playerTwo;
+
                 this._checkAndUpdatePlayers(playerOne, playerTwo, playerId, currentTime);
               }
             }, error => {

@@ -67,7 +67,7 @@
       </section>
       <div class="instructions-area" *ngIf="player.isReady && opponent.isReady">
         <span class="instructions-txt">
-          {{ opponent?.isReady ? gameInstructions : waitingInstructions }}
+          {{ opponent.isReady ? gameInstructions : waitingInstructions }}
         </span>
       </div>
       <button
