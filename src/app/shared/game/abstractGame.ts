@@ -21,6 +21,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   gameStarted: boolean = false;
   gameCompleted: boolean = false;
   gameCancelled: boolean = false;
+  alreadyInGame: boolean = false;
   winningScore: number = GAME.WINNING_SCORE;
   beginSetupMode: boolean = false;
   challengerId: string = '';
@@ -78,7 +79,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     this.gameCancelled = true;
     this.showModal = true;
     this.modalMessage = 'Game has been cancelled.';
-    // this._resetGame(this.player);
+    this._resetGame(this.player);
   }
 
   onLogout(): void {

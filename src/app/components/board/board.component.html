@@ -53,6 +53,7 @@
 <section class="staging-area" *ngIf="!this.player.isReady">
   <button
     class="btn btn-custom"
+    *ngIf="!this.player.boardSetup!.isSettingUp"
     [ngClass]="{
       'btn-primary': !this.player.boardSetup!.isFinishedSettingUp,
       'btn-success': this.player.boardSetup!.isFinishedSettingUp
@@ -83,9 +84,11 @@
       </li>
     </ul>
     <div class="instructions-area">
-      <span class="instructions"
-        >Click/press & drag on the grid to set your ship</span
-      >
+      <span class="instructions">{{
+        this.player.boardSetup!.isSettingUp
+          ? "Click/press & drag on the grid to set your ship"
+          : "Click the Start Setup button to begin setting up your ships"
+      }}</span>
     </div>
   </div>
 </section>
