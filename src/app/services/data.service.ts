@@ -45,15 +45,11 @@ export class DataService {
     return this._afs.doc('/players/' + player.id).delete()
   }
 
+
   updatePlayer(player: IPlayer) {
     return this._afs.doc('/players/' + player.id).update(player)
-      .then(() => {
-        this._gameService.updatePlayer(player);
-      })
-      .catch(error => {
-        console.error('Error updating player:', error);
-      });
   }
+
 
 
   challengePlayer(player: IPlayer) {

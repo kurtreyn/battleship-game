@@ -14,6 +14,7 @@
             let cell of isOpponent ? getOpponentRowCells(row) : getRowCells(row)
           "
           [ngClass]="{
+            loading: loading,
             hit: cell.hit,
             miss: cell.miss,
             ship: !isOpponent && cell.occupied && !cell.hit,

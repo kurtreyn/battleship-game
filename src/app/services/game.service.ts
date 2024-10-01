@@ -24,6 +24,7 @@ export class GameService {
   }
 
   updatePlayer(player: IPlayer): void {
+    // console.log(`player.name: ${player.name}`)
     try {
       this._player.next(player);
     } catch (error) {
@@ -46,65 +47,4 @@ export class GameService {
   getOpponent(): IPlayer | null {
     return this._opponent.getValue();
   }
-
-  // attack(coordinates: string) {
-  //   const opponent = this.getOpponent();
-  //   const player = this.getPlayer();
-  //   console.log('player', player);
-  //   console.log('opponent', opponent);
-  //   if (!opponent || !player) {
-  //     return;
-  //   }
-  //   if (opponent?.shipArray?.includes(coordinates) && opponent.board !== undefined) {
-  //     const cell = opponent.board.cells.find(cell => cell.coordinates === coordinates);
-  //     console.log('cell', cell);
-  //     if (cell) {
-  //       console.log('HIT')
-  //       cell.hit = true;
-  //       this.updateOpponent({
-  //         ...opponent,
-  //         board: {
-  //           ...opponent.board,
-  //           cells: [...opponent.board.cells],
-  //           rows: opponent.board!.rows
-  //         }
-  //       });
-
-  //       if (!!player.score) {
-  //         if (player.score < GAME.WINNING_SCORE) {
-  //           this.updatePlayer({
-  //             ...player,
-  //             score: player.score! + 1
-  //           })
-  //         }
-
-  //         if (player.score === GAME.WINNING_SCORE) {
-  //           this.updatePlayer({
-  //             ...player,
-  //             isWinner: true
-  //           })
-  //         }
-  //       }
-
-
-  //     }
-  //   } else {
-  //     const cell = opponent?.board!.cells.find(cell => cell.coordinates === coordinates);
-  //     // console.log('cell', cell);
-  //     console.log('MISS')
-  //     if (cell) {
-  //       cell.miss = true;
-  //       this.updateOpponent({
-  //         ...opponent,
-  //         board: {
-  //           ...opponent!.board!,
-  //           cells: [...opponent!.board!.cells],
-  //           rows: opponent!.board!.rows
-  //         }
-  //       });
-
-
-  //     }
-  //   }
-  // }
 }

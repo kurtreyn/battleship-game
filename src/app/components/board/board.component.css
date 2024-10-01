@@ -65,6 +65,10 @@
   background-color: #808080;
 }
 
+.loading {
+  background-color: rgba(24, 152, 236, 0.4);
+}
+
 .staging-area {
   display: block;
   margin-top: 20px;
