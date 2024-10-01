@@ -13,6 +13,7 @@ export class ModalComponent {
   @Input() modalMessage: string = '';
   @Input() beginSetupMode!: boolean;
   @Input() gameCompleted!: boolean;
+  @Input() gameEnded!: boolean;
 
 
   constructor() { }

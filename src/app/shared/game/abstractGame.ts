@@ -76,9 +76,12 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
 
 
   cancelGame(): void {
-    this.gameEnded = true;
-    this.showModal = true;
-    this.modalMessage = 'Game has been cancelled.';
+    const updatedTime = new Date().getTime();
+    const responded = true;
+    const accepted = true;
+    const gameStarted = true;
+    const gameEnded = true;
+    this._dataService.sendUpdate(this.requestId, responded, accepted, gameStarted, updatedTime, gameEnded);
     this._resetGame(this.player);
   }
 
@@ -431,33 +434,44 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
             const playerId = this.player?.id;
             this.lastUpdated = thisGame?.lastUpdated;
             const currentTime = new Date().getTime();
-            console.log('thisGame', thisGame);
+            // console.log('thisGame', thisGame);
 
             if (thisGame) {
               this.requestId = thisGame?.id;
             }
 
-            this.loading = true;
-            this._dataService.getAllPlayers().pipe(
-              take(1)
-            ).subscribe(players => {
-              this.loading = false;
-              // find the player who initiated the challenge/game and make them player one
-              const playerOne = players.find(player => player.playerId === thisGame?.challengerId);
+            if (thisGame && thisGame.gameEnded) {
+              this.gameEnded = true;
+              this.showModal = true;
+              this.modalMessage = 'The game has been cancelled by the other player.';
+              setTimeout(() => {
+                this._resetGame(this.player);
+              }, 2000);
+            } else {
+              this.loading = true;
+              this._dataService.getAllPlayers().pipe(
+                take(1)
+              ).subscribe(players => {
+                this.loading = false;
+                // find the player who initiated the challenge/game and make them player one
+                const playerOne = players.find(player => player.playerId === thisGame?.challengerId);
 
-              // find the player who accepted the challenge/game and make them player two
-              const playerTwo = players.find(player => player.playerId === thisGame?.opponentId);
+                // find the player who accepted the challenge/game and make them player two
+                const playerTwo = players.find(player => player.playerId === thisGame?.opponentId);
 
-              if (playerOne && playerTwo && playerOne.id && playerTwo.id && playerId) {
-                this.playerOne = playerOne;
-                this.playerTwo = playerTwo;
+                if (playerOne && playerTwo && playerOne.id && playerTwo.id && playerId) {
+                  this.playerOne = playerOne;
+                  this.playerTwo = playerTwo;
 
-                this._checkAndUpdatePlayers(playerOne, playerTwo, playerId, currentTime);
-              }
-            }, error => {
-              this.loading = false;
-              console.error('Error getting players:', error);
-            })
+                  this._checkAndUpdatePlayers(playerOne, playerTwo, playerId, currentTime);
+                }
+              }, error => {
+                this.loading = false;
+                console.error('Error getting players:', error);
+              })
+            }
+
+
           }
         }
       }

@@ -8,7 +8,7 @@
       <span class="modal-message">{{ modalMessage }}</span>
     </div>
     <div class="modal-footer">
-      <ng-container *ngIf="!gameCompleted; else acknowledge">
+      <ng-container *ngIf="!gameCompleted || !gameEnded; else acknowledge">
         <button
           type="button"
           class="btn btn-sm btn-outline-success modal-action-btn"
