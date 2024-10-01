@@ -3,7 +3,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { GameService } from './game.service';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { IPlayer } from '../models/game';
-import { map } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -39,6 +39,16 @@ export class DataService {
 
   getIndividualPlayer(id: string) {
     return this._afs.doc('/players/' + id).valueChanges()
+  }
+
+  getPlayerById(playerId: string): Observable<IPlayer> {
+    const foundPlayer = this._afs.collection('players', ref => ref.where('playerId', '==', playerId))
+      .valueChanges()
+      .pipe(
+        take(1),
+        map(players => players[0] as IPlayer)
+      );
+    return foundPlayer;
   }
 
   deletePlayer(player: IPlayer) {

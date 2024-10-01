@@ -12,6 +12,7 @@
     [beginSetupMode]="beginSetupMode"
     [gameCompleted]="gameCompleted"
     [gameEnded]="gameEnded"
+    [requiresUserAction]="requiresUserAction"
     (onClose)="toggleShowModal()"
     (onChalleneResponse)="onResponseEvent($event)"
     (onStartBoardSetup)="onResponseEvent($event)"
@@ -49,6 +50,8 @@
         [player]="player"
         [activePlayers]="activePlayers"
         [opponent]="opponent"
+        [showModal]="showModal"
+        [modalMessage]="modalMessage"
       ></app-lobby>
     </section>
 

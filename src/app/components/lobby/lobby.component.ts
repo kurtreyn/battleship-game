@@ -13,6 +13,8 @@ export class LobbyComponent implements OnInit, OnDestroy {
   @Input() activePlayers?: IPlayer[];
   @Input() player?: IPlayer;
   @Input() opponent?: IPlayer;
+  @Input() showModal!: boolean;
+  @Input() modalMessage!: string;
 
   constructor(
     private _gameService: GameService,
@@ -44,6 +46,7 @@ export class LobbyComponent implements OnInit, OnDestroy {
     }
   }
 
+
   challengePlayer(opponentId: string, opponentName: string): void {
     const requestId = this._gameService.generateId();
     if (this.player) {
@@ -51,7 +54,6 @@ export class LobbyComponent implements OnInit, OnDestroy {
       const challengerName = this.player.name;
       this._dataService.sendRequests(requestId, challengerId, challengerName, opponentId, opponentName);
     }
-
   }
 
 }

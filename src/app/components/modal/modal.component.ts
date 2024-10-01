@@ -14,6 +14,7 @@ export class ModalComponent {
   @Input() beginSetupMode!: boolean;
   @Input() gameCompleted!: boolean;
   @Input() gameEnded!: boolean;
+  @Input() requiresUserAction!: boolean;
 
 
   constructor() { }

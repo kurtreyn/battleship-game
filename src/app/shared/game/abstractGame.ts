@@ -39,6 +39,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   showLobby: boolean = false;
   showModal: boolean = false;
   modalMessage: string = '';
+  requiresUserAction: boolean = false;
   loading: boolean = false;
   playerOne: IPlayer | null = null;
   playerTwo: IPlayer | null = null;
@@ -193,6 +194,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     this.beginSetupMode = false;
     this.showLobby = true;
     this.showModal = false;
+    this.requiresUserAction = false;
   }
 
   private _getCurrentUser(): void {
@@ -223,6 +225,15 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
       this.loading = false;
       console.error('Error getting current user:', error);
     });
+  }
+
+  private _isPlayerInGame(player: IPlayer): boolean {
+    if (player.session) {
+      if (player.session !== '') {
+        return true;
+      }
+    }
+    return false;
   }
 
 
@@ -381,6 +392,29 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
           // unresponded requests from the challenger's POV
           const unrespondedRequestFromChallenger = requests.find(request => request.challengerId === playerId && request.accepted === false && request.responded === false && request.gameStarted === false);
 
+          if (unrespondedRequestFromChallenger) {
+            console.log('unrespondedRequestFromChallenger', unrespondedRequestFromChallenger);
+            this._dataService.getPlayerById(unrespondedRequestFromChallenger.opponentId).pipe(
+              take(1)
+            ).subscribe(opponent => {
+              // console.log('opponent', opponent);
+
+
+              if (opponent) {
+                if (this._isPlayerInGame(opponent)) {
+                  this.showModal = true;
+                  this.modalMessage = `${opponent.name} is already in a game. Your challenge request has been cancelled.`;
+                  // Cancel the challenge request
+                  const requestId = unrespondedRequestFromChallenger.id;
+                  this._dataService.deleteRequest(requestId);
+                }
+              }
+            },
+              error => {
+                console.error('Error getting opponent:', error);
+              });
+          }
+
           // responded requests from the challenger's POV
           const respondedRequestFromChallenger = requests.find(request => request.challengerId === playerId && request.accepted === true && request.responded === true && request.gameStarted === false);
 
@@ -392,7 +426,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
             this.modalMessage = `You have a challenge from ${unrespondedRequestFromOpponent.challengerName}`;
             this.challengerId = unrespondedRequestFromOpponent.challengerId;
             this.requestId = unrespondedRequestFromOpponent.id;
-
+            this.requiresUserAction = true;
           }
 
           if (respondedRequestFromOpponent) {
@@ -419,7 +453,9 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
               if (scopedPlayerId === this.player?.playerId) {
                 this.beginSetupMode = true;
                 this.showModal = true;
+                this.requiresUserAction = true;
                 this.modalMessage = `${respondedRequestFromChallenger.opponentName} accepted your challenge. Are you ready to setup your board?`;
+
               }
             }, error => {
               this.loading = false;
