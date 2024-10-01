@@ -289,7 +289,6 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   }
 
   private _managePlayerUpdate(player: IPlayer): void {
-    // TODO: 2nd
     if (player.isReady) {
       this._initializePlayer(player);
     } else {
@@ -302,8 +301,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   }
 
   private _initializePlayer(player: IPlayer): void {
-    // TODO: 3rd
-    console.log(`player.name: ${player.name}`)
+    // console.log(`player.name: ${player.name}`)
     this.player = player;
     this.showLobby = false;
     this.gameStarted = true;
@@ -339,7 +337,6 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   private _subscribeToPlayerUpdates(): void {
     this._playerSubscription = this._gameService.player$.subscribe(player => {
       if (player) {
-        // TODO: 1st
         // console.log(`player.name: ${player.name}`)
         this._managePlayerUpdate(player);
       }
