@@ -153,20 +153,13 @@ export class BoardComponent extends AbstractGame {
 
           // update player data
           this.dataService.updatePlayer(updatedPlayerData)
-            .then(() => {
-              // update opponent data
-              this.dataService.updatePlayer(updatedOpponentData);
 
-            })
-            .then(() => {
-              this.gameService.updatePlayer(updatedPlayerData);
-              this.gameService.updateOpponent(updatedOpponentData);
-            })
+          // update opponent data
+          this.dataService.updatePlayer(updatedOpponentData);
 
 
-
-
-
+          this.gameService.updatePlayer(updatedPlayerData);
+          this.gameService.updateOpponent(updatedOpponentData);
 
         } else {
           cell.miss = true;
@@ -195,14 +188,14 @@ export class BoardComponent extends AbstractGame {
           // console.log(`ELSE updatedOpponentData.score: ${updatedOpponentData.name} ${updatedOpponentData.score}`);
 
           // update player data
-          this.dataService.updatePlayer(updatedPlayerData);
+          this.dataService.updatePlayer(updatedPlayerData)
 
           // update opponent data
           this.dataService.updatePlayer(updatedOpponentData);
 
 
-
-
+          this.gameService.updatePlayer(updatedPlayerData);
+          this.gameService.updateOpponent(updatedOpponentData);
         }
       }
     }
