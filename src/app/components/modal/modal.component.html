@@ -7,7 +7,7 @@
     <div class="modal-body">
       <span class="modal-message">{{ modalMessage }}</span>
     </div>
-    <div class="modal-footer">
+    <div class="modal-footer" *ngIf="requiresUserAction">
       <ng-container *ngIf="!gameCompleted; else acknowledge">
         <button
           type="button"

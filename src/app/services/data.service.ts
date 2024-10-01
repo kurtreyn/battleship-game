@@ -3,7 +3,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { GameService } from './game.service';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { IPlayer } from '../models/game';
-import { map } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -41,6 +41,16 @@ export class DataService {
     return this._afs.doc('/players/' + id).valueChanges()
   }
 
+  getPlayerById(playerId: string): Observable<IPlayer> {
+    const foundPlayer = this._afs.collection('players', ref => ref.where('playerId', '==', playerId))
+      .valueChanges()
+      .pipe(
+        take(1),
+        map(players => players[0] as IPlayer)
+      );
+    return foundPlayer;
+  }
+
   deletePlayer(player: IPlayer) {
     return this._afs.doc('/players/' + player.id).delete()
   }
@@ -66,7 +76,8 @@ export class DataService {
       accepted: false,
       responded: false,
       gameStarted: false,
-      lastUpdated: new Date().getTime()
+      lastUpdated: new Date().getTime(),
+      gameEnded: false
     })
   }
 
@@ -77,12 +88,13 @@ export class DataService {
   //   })
   // }
 
-  sendUpdate(requestId: string, responded: boolean, accepted: boolean, gameStarted?: boolean, lastUpdated?: number) {
+  sendUpdate(requestId: string, responded: boolean, accepted: boolean, gameStarted?: boolean, lastUpdated?: number, gameEnded?: boolean) {
     return this._afs.doc('/requests/' + requestId).update({
       responded: responded,
       accepted: accepted,
       gameStarted: gameStarted,
-      lastUpdated: lastUpdated
+      lastUpdated: lastUpdated,
+      gameEnded: gameEnded
     })
   }
 

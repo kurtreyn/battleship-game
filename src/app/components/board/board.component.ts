@@ -72,42 +72,6 @@ export class BoardComponent extends AbstractGame {
     }
   }
 
-  // onEndGame() {
-  //   console.log('requestId', this.requestId);
-  //   if (this.requestId) {
-  //     this.dataService.deleteRequest(this.requestId);
-  //   }
-  //   const player = this.gameService.getPlayer();
-  //   const board = this.boardService.createBoard(this.player);
-  //   const defaultPlayerData = {
-  //     ...player,
-  //     board: board,
-  //     shipLocations: this.boardService.initializeShipLocations(),
-  //     boardSetup: this.boardService.initializeBoardSetup(),
-  //     shipArray: [],
-  //     readyToEnterGame: false,
-  //     session: '',
-  //     score: 0,
-  //     finishedSetup: false,
-  //     isReady: false,
-  //     isWinner: false,
-  //     isTurn: false,
-  //   } as IPlayer;
-
-  //   console.log('default player data', defaultPlayerData);
-  //   this.gameService.updatePlayer(defaultPlayerData);
-  //   this.dataService.updatePlayer(defaultPlayerData);
-  //   this.gameStarted = false;
-  //   this.gameCompleted = false;
-  //   this.sessionId = '';
-  //   this.requestId = '';
-  //   this.modalMessage = '';
-  //   this.lastUpdated = 0;
-  //   this.beginSetupMode = false;
-  //   this.showLobby = true;
-  //   this.showModal = false;
-  // }
-
   onCellClick(cell: ICell) {
     const player = this.gameService.getPlayer();
     if (player) {
@@ -184,9 +148,6 @@ export class BoardComponent extends AbstractGame {
             isTurn: false,
           }
 
-          // console.log(`ELSE updatedPlayerData.score: ${updatedPlayerData.name} ${updatedPlayerData.score}`);
-          // console.log(`ELSE updatedOpponentData.score: ${updatedOpponentData.name} ${updatedOpponentData.score}`);
-
           // update player data
           this.dataService.updatePlayer(updatedPlayerData)
 
@@ -204,8 +165,9 @@ export class BoardComponent extends AbstractGame {
     const responded = true;
     const accepted = true;
     const gameStarted = true;
+    const gameEnded = false;
     // used to trigger update on opponent's screen
-    this.dataService.sendUpdate(this.requestId, responded, accepted, gameStarted, updatedTime);
+    this.dataService.sendUpdate(this.requestId, responded, accepted, gameStarted, updatedTime, gameEnded);
   }
 
   toggleBoardSetup() {
@@ -260,6 +222,7 @@ export class BoardComponent extends AbstractGame {
       submarine: [],
       destroyer: []
     }
+    this.player.boardSetup!.isSettingUp = false;
     this.player.boardSetup!.settingShip = this.shipsToSet[0];
     this.currentShipLength = this.boardService.getShipLength(this.player.boardSetup!.settingShip);
   }
@@ -281,8 +244,9 @@ export class BoardComponent extends AbstractGame {
       const responded = true;
       const accepted = true;
       const gameStarted = true;
+      const gameEnded = false;
       // used to trigger update on opponent's screen
-      this.dataService.sendUpdate(this.requestId, responded, accepted, gameStarted, updatedTime);
+      this.dataService.sendUpdate(this.requestId, responded, accepted, gameStarted, updatedTime, gameEnded);
     }
   }
 
