@@ -66,7 +66,8 @@ export class DataService {
       accepted: false,
       responded: false,
       gameStarted: false,
-      lastUpdated: new Date().getTime()
+      lastUpdated: new Date().getTime(),
+      gameEnded: false
     })
   }
 
@@ -77,12 +78,13 @@ export class DataService {
   //   })
   // }
 
-  sendUpdate(requestId: string, responded: boolean, accepted: boolean, gameStarted?: boolean, lastUpdated?: number) {
+  sendUpdate(requestId: string, responded: boolean, accepted: boolean, gameStarted?: boolean, lastUpdated?: number, gameEnded?: boolean) {
     return this._afs.doc('/requests/' + requestId).update({
       responded: responded,
       accepted: accepted,
       gameStarted: gameStarted,
-      lastUpdated: lastUpdated
+      lastUpdated: lastUpdated,
+      gameEnded: gameEnded
     })
   }
 

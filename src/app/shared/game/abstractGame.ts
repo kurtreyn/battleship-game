@@ -20,7 +20,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   opponent!: IPlayer;
   gameStarted: boolean = false;
   gameCompleted: boolean = false;
-  gameCancelled: boolean = false;
+  gameEnded: boolean = false;
   alreadyInGame: boolean = false;
   winningScore: number = GAME.WINNING_SCORE;
   beginSetupMode: boolean = false;
@@ -76,7 +76,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
 
 
   cancelGame(): void {
-    this.gameCancelled = true;
+    this.gameEnded = true;
     this.showModal = true;
     this.modalMessage = 'Game has been cancelled.';
     this._resetGame(this.player);
@@ -431,6 +431,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
             const playerId = this.player?.id;
             this.lastUpdated = thisGame?.lastUpdated;
             const currentTime = new Date().getTime();
+            console.log('thisGame', thisGame);
 
             if (thisGame) {
               this.requestId = thisGame?.id;
