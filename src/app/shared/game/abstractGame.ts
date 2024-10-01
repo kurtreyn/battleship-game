@@ -422,11 +422,13 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
 
 
           if (unrespondedRequestFromOpponent) {
-            this.showModal = true;
-            this.modalMessage = `You have a challenge from ${unrespondedRequestFromOpponent.challengerName}`;
-            this.challengerId = unrespondedRequestFromOpponent.challengerId;
-            this.requestId = unrespondedRequestFromOpponent.id;
-            this.requiresUserAction = true;
+            if (this.sessionId === "" || this.sessionId === undefined) {
+              this.showModal = true;
+              this.modalMessage = `You have a challenge from ${unrespondedRequestFromOpponent.challengerName}`;
+              this.challengerId = unrespondedRequestFromOpponent.challengerId;
+              this.requestId = unrespondedRequestFromOpponent.id;
+              this.requiresUserAction = true;
+            }
           }
 
           if (respondedRequestFromOpponent) {
