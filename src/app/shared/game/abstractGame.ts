@@ -385,7 +385,6 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
           const unrespondedRequestFromChallenger = requests.find(request => request.challengerId === playerId && request.accepted === false && request.responded === false && request.gameStarted === false);
 
           if (unrespondedRequestFromChallenger) {
-            console.log('unrespondedRequestFromChallenger', unrespondedRequestFromChallenger);
             this._dataService.getPlayerById(unrespondedRequestFromChallenger.opponentId).pipe(
               take(1)
             ).subscribe(opponent => {
@@ -461,7 +460,6 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
             const playerId = this.player?.id;
             this.lastUpdated = thisGame?.lastUpdated;
             const currentTime = new Date().getTime();
-            // console.log('thisGame', thisGame);
 
             if (thisGame) {
               this.requestId = thisGame?.id;
@@ -471,6 +469,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
               this.gameEnded = true;
               this.showModal = true;
               this.modalMessage = 'The game has been cancelled by the other player.';
+              this.requiresUserAction = false;
               setTimeout(() => {
                 this._resetGame(this.player);
               }, 2000);
