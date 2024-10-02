@@ -8,7 +8,7 @@ import { IPlayer, ICell } from 'src/app/models/game';
 import { Subscription, BehaviorSubject } from 'rxjs';
 import { GAME } from 'src/app/enums/enums';
 import { take, switchMap, filter } from 'rxjs/operators';
-import { SHIP_NAME, SHIP_LEN } from 'src/app/enums/enums';
+import { SHIP_NAME } from 'src/app/enums/enums';
 
 @Injectable({
   providedIn: 'root'
@@ -130,7 +130,6 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
       this._gameService.updatePlayer(updatedPlayerData);
       this._dataService.updatePlayer(updatedPlayerData);
 
-      // console.log('updated player data', updatedPlayerData);
       const responded = true;
       const accepted = true;
       const gameStarted = true;
@@ -153,13 +152,12 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     }
   }
 
+  // future means of letting the player reset the game instead of it being automatic
   onGameCompletedEvent(): void {
     // TODO: Implement game reset
   }
 
   private _resetGame(player: IPlayer): void {
-    // console.log('reset game');
-    // console.log('player.name', player.name);
     if (this.requestId) {
       this._dataService.deleteRequest(this.requestId);
     }
@@ -210,7 +208,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
           const player = players.find(player => player.playerId === user.uid);
           if (player) {
             this._gameService.setPlayer(player);
-            this._playerSubject.next(player); // Emit the player value
+            this._playerSubject.next(player);
           }
         }, error => {
           this.loading = false;
@@ -246,7 +244,6 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     this.loading = false;
 
     if (currentTime > this.lastUpdated) {
-      // console.log(`Player (${player.name}) score: ${playerScore}, Opponent (${opponent.name}) score: ${opponentScore}, isWinner: ${player.isWinner}`);
 
       if (playerScore === GAME.WINNING_SCORE) {
         this._updateWinner(player);
@@ -275,8 +272,6 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     if (this.gameCompleted) {
       this.showModal = true;
       this.modalMessage = `${winner.name} has won the game.`;
-      console.log('this.playerOne.name', this.playerOne?.name);
-      console.log('this.playerTwo.name', this.playerTwo?.name);
 
       setTimeout(() => {
         this._resetGame(this.playerOne!);
@@ -297,7 +292,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
 
   private _subscribeToActivePlayers(): void {
     this._activePlayersSubscription = this._playerSubject.pipe(
-      filter(player => player !== null), // Ensure player is not null
+      filter(player => player !== null),
       switchMap(player => this._dataService.getAllPlayers())
     ).subscribe(players => {
       if (players) {
@@ -320,7 +315,6 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   }
 
   private _initializePlayer(player: IPlayer): void {
-    // console.log(`player.name: ${player.name}`)
     this.player = player;
     this.showLobby = false;
     this.gameStarted = true;
@@ -356,7 +350,6 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   private _subscribeToPlayerUpdates(): void {
     this._playerSubscription = this._gameService.player$.subscribe(player => {
       if (player) {
-        // console.log(`player.name: ${player.name}`)
         this._managePlayerUpdate(player);
       }
     });
@@ -377,7 +370,6 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
       })
     ).subscribe(requests => {
       this.loading = false;
-      // console.log('requests', requests);
       if (requests) {
 
         if (this.player) {
@@ -397,9 +389,6 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
             this._dataService.getPlayerById(unrespondedRequestFromChallenger.opponentId).pipe(
               take(1)
             ).subscribe(opponent => {
-              // console.log('opponent', opponent);
-
-
               if (opponent) {
                 if (this._isPlayerInGame(opponent)) {
                   this.showModal = true;
@@ -420,7 +409,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
 
           const gamesInProgress = requests.filter(request => request.gameStarted === true);
 
-
+          // if the person being challenged is in a game, prevent a new challenge request
           if (unrespondedRequestFromOpponent) {
             if (this.sessionId === "" || this.sessionId === undefined) {
               this.showModal = true;
@@ -432,7 +421,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
           }
 
           if (respondedRequestFromOpponent) {
-            // the challenger is the person who initiated the request and will be the opponent
+            // the challenger is the person who initiated the request
             const updatedPlayerData = {
               ...this.player,
               readyToEnterGame: true,

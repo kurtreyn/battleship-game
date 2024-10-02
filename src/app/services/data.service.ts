@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { GameService } from './game.service';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { IPlayer } from '../models/game';
 import { map, take } from 'rxjs/operators';
@@ -14,7 +13,6 @@ export class DataService {
 
   constructor(
     private _afs: AngularFirestore,
-    private _gameService: GameService
   ) { }
 
   addPlayer(player: IPlayer) {
@@ -81,12 +79,6 @@ export class DataService {
     })
   }
 
-  // sendUpdate(requestId: string, lastUpdated: number) {
-  //   return this._afs.collection('/requests').add({
-  //     requestId,
-  //     lastUpdated: lastUpdated
-  //   })
-  // }
 
   sendUpdate(requestId: string, responded: boolean, accepted: boolean, gameStarted?: boolean, lastUpdated?: number, gameEnded?: boolean) {
     return this._afs.doc('/requests/' + requestId).update({
@@ -99,10 +91,6 @@ export class DataService {
   }
 
   respondToRequest(requestId: string, responded: boolean, accepted: boolean, gameStarted?: boolean) {
-    console.log('requestId', requestId);
-    console.log('responded', responded);
-    console.log('accepted', accepted);
-    console.log('gameStarted', gameStarted);
     return this._afs.doc('/requests/' + requestId).update({ responded: responded, accepted: accepted, gameStarted: gameStarted })
   }
 
