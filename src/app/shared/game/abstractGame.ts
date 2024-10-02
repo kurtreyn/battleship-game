@@ -112,7 +112,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
       this._dataService.updatePlayer(updatedPlayerData);
 
     } else {
-      this._dataService.respondToRequest(this.requestId, responded, response);
+      this._dataService.respondToRequest(this.requestId, responded, response, gameStarted);
     }
   }
 
@@ -401,6 +401,20 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
               error => {
                 console.error('Error getting opponent:', error);
               });
+          }
+
+          // responded requests from the challenger's POV which were declined
+          const declinedRequestFromChallenger = requests.find(request => request.challengerId === playerId && request.accepted === false && request.responded === true && request.gameStarted === false);
+
+          if (declinedRequestFromChallenger) {
+            this.showModal = true;
+            this.modalMessage = `${declinedRequestFromChallenger.opponentName} has declined your challenge request.`;
+            this.requiresUserAction = false;
+            this.requestId = declinedRequestFromChallenger.id;
+            this._dataService.deleteRequest(this.requestId);
+            setTimeout(() => {
+              this._resetGame(this.player);
+            }, 2000);
           }
 
           // responded requests from the challenger's POV
