@@ -180,13 +180,7 @@ export class BoardComponent extends AbstractGame {
         }
       }
 
-      const updatedTime = new Date().getTime();
-      const responded = true;
-      const accepted = true;
-      const gameStarted = true;
-      const gameEnded = false;
-      // used to trigger update on opponent's screen
-      this.dataService.sendUpdate(this.requestId, responded, accepted, gameStarted, updatedTime, gameEnded);
+      this._triggerUpdate();
     }
   }
 
