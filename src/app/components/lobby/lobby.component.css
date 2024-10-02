@@ -59,3 +59,15 @@
   margin-left: 10px;
   color: #444;
 }
+
+@media screen and (max-width: 768px) {
+  .lobby-area {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .active-user-section {
+    border-top: solid 1px #000;
+    width: 100%;
+  }
+}
