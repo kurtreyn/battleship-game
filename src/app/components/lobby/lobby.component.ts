@@ -48,12 +48,27 @@ export class LobbyComponent implements OnInit, OnDestroy {
 
 
   challengePlayer(opponentId: string, opponentName: string): void {
-    const requestId = this._gameService.generateId();
-    if (this.player) {
-      const challengerId = this.player.playerId;
-      const challengerName = this.player.name;
-      this._dataService.sendRequests(requestId, challengerId, challengerName, opponentId, opponentName);
-    }
+    this._dataService.getRequests().pipe(
+      take(1)
+    ).subscribe(requests => {
+      const requestId = this._gameService.generateId();
+      if (requests) {
+        const requestExists = requests.some((request: any) => {
+          return request.challengerId === this.player?.playerId && request.opponentId === opponentId;
+        });
+        if (requestExists) {
+          alert(`You have already sent a challenge to ${opponentName}. Please wait for their response.`);
+          return;
+        } else {
+          if (this.player) {
+            const challengerId = this.player.playerId;
+            const challengerName = this.player.name;
+            this._dataService.sendRequests(requestId, challengerId, challengerName, opponentId, opponentName);
+            alert(`Challenge sent to ${opponentName}. Please wait for their response.`);
+          }
+        }
+      }
+    })
   }
 
 }
