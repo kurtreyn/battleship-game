@@ -73,101 +73,105 @@ export class BoardComponent extends AbstractGame {
   }
 
   onCellClick(cell: ICell) {
-    const player = this.gameService.getPlayer();
-    if (player) {
-      if (cell && this.gameStarted && player.isTurn) {
-        const cellInfo = this._getCellInfo(cell);
-        const { coordinates } = cellInfo;
-        const { x, y } = cell;
+    if (this.player.boardSetup!.isSettingUp) {
+      return;
+    } else {
+      const player = this.gameService.getPlayer();
+      if (player) {
+        if (cell && this.gameStarted && player.isTurn) {
+          const cellInfo = this._getCellInfo(cell);
+          const { coordinates } = cellInfo;
+          const { x, y } = cell;
 
-        if (this.opponent.shipArray?.includes(coordinates) && this.opponent.board !== undefined) {
-          cell.hit = true;
+          if (this.opponent.shipArray?.includes(coordinates) && this.opponent.board !== undefined) {
+            cell.hit = true;
 
-          const updatedOpponentData = {
-            ...this.opponent,
-            isTurn: true,
-            board: {
-              ...this.opponent.board,
-              cells: this.opponent.board.cells.map(cell => {
-                if (cell.x === x && cell.y === y) {
-                  return { ...cell, hit: true };
-                }
-                return cell;
-              }),
-              rows: this.opponent.board!.rows
+            const updatedOpponentData = {
+              ...this.opponent,
+              isTurn: true,
+              board: {
+                ...this.opponent.board,
+                cells: this.opponent.board.cells.map(cell => {
+                  if (cell.x === x && cell.y === y) {
+                    return { ...cell, hit: true };
+                  }
+                  return cell;
+                }),
+                rows: this.opponent.board!.rows
+              }
+            };
+
+            const updatedPlayerData = {
+              ...player,
+              isTurn: false,
+              score: player.score! + 1,
+              isWinner: player.score === this.winningScore ? true : false,
+              board: {
+                ...player.board,
+                cells: player.board!.cells.map(cell => {
+                  if (cell.x === x && cell.y === y) {
+                    return { ...cell, hit: true };
+                  }
+                  return cell;
+                }),
+                rows: player.board!.rows
+              }
             }
-          };
 
-          const updatedPlayerData = {
-            ...player,
-            isTurn: false,
-            score: player.score! + 1,
-            isWinner: player.score === this.winningScore ? true : false,
-            board: {
-              ...player.board,
-              cells: player.board!.cells.map(cell => {
-                if (cell.x === x && cell.y === y) {
-                  return { ...cell, hit: true };
-                }
-                return cell;
-              }),
-              rows: player.board!.rows
+            // update player data
+            this.dataService.updatePlayer(updatedPlayerData)
+
+            // update opponent data
+            this.dataService.updatePlayer(updatedOpponentData);
+
+
+            this.gameService.updatePlayer(updatedPlayerData);
+            this.gameService.updateOpponent(updatedOpponentData);
+
+          } else {
+            cell.miss = true;
+
+            const updatedOpponentData = {
+              ...this.opponent,
+              isTurn: true,
+              board: {
+                ...this.opponent.board,
+                cells: this.opponent.board!.cells.map(cell => {
+                  if (cell.x === x && cell.y === y) {
+                    return { ...cell, miss: true };
+                  }
+                  return cell;
+                }),
+                rows: this.opponent.board!.rows
+              }
+            };
+
+            const updatedPlayerData = {
+              ...player,
+              isTurn: false,
             }
+
+            // update player data
+            this.dataService.updatePlayer(updatedPlayerData)
+
+            // update opponent data
+            this.dataService.updatePlayer(updatedOpponentData);
+
+
+            this.gameService.updatePlayer(updatedPlayerData);
+            this.gameService.updateOpponent(updatedOpponentData);
           }
-
-          // update player data
-          this.dataService.updatePlayer(updatedPlayerData)
-
-          // update opponent data
-          this.dataService.updatePlayer(updatedOpponentData);
-
-
-          this.gameService.updatePlayer(updatedPlayerData);
-          this.gameService.updateOpponent(updatedOpponentData);
-
-        } else {
-          cell.miss = true;
-
-          const updatedOpponentData = {
-            ...this.opponent,
-            isTurn: true,
-            board: {
-              ...this.opponent.board,
-              cells: this.opponent.board!.cells.map(cell => {
-                if (cell.x === x && cell.y === y) {
-                  return { ...cell, miss: true };
-                }
-                return cell;
-              }),
-              rows: this.opponent.board!.rows
-            }
-          };
-
-          const updatedPlayerData = {
-            ...player,
-            isTurn: false,
-          }
-
-          // update player data
-          this.dataService.updatePlayer(updatedPlayerData)
-
-          // update opponent data
-          this.dataService.updatePlayer(updatedOpponentData);
-
-
-          this.gameService.updatePlayer(updatedPlayerData);
-          this.gameService.updateOpponent(updatedOpponentData);
         }
       }
-    }
 
-    const updatedTime = new Date().getTime();
-    const responded = true;
-    const accepted = true;
-    const gameStarted = true;
-    const gameEnded = false;
-    // used to trigger update on opponent's screen
-    this.dataService.sendUpdate(this.requestId, responded, accepted, gameStarted, updatedTime, gameEnded);
+      const updatedTime = new Date().getTime();
+      const responded = true;
+      const accepted = true;
+      const gameStarted = true;
+      const gameEnded = false;
+      // used to trigger update on opponent's screen
+      this.dataService.sendUpdate(this.requestId, responded, accepted, gameStarted, updatedTime, gameEnded);
+    }
   }
 
   toggleBoardSetup() {
