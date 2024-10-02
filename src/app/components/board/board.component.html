@@ -13,6 +13,8 @@
           *ngFor="
             let cell of isOpponent ? getOpponentRowCells(row) : getRowCells(row)
           "
+          [attr.data-x]="cell.x"
+          [attr.data-y]="cell.y"
           [ngClass]="{
             loading: loading,
             hit: cell.hit,
@@ -27,8 +29,8 @@
           (mousedown)="onMouseDown(cell)"
           (mouseenter)="onMouseEnter(cell)"
           (touchstart)="onTouchStart($event, cell)"
-          (touchmove)="onTouchMove($event, cell)"
-          (touchend)="onTouchEnd($event, cell)"
+          (touchmove)="onTouchMove($event)"
+          (touchend)="onTouchEnd($event)"
           (mouseup)="onMouseUp(cell)"
         ></td>
       </tr>

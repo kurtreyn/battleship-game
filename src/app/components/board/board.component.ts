@@ -16,6 +16,8 @@ export class BoardComponent extends AbstractGame {
   @Input() isOpponent: boolean = false;
   hideToggleButton: boolean = false;
 
+  private _touchStartCell: ICell | null = null;
+
   constructor(
     public gameService: GameService,
     public dataService: DataService,
@@ -73,20 +75,52 @@ export class BoardComponent extends AbstractGame {
     }
   }
 
+
+
   onTouchStart(event: TouchEvent, cell: ICell) {
     event.preventDefault();
-    this.onMouseDown(cell);
+    this._touchStartCell = cell;
+    this.isDragging = true;
+    this.dragStartCell = cell;
+    this._highlightCells(cell, cell);
   }
 
-  onTouchMove(event: TouchEvent, cell: ICell) {
+  onTouchMove(event: TouchEvent) {
     event.preventDefault();
-    this.onMouseEnter(cell);
+    if (!this._touchStartCell || !this.isDragging) return;
+    const touch = event.touches[0];
+    const element = document.elementFromPoint(touch.clientX, touch.clientY) as HTMLElement;
+    const cellElement = element.closest('.grid-cell') as HTMLElement;
+
+    if (cellElement) {
+      const cell = this._returnMobileCell(cellElement);
+      if (cell) {
+        this._highlightCells(this._touchStartCell, cell);
+      }
+    } else {
+      console.error('No cell element found under touch point');
+    }
   }
 
-  onTouchEnd(event: TouchEvent, cell: ICell) {
+  onTouchEnd(event: TouchEvent) {
     event.preventDefault();
-    this.onMouseUp(cell);
+    if (!this._touchStartCell || !this.isDragging) return;
+    const touch = event.changedTouches[0];
+    const element = document.elementFromPoint(touch.clientX, touch.clientY) as HTMLElement;
+    const cellElement = element.closest('.grid-cell') as HTMLElement;
+    if (cellElement) {
+      const cell = this._returnMobileCell(cellElement);
+      if (cell) {
+        this.isDragging = false;
+        this.dragEndCell = cell;
+        this._placeShip();
+      }
+    }
+    this._touchStartCell = null;
+    this.isDragging = false;
   }
+
+
 
   onCellClick(cell: ICell) {
     if (this.player.boardSetup!.isSettingUp) {
@@ -241,6 +275,8 @@ export class BoardComponent extends AbstractGame {
     this.currentShipLength = this.boardService.getShipLength(this.player.boardSetup!.settingShip);
   }
 
+
+
   private _setPlayerAsReady() {
     if (this.player.boardSetup!.isFinishedSettingUp) {
       const shipArr = Object.values(this.player.shipLocations!).flat();
@@ -268,6 +304,13 @@ export class BoardComponent extends AbstractGame {
     this.dataService.sendUpdate(this.requestId, responded, accepted, gameStarted, updatedTime, gameEnded);
   }
 
+  private _returnMobileCell(cellElement: HTMLElement) {
+    const x = parseInt(cellElement.getAttribute('data-x') || '0', 10);
+    const y = parseInt(cellElement.getAttribute('data-y') || '0', 10);
+    const cell = this.player.board!.cells.find(c => c.x === x && c.y === y);
+    return cell;
+  }
+
   private _getCellInfo(cell: ICell) {
     const cellInfo: ICell = {
       x: cell.x,
@@ -288,7 +331,7 @@ export class BoardComponent extends AbstractGame {
     const cells = this._getCellsBetween(startCell, endCell);
     if (this._isValidPlacement(cells)) {
       cells.forEach(cell => {
-        cell.highlighted = true
+        cell.highlighted = true;
       });
     }
   }
@@ -326,7 +369,14 @@ export class BoardComponent extends AbstractGame {
   }
 
   private _isValidPlacement(cells: ICell[]): boolean {
-    return cells.length === this.currentShipLength && cells.every(cell => !cell.occupied);
+    if (cells.length !== this.currentShipLength) {
+      return false;
+    }
+    const occupiedCell = cells.find(cell => cell.occupied);
+    if (occupiedCell) {
+      return false;
+    }
+    return true;
   }
 
   private _placeShip(): void {
