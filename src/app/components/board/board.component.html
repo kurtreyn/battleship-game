@@ -26,6 +26,9 @@
           (click)="onCellClick(cell)"
           (mousedown)="onMouseDown(cell)"
           (mouseenter)="onMouseEnter(cell)"
+          (touchstart)="onTouchStart($event, cell)"
+          (touchmove)="onTouchMove($event, cell)"
+          (touchend)="onTouchEnd($event, cell)"
           (mouseup)="onMouseUp(cell)"
         ></td>
       </tr>

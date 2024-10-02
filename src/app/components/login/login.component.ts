@@ -11,7 +11,9 @@ export class LoginComponent implements OnInit {
   password: string = ''
   @Output() onLogin = new EventEmitter<boolean>();
 
-  constructor(private _authService: AuthService) { }
+  constructor(
+    private _authService: AuthService
+  ) { }
 
   ngOnInit(): void {
   }
