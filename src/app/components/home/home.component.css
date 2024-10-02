@@ -71,3 +71,17 @@
 .opponent-board {
   /* outline: solid 2px red; */
 }
+
+@media screen and (max-width: 768px) {
+  .game-boards {
+    flex-direction: column;
+  }
+
+  .board {
+    margin: 10px;
+  }
+
+  .instructions-area {
+    margin-left: 0;
+  }
+}

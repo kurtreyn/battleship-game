@@ -1,11 +1,10 @@
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { AbstractGame } from '../../shared/game/abstractGame';
-// import { Subscription } from 'rxjs';
 import { BoardService } from '../../services/board.service';
 import { GameService } from 'src/app/services/game.service';
 import { DataService } from 'src/app/services/data.service';
 import { AuthService } from 'src/app/services/auth.service';
-import { ICell, IPlayer } from '../../models/game';
+import { ICell } from '../../models/game';
 import { SHIP_LEN, SHIP_NAME } from '../../enums/enums';
 
 @Component({
@@ -31,6 +30,7 @@ export class BoardComponent extends AbstractGame {
     )
   }
 
+  // map out cells on the player's board
   getRowCells(row: string): ICell[] {
     if (!this.player.board || !this.player.board.rows) {
       return [];
@@ -39,6 +39,7 @@ export class BoardComponent extends AbstractGame {
     return cells;
   }
 
+  // map out cells on the opponent's board
   getOpponentRowCells(row: string): ICell[] {
     if (!this.opponent.board || !this.opponent.board.rows) {
       return [];
@@ -70,6 +71,21 @@ export class BoardComponent extends AbstractGame {
       this.dragEndCell = cell;
       this._placeShip();
     }
+  }
+
+  onTouchStart(event: TouchEvent, cell: ICell) {
+    event.preventDefault();
+    this.onMouseDown(cell);
+  }
+
+  onTouchMove(event: TouchEvent, cell: ICell) {
+    event.preventDefault();
+    this.onMouseEnter(cell);
+  }
+
+  onTouchEnd(event: TouchEvent, cell: ICell) {
+    event.preventDefault();
+    this.onMouseUp(cell);
   }
 
   onCellClick(cell: ICell) {
@@ -160,14 +176,7 @@ export class BoardComponent extends AbstractGame {
         }
       }
     }
-
-    const updatedTime = new Date().getTime();
-    const responded = true;
-    const accepted = true;
-    const gameStarted = true;
-    const gameEnded = false;
-    // used to trigger update on opponent's screen
-    this.dataService.sendUpdate(this.requestId, responded, accepted, gameStarted, updatedTime, gameEnded);
+    this._triggerUpdate();
   }
 
   toggleBoardSetup() {
@@ -240,14 +249,18 @@ export class BoardComponent extends AbstractGame {
       }
       this.dataService.updatePlayer(updatedPlayerData);
       this.gameService.updatePlayer(updatedPlayerData);
-      const updatedTime = new Date().getTime();
-      const responded = true;
-      const accepted = true;
-      const gameStarted = true;
-      const gameEnded = false;
-      // used to trigger update on opponent's screen
-      this.dataService.sendUpdate(this.requestId, responded, accepted, gameStarted, updatedTime, gameEnded);
+      this._triggerUpdate();
     }
+  }
+
+  private _triggerUpdate() {
+    const updatedTime = new Date().getTime();
+    const responded = true;
+    const accepted = true;
+    const gameStarted = true;
+    const gameEnded = false;
+    // used to trigger update on opponent's screen
+    this.dataService.sendUpdate(this.requestId, responded, accepted, gameStarted, updatedTime, gameEnded);
   }
 
   private _getCellInfo(cell: ICell) {

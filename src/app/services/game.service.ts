@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
-import { ICell, IBoardSetup, IShipLocations, IPlayer } from '../models/game';
-import { GAME } from '../enums/enums';
+import { IPlayer } from '../models/game';
 
 @Injectable({
   providedIn: 'root'
@@ -24,7 +23,6 @@ export class GameService {
   }
 
   updatePlayer(player: IPlayer): void {
-    // console.log(`player.name: ${player.name}`)
     try {
       this._player.next(player);
     } catch (error) {
