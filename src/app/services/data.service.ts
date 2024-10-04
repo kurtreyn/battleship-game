@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, from, of } from 'rxjs';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { IPlayer } from '../models/game';
-import { map, take } from 'rxjs/operators';
+import { map, take, catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -26,17 +26,26 @@ export class DataService {
   }
 
   getAllPlayers() {
-    return this._afs.collection('/players').snapshotChanges().pipe(
+    return from(this._afs.collection('/players').snapshotChanges()).pipe(
       map(actions => actions.map(a => {
         const data = a.payload.doc.data() as IPlayer;
         const id = a.payload.doc.id;
         return { id, ...data };
-      }))
-    )
+      })),
+      catchError(error => {
+        console.error('Error fetching players:', error);
+        throw error; // Re-throw the error after logging it
+      })
+    );
   }
 
   getIndividualPlayer(id: string) {
-    return this._afs.doc('/players/' + id).valueChanges()
+    return this._afs.doc('/players/' + id).valueChanges().pipe(
+      catchError(error => {
+        console.error('Error fetching player:', error);
+        return of(null); // Return a fallback value or handle the error as needed
+      })
+    );
   }
 
   getPlayerById(playerId: string): Observable<IPlayer> {
@@ -55,17 +64,25 @@ export class DataService {
 
 
   updatePlayer(player: IPlayer) {
-    return this._afs.doc('/players/' + player.id).update(player)
+    return from(this._afs.doc('/players/' + player.id).update(player)).pipe(
+      catchError(error => {
+        console.error('Error updating player:', error);
+        return of(null); // Return a fallback value or handle the error as needed
+      })
+    );
   }
 
-
-
   challengePlayer(player: IPlayer) {
-    return this._afs.doc('/players/' + player.id).update(player)
+    return from(this._afs.doc('/players/' + player.id).update(player)).pipe(
+      catchError(error => {
+        console.error('Error challenging player:', error);
+        return of(null); // Return a fallback value or handle the error as needed
+      })
+    );
   }
 
   sendRequests(requestId: string, challengerId: string, challengerName: string, opponentId: string, opponentName: string) {
-    return this._afs.collection('/requests').add({
+    return from(this._afs.collection('/requests').add({
       requestId,
       challengerId,
       challengerName,
@@ -76,22 +93,36 @@ export class DataService {
       gameStarted: false,
       lastUpdated: new Date().getTime(),
       gameEnded: false
-    })
+    })).pipe(
+      catchError(error => {
+        console.error('Error sending request:', error);
+        return of(null); // Return a fallback value or handle the error as needed
+      })
+    );
   }
 
-
   sendUpdate(requestId: string, responded: boolean, accepted: boolean, gameStarted?: boolean, lastUpdated?: number, gameEnded?: boolean) {
-    return this._afs.doc('/requests/' + requestId).update({
+    return from(this._afs.doc('/requests/' + requestId).update({
       responded: responded,
       accepted: accepted,
       gameStarted: gameStarted,
       lastUpdated: lastUpdated,
       gameEnded: gameEnded
-    })
+    })).pipe(
+      catchError(error => {
+        console.error('Error sending update:', error);
+        return of(null); // Return a fallback value or handle the error as needed
+      })
+    );
   }
 
   respondToRequest(requestId: string, responded: boolean, accepted: boolean, gameStarted?: boolean) {
-    return this._afs.doc('/requests/' + requestId).update({ responded: responded, accepted: accepted, gameStarted: gameStarted })
+    return from(this._afs.doc('/requests/' + requestId).update({ responded: responded, accepted: accepted, gameStarted: gameStarted })).pipe(
+      catchError(error => {
+        console.error('Error responding to request:', error);
+        return of(null); // Return a fallback value or handle the error as needed
+      })
+    );
   }
 
   getRequests() {
@@ -100,11 +131,20 @@ export class DataService {
         const data = a.payload.doc.data() as any;
         const id = a.payload.doc.id;
         return { id, ...data };
-      }))
-    )
+      })),
+      catchError(error => {
+        console.error('Error fetching requests:', error);
+        return of([]); // Return a fallback value or handle the error as needed
+      })
+    );
   }
 
   deleteRequest(requestId: string) {
-    return this._afs.doc('/requests/' + requestId).delete()
+    return from(this._afs.doc('/requests/' + requestId).delete()).pipe(
+      catchError(error => {
+        console.error('Error deleting request:', error);
+        return of(null); // Return a fallback value or handle the error as needed
+      })
+    );
   }
 }
