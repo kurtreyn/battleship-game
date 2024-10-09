@@ -38,6 +38,15 @@ export class GameService {
     }
   }
 
+  updatePlayerAndOpponent(player: IPlayer, opponent: IPlayer): void {
+    try {
+      this._player.next(player);
+      this._opponent.next(opponent);
+    } catch (error) {
+      console.error('Error updating player and opponent:', error);
+    }
+  }
+
   getPlayer(): IPlayer | null {
     return this._player.getValue();
   }

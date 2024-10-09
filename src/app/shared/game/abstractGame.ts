@@ -180,8 +180,14 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
       isTurn: false,
     } as IPlayer;
 
+    try {
+      if (player) {
+        this._dataService.updatePlayer(updatedPlayerData);
+      }
+    } catch (error) {
+      console.error('Error updating player during resetGame:', error);
+    }
     this._gameService.updatePlayer(updatedPlayerData);
-    this._dataService.updatePlayer(updatedPlayerData);
     this._resetProperties();
   }
 
@@ -282,6 +288,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     if (this.gameCompleted) {
       this.showModal = true;
       this.modalMessage = `${winner.name} has won the game.`;
+      this.requiresUserAction = false;
 
       setTimeout(() => {
         if (this.playerOne) {

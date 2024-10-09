@@ -170,12 +170,9 @@ export class BoardComponent extends AbstractGame {
 
             // update player data
             this.dataService.updatePlayer(updatedPlayerData)
-
             // update opponent data
             this.dataService.updatePlayer(updatedOpponentData);
-
-            this.gameService.updatePlayer(updatedPlayerData);
-            this.gameService.updateOpponent(updatedOpponentData);
+            this.gameService.updatePlayerAndOpponent(updatedPlayerData, updatedOpponentData);
 
           } else {
             cell.miss = true;
@@ -202,12 +199,9 @@ export class BoardComponent extends AbstractGame {
 
             // update player data
             this.dataService.updatePlayer(updatedPlayerData)
-
             // update opponent data
             this.dataService.updatePlayer(updatedOpponentData);
-
-            this.gameService.updatePlayer(updatedPlayerData);
-            this.gameService.updateOpponent(updatedOpponentData);
+            this.gameService.updatePlayerAndOpponent(updatedPlayerData, updatedOpponentData);
           }
         }
       }
