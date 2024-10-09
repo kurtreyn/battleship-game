@@ -174,7 +174,6 @@ export class BoardComponent extends AbstractGame {
             // update opponent data
             this.dataService.updatePlayer(updatedOpponentData);
 
-
             this.gameService.updatePlayer(updatedPlayerData);
             this.gameService.updateOpponent(updatedOpponentData);
 
@@ -206,7 +205,6 @@ export class BoardComponent extends AbstractGame {
 
             // update opponent data
             this.dataService.updatePlayer(updatedOpponentData);
-
 
             this.gameService.updatePlayer(updatedPlayerData);
             this.gameService.updateOpponent(updatedOpponentData);

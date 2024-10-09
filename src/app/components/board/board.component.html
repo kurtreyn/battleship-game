@@ -38,23 +38,6 @@
   </table>
 </section>
 
-<div class="turn-indicator">
-  <span>{{ isOpponent ? opponent.name : player.name }}'s Turn: </span>
-  <img
-    [src]="
-      isOpponent
-        ? opponent.isTurn
-          ? 'assets/images/green-circle.png'
-          : 'assets/images/red-circle.png'
-        : player.isTurn
-        ? 'assets/images/green-circle.png'
-        : 'assets/images/red-circle.png'
-    "
-    alt="turn indicator"
-    class="turn-icon"
-  />
-</div>
-
 <section class="staging-area" *ngIf="!this.player.isReady">
   <button
     class="btn btn-custom"

@@ -72,6 +72,20 @@
   /* outline: solid 2px red; */
 }
 
+.turn-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.turn-icon {
+  width: 30px;
+  height: 30px;
+  margin-left: 15px;
+}
+
 @media screen and (max-width: 768px) {
   .game-boards {
     flex-direction: column;

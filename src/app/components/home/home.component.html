@@ -69,6 +69,18 @@
           <app-board [isOpponent]="true"></app-board>
         </div>
       </section>
+      <div class="turn-indicator">
+        <span>Your Turn: </span>
+        <img
+          [src]="
+            player.isTurn
+              ? 'assets/images/green-circle.png'
+              : 'assets/images/red-circle.png'
+          "
+          alt="turn indicator"
+          class="turn-icon"
+        />
+      </div>
       <div class="instructions-area" *ngIf="player.isReady && opponent.isReady">
         <span class="instructions-txt">
           {{ opponent.isReady ? gameInstructions : waitingInstructions }}
