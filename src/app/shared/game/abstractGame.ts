@@ -44,6 +44,9 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   playerOne: IPlayer | null = null;
   playerTwo: IPlayer | null = null;
 
+  private _lastPlayerUpdate: IPlayer | null = null;
+  private _lastOpponentUpdate: IPlayer | null = null;
+
   private _playerSubscription!: Subscription;
   private _opponentSubscription!: Subscription;
   private _activePlayersSubscription!: Subscription;
@@ -159,10 +162,8 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
 
   private _resetGame(player: IPlayer): void {
     if (this.requestId) {
-      console.log('reset game requestId:', this.requestId);
       this._dataService.deleteRequest(this.requestId);
     }
-    console.log('reset game player:', player.name);
     const board = this._boardService.createBoard(player);
     const updatedPlayerData = {
       ...player,
@@ -241,23 +242,30 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     const playerScore = player.score;
     const opponentScore = opponent.score;
 
-    this.loading = true;
-    this._gameService.updateOpponent(opponent);
-    this.loading = false;
+    if (this._hasPlayerChanged(opponent)) {
+      this.loading = true;
+      this._gameService.updateOpponent(opponent);
+      this.loading = false;
+      this._lastOpponentUpdate = opponent;
+    }
 
     if (currentTime > this.lastUpdated) {
-
       if (playerScore === GAME.WINNING_SCORE) {
         this._updateWinner(player);
       } else if (opponentScore === GAME.WINNING_SCORE) {
         this._updateWinner(opponent);
-      } else {
+      } else if (this._hasPlayerChanged(player)) {
         this.loading = true;
         this._gameService.updatePlayer(player);
-        this._gameService.updateOpponent(opponent);
         this.loading = false;
+        this._lastPlayerUpdate = player;
       }
     }
+  }
+
+  private _hasPlayerChanged(player: IPlayer): boolean {
+    const lastUpdate = player.id === this.player?.id ? this._lastPlayerUpdate : this._lastOpponentUpdate;
+    return !lastUpdate || JSON.stringify(player) !== JSON.stringify(lastUpdate);
   }
 
 
@@ -276,12 +284,13 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
       this.modalMessage = `${winner.name} has won the game.`;
 
       setTimeout(() => {
-        this._resetGame(this.playerOne!);
-      }, 2000);
-
-      setTimeout(() => {
-        this._resetGame(this.playerTwo!);
-      }, 2000);
+        if (this.playerOne) {
+          this._resetGame(this.playerOne!);
+        }
+        if (this.playerTwo) {
+          this._resetGame(this.playerTwo!);
+        }
+      }, 4000);
     }
   }
 
