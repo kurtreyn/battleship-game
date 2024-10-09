@@ -7,7 +7,7 @@ import { BoardService } from 'src/app/services/board.service';
 import { IPlayer, ICell } from 'src/app/models/game';
 import { Subscription, BehaviorSubject } from 'rxjs';
 import { GAME } from 'src/app/enums/enums';
-import { take, switchMap, filter } from 'rxjs/operators';
+import { take, switchMap, filter, distinctUntilChanged } from 'rxjs/operators';
 import { SHIP_NAME } from 'src/app/enums/enums';
 
 @Injectable({
@@ -369,13 +369,19 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   }
 
   private _subscribeToPlayerUpdates(): void {
-    this._playerSubscription = this._gameService.player$.subscribe(player => {
+    this._playerSubscription = this._gameService.player$.pipe(
+      // used to reduce the number of updates to the player
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+    ).subscribe(player => {
       if (player) {
         this._managePlayerUpdate(player);
       }
     });
 
-    this._opponentSubscription = this._gameService.opponent$.subscribe(opponent => {
+    this._opponentSubscription = this._gameService.opponent$.pipe(
+      // used to reduce the number of updates to the opponent
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+    ).subscribe(opponent => {
       if (opponent) {
         this._manageOpponentUpdate(opponent);
       }
