@@ -23,6 +23,7 @@ export class GameService {
   }
 
   updatePlayer(player: IPlayer): void {
+    console.log('Game Service updating player:', player.name);
     try {
       this._player.next(player);
     } catch (error) {
@@ -31,6 +32,7 @@ export class GameService {
   }
 
   updateOpponent(opponent: IPlayer): void {
+    console.log('Game Service updating opponent:', opponent.name);
     try {
       this._opponent.next(opponent);
     } catch (error) {

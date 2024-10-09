@@ -159,8 +159,10 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
 
   private _resetGame(player: IPlayer): void {
     if (this.requestId) {
+      console.log('reset game requestId:', this.requestId);
       this._dataService.deleteRequest(this.requestId);
     }
+    console.log('reset game player:', player.name);
     const board = this._boardService.createBoard(player);
     const updatedPlayerData = {
       ...player,
@@ -275,6 +277,9 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
 
       setTimeout(() => {
         this._resetGame(this.playerOne!);
+      }, 2000);
+
+      setTimeout(() => {
         this._resetGame(this.playerTwo!);
       }, 2000);
     }

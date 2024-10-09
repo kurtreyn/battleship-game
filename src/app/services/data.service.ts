@@ -64,6 +64,7 @@ export class DataService {
 
 
   updatePlayer(player: IPlayer) {
+    console.log('Data Service updating player:', player.name);
     return from(this._afs.doc('/players/' + player.id).update(player)).pipe(
       catchError(error => {
         console.error('Error updating player:', error);
