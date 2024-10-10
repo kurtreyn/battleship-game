@@ -418,7 +418,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
       filter(player => player !== null),
       switchMap(player => {
         return combineLatest([
-          this._dataService.getPlayerById(player.playerId),
+          this._dataService.getPlayerById(player!.playerId),
           this._dataService.getRequests()
         ]);
       })
