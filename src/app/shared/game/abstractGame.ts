@@ -5,7 +5,7 @@ import { DataService } from 'src/app/services/data.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { BoardService } from 'src/app/services/board.service';
 import { IPlayer, ICell } from 'src/app/models/game';
-import { Subscription, BehaviorSubject } from 'rxjs';
+import { Subscription, BehaviorSubject, combineLatest } from 'rxjs';
 import { GAME } from 'src/app/enums/enums';
 import { take, switchMap, filter, distinctUntilChanged } from 'rxjs/operators';
 import { SHIP_NAME } from 'src/app/enums/enums';
@@ -52,6 +52,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   private _activePlayersSubscription!: Subscription;
   private _currentUserSubscription!: Subscription;
   private _requestsSubscription!: Subscription;
+  private _gameStateSubscription!: Subscription;
   private _playerSubject: BehaviorSubject<IPlayer | null> = new BehaviorSubject<IPlayer | null>(null);
 
 
@@ -67,6 +68,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     this._subscribeToPlayerUpdates();
     this._subscribeToRequests();
     this._subscribeToActivePlayers();
+    this._subscribeToGameState();
   }
 
   ngOnDestroy(): void {
@@ -75,6 +77,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     this._activePlayersSubscription.unsubscribe();
     this._currentUserSubscription.unsubscribe();
     this._requestsSubscription.unsubscribe();
+    this._gameStateSubscription.unsubscribe();
   }
 
 
@@ -373,6 +376,13 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     }
   }
 
+  private _checkGameEndConditions(playerOne: IPlayer, playerTwo: IPlayer): void {
+    if (playerOne.score === GAME.WINNING_SCORE || playerTwo.score === GAME.WINNING_SCORE) {
+      const winner = playerOne.score === GAME.WINNING_SCORE ? playerOne : playerTwo;
+      this._updateWinner(winner);
+    }
+  }
+
   private _subscribeToPlayerUpdates(): void {
     this._playerSubscription = this._gameService.player$.pipe(
       // used to reduce the number of updates to the player
@@ -399,6 +409,41 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     ).subscribe(updatedPlayer => {
       if (updatedPlayer) {
         this._gameService.updatePlayer(updatedPlayer);
+      }
+    });
+  }
+
+  private _subscribeToGameState(): void {
+    this._gameStateSubscription = this._playerSubject.pipe(
+      filter(player => player !== null),
+      switchMap(player => {
+        return combineLatest([
+          this._dataService.getPlayerById(player.playerId),
+          this._dataService.getRequests()
+        ]);
+      })
+    ).subscribe(([player, requests]) => {
+      if (player && requests) {
+        const activeGame = requests.find(request =>
+          request.gameStarted === true &&
+          (request.challengerId === player.id || request.opponentId === player.id)
+        );
+
+        if (activeGame) {
+          this.sessionId = activeGame.id;
+          this.requestId = activeGame.id;
+          this.lastUpdated = activeGame.lastUpdated;
+
+          const opponentId = activeGame.challengerId === player.id ? activeGame.opponentId : activeGame.challengerId;
+
+          this._dataService.getPlayerById(opponentId).pipe(take(1)).subscribe(opponent => {
+            if (opponent) {
+              this._gameService.updatePlayer(player);
+              this._gameService.updateOpponent(opponent);
+              this._checkGameEndConditions(player, opponent);
+            }
+          });
+        }
       }
     });
   }
@@ -558,5 +603,15 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
         }
       }
     });
+  }
+
+  protected updateGameState(updatedPlayer: IPlayer): void {
+    this._dataService.updatePlayer(updatedPlayer);
+    const updatedTime = new Date().getTime();
+    const responded = true;
+    const accepted = true;
+    const gameStarted = true;
+    const gameEnded = false;
+    this._dataService.sendUpdate(this.requestId, responded, accepted, gameStarted, updatedTime, gameEnded);
   }
 }
