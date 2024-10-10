@@ -207,6 +207,7 @@ export class BoardComponent extends AbstractGame {
       }
 
       this._triggerUpdate();
+      this.updateGameState(this.player);
     }
   }
 
