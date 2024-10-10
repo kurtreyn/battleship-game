@@ -369,23 +369,35 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   }
 
   private _subscribeToPlayerUpdates(): void {
-    this._playerSubscription = this._gameService.player$.pipe(
-      // used to reduce the number of updates to the player
-      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
-    ).subscribe(player => {
+    // this._playerSubscription = this._gameService.player$.pipe(
+    //   // used to reduce the number of updates to the player
+    //   distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+    // ).subscribe(player => {
+    //   if (player) {
+    //     this._managePlayerUpdate(player);
+    //   }
+    // });
+
+    this._playerSubscription = this._gameService.player$.subscribe(player => {
       if (player) {
         this._managePlayerUpdate(player);
       }
-    });
+    })
 
-    this._opponentSubscription = this._gameService.opponent$.pipe(
-      // used to reduce the number of updates to the opponent
-      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
-    ).subscribe(opponent => {
+    // this._opponentSubscription = this._gameService.opponent$.pipe(
+    //   // used to reduce the number of updates to the opponent
+    //   distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+    // ).subscribe(opponent => {
+    //   if (opponent) {
+    //     this._manageOpponentUpdate(opponent);
+    //   }
+    // });
+
+    this._opponentSubscription = this._gameService.opponent$.subscribe(opponent => {
       if (opponent) {
         this._manageOpponentUpdate(opponent);
       }
-    });
+    })
   }
 
   private _subscribeToRequests(): void {
