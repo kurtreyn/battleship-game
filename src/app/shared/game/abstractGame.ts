@@ -308,8 +308,10 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   private _checkAndUpdatePlayers(playerOne: IPlayer, playerTwo: IPlayer, playerId: string, currentTime: number) {
     if (playerOne.id === playerId) {
       this._handlePlayerUpdate(playerOne, playerTwo, playerId, currentTime);
+      this._gameService.updateOpponent(playerTwo);
     } else if (playerTwo.id === playerId) {
       this._handlePlayerUpdate(playerTwo, playerOne, playerId, currentTime);
+      this._gameService.updateOpponent(playerOne);
     }
   }
 
@@ -389,6 +391,14 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     ).subscribe(opponent => {
       if (opponent) {
         this._manageOpponentUpdate(opponent);
+      }
+    });
+
+    this._dataService.getPlayerById(this.player.playerId).pipe(
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+    ).subscribe(updatedPlayer => {
+      if (updatedPlayer) {
+        this._gameService.updatePlayer(updatedPlayer);
       }
     });
   }
