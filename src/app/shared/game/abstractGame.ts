@@ -264,6 +264,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
       } else if (this._hasPlayerChanged(player)) {
         this.loading = true;
         this._gameService.updatePlayer(player, '_handlePlayerUpdate - gameService.updatePlayer called');
+        this._dataService.updatePlayer(player, '_handlePlayerUpdate - dataService.updatePlayer'); // Add this line
         this.loading = false;
         this._lastPlayerUpdate = player;
       }
@@ -392,6 +393,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     ).subscribe(player => {
       if (player) {
         this._managePlayerUpdate(player);
+        this._dataService.updatePlayer(player, '_subscribeToPlayerUpdates - dataService.updatePlayer player'); // Add this line
       }
     });
 
@@ -401,6 +403,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     ).subscribe(opponent => {
       if (opponent) {
         this._manageOpponentUpdate(opponent);
+        this._dataService.updatePlayer(opponent, '_subscribeToPlayerUpdates - dataService.updatePlayer opponent'); // Add this line
       }
     });
   }
