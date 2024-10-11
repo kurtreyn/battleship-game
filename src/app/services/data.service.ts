@@ -63,10 +63,7 @@ export class DataService {
   }
 
 
-  updatePlayer(player: IPlayer, calledFrom?: string) {
-    if (calledFrom) {
-      console.log(calledFrom);
-    }
+  updatePlayer(player: IPlayer) {
     return from(this._afs.doc('/players/' + player.id).update(player)).pipe(
       catchError(error => {
         console.error('Error updating player:', error);
@@ -104,10 +101,7 @@ export class DataService {
     );
   }
 
-  sendUpdate(requestId: string, responded: boolean, accepted: boolean, gameStarted?: boolean, lastUpdated?: number, gameEnded?: boolean, calledFrom?: string) {
-    if (calledFrom) {
-      console.log(calledFrom);
-    }
+  sendUpdate(requestId: string, responded: boolean, accepted: boolean, gameStarted?: boolean, lastUpdated?: number, gameEnded?: boolean) {
     return from(this._afs.doc('/requests/' + requestId).update({
       responded: responded,
       accepted: accepted,

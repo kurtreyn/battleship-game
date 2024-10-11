@@ -167,11 +167,12 @@ export class BoardComponent extends AbstractGame {
                 rows: player.board!.rows
               }
             }
+
             // update player data
-            this.dataService.updatePlayer(updatedPlayerData, 'board component dataService.updatePlayer - onCellClick');
+            this.dataService.updatePlayer(updatedPlayerData)
             // update opponent data
-            this.dataService.updatePlayer(updatedOpponentData, 'board component dataService.updatePlayer - onCellClick');
-            this.gameService.updatePlayerAndOpponent(updatedPlayerData, updatedOpponentData, 'board component gameService.updatePlayerAndOpponent - onCellClick');
+            this.dataService.updatePlayer(updatedOpponentData);
+            this.gameService.updatePlayerAndOpponent(updatedPlayerData, updatedOpponentData);
 
           } else {
             cell.miss = true;
@@ -197,15 +198,15 @@ export class BoardComponent extends AbstractGame {
             }
 
             // update player data
-            this.dataService.updatePlayer(updatedPlayerData, 'board component dataService.updatePlayer - onCellClick');
+            this.dataService.updatePlayer(updatedPlayerData)
             // update opponent data
-            this.dataService.updatePlayer(updatedOpponentData, 'board component dataService.updatePlayer - onCellClick');
-            this.gameService.updatePlayerAndOpponent(updatedPlayerData, updatedOpponentData, 'board component gameService.updatePlayerAndOpponent - onCellClick');
+            this.dataService.updatePlayer(updatedOpponentData);
+            this.gameService.updatePlayerAndOpponent(updatedPlayerData, updatedOpponentData);
           }
         }
       }
 
-      this._triggerUpdate('onCellClick calling triggerUpdate which calls dataService.sendUpdate');
+      this._triggerUpdate();
     }
   }
 
@@ -285,14 +286,14 @@ export class BoardComponent extends AbstractGame {
     }
   }
 
-  private _triggerUpdate(calledFrom?: string) {
+  private _triggerUpdate() {
     const updatedTime = new Date().getTime();
     const responded = true;
     const accepted = true;
     const gameStarted = true;
     const gameEnded = false;
     // used to trigger update on opponent's screen
-    this.dataService.sendUpdate(this.requestId, responded, accepted, gameStarted, updatedTime, gameEnded, calledFrom);
+    this.dataService.sendUpdate(this.requestId, responded, accepted, gameStarted, updatedTime, gameEnded);
   }
 
   private _returnMobileCell(cellElement: HTMLElement) {

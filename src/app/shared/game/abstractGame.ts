@@ -5,9 +5,9 @@ import { DataService } from 'src/app/services/data.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { BoardService } from 'src/app/services/board.service';
 import { IPlayer, ICell } from 'src/app/models/game';
+import { Subscription, BehaviorSubject } from 'rxjs';
 import { GAME } from 'src/app/enums/enums';
-import { Subscription, BehaviorSubject, forkJoin, of } from 'rxjs';
-import { take, switchMap, filter, distinctUntilChanged, catchError, tap, mergeMap } from 'rxjs/operators';
+import { take, switchMap, filter, distinctUntilChanged } from 'rxjs/operators';
 import { SHIP_NAME } from 'src/app/enums/enums';
 
 @Injectable({
@@ -244,60 +244,34 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   }
 
 
-  private _handlePlayerUpdate(player: IPlayer, opponent: IPlayer, currentTime: number) {
-    console.log(`_handlePlayerUpdate called for ${player.name}, isTurn: ${player.isTurn}`);
-
-    const updateObservables = [];
+  private _handlePlayerUpdate(player: IPlayer, opponent: IPlayer, playerId: string, currentTime: number) {
+    const playerScore = player.score;
+    const opponentScore = opponent.score;
 
     if (this._hasPlayerChanged(opponent)) {
-      console.log(`Opponent ${opponent.name} has changed, updating...`);
       this.loading = true;
       this._gameService.updateOpponent(opponent);
-      updateObservables.push(this._dataService.updatePlayer(opponent));
+      this.loading = false;
+      this._lastOpponentUpdate = opponent;
     }
 
     if (currentTime > this.lastUpdated) {
-      console.log(`Current time ${currentTime} is greater than last updated ${this.lastUpdated}`);
-      if (player.score === GAME.WINNING_SCORE || opponent.score === GAME.WINNING_SCORE) {
-        this._updateWinner(player.score === GAME.WINNING_SCORE ? player : opponent);
+      if (playerScore === GAME.WINNING_SCORE) {
+        this._updateWinner(player);
+      } else if (opponentScore === GAME.WINNING_SCORE) {
+        this._updateWinner(opponent);
       } else if (this._hasPlayerChanged(player)) {
-        console.log(`Player ${player.name} has changed, updating...`);
         this.loading = true;
-        this._gameService.updatePlayer(player, '_handlePlayerUpdate - gameService.updatePlayer called');
-        updateObservables.push(this._dataService.updatePlayer(player));
+        this._gameService.updatePlayer(player);
+        this.loading = false;
+        this._lastPlayerUpdate = player;
       }
-    }
-
-    if (updateObservables.length > 0) {
-      forkJoin(updateObservables).pipe(
-        tap(() => {
-          console.log('All updates completed');
-          this.loading = false;
-          this._lastPlayerUpdate = { ...player };
-          this._lastOpponentUpdate = { ...opponent };
-          this.lastUpdated = currentTime;
-        }),
-        catchError(error => {
-          console.error('Error updating players:', error);
-          this.loading = false;
-          return of(null);
-        })
-      ).subscribe();
     }
   }
 
   private _hasPlayerChanged(player: IPlayer): boolean {
     const lastUpdate = player.id === this.player?.id ? this._lastPlayerUpdate : this._lastOpponentUpdate;
-    const playerData = JSON.stringify(player);
-    const lastUpdateData = JSON.stringify(lastUpdate);
-    if (lastUpdate) {
-      console.log(`_hasPlayerChanged, playerData: Name:${player.name} - isTurn ${player.isTurn}`);
-      console.log(`_hasPlayerChanged, lastUpdateData: Name:${lastUpdate.name} - isTurn: ${lastUpdate.isTurn}`);
-    }
-    const hasPlayerChanged = !lastUpdate || playerData !== lastUpdateData;
-    console.log(`_hasPlayerChanged, hasPlayerChanged: ${hasPlayerChanged}`);
-
-    return hasPlayerChanged;
+    return !lastUpdate || JSON.stringify(player) !== JSON.stringify(lastUpdate);
   }
 
 
@@ -328,16 +302,11 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   }
 
 
-  private _checkAndUpdatePlayers(playerOne: IPlayer, playerTwo: IPlayer, playerId: string, currentTime: number, calledFrom: string): void {
-    if (calledFrom) {
-      console.log(calledFrom);
-    }
+  private _checkAndUpdatePlayers(playerOne: IPlayer, playerTwo: IPlayer, playerId: string, currentTime: number) {
     if (playerOne.id === playerId) {
-      console.log('playerOne.id === playerId');
-      this._handlePlayerUpdate(playerOne, playerTwo, currentTime);
+      this._handlePlayerUpdate(playerOne, playerTwo, playerId, currentTime);
     } else if (playerTwo.id === playerId) {
-      console.log('playerTwo.id === playerId');
-      this._handlePlayerUpdate(playerTwo, playerOne, currentTime);
+      this._handlePlayerUpdate(playerTwo, playerOne, playerId, currentTime);
     }
   }
 
@@ -355,7 +324,6 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   }
 
   private _managePlayerUpdate(player: IPlayer): void {
-    console.log('managePlayerUpdate called')
     if (player.isReady) {
       this._initializePlayer(player);
     } else {
@@ -364,7 +332,6 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   }
 
   private _manageOpponentUpdate(opponent: IPlayer): void {
-    console.log('manageOpponentUpdate called')
     this.opponent = opponent;
   }
 
@@ -403,24 +370,22 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
 
   private _subscribeToPlayerUpdates(): void {
     this._playerSubscription = this._gameService.player$.pipe(
-      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
-      filter(player => !!player),
-      tap(player => console.log(`Player update received for ${player!.name}, isTurn: ${player!.isTurn}`)),
-      tap(player => this._managePlayerUpdate(player!)),
-      mergeMap(player => this._dataService.updatePlayer(player!).pipe(
-        tap(() => console.log(`Player ${player!.name} updated in database from subscription`))
-      ))
-    ).subscribe();
+      // used to reduce the number of updates to the player
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+    ).subscribe(player => {
+      if (player) {
+        this._managePlayerUpdate(player);
+      }
+    });
 
     this._opponentSubscription = this._gameService.opponent$.pipe(
-      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
-      filter(opponent => !!opponent),
-      tap(opponent => console.log(`Opponent update received for ${opponent!.name}, isTurn: ${opponent!.isTurn}`)),
-      tap(opponent => this._manageOpponentUpdate(opponent!)),
-      mergeMap(opponent => this._dataService.updatePlayer(opponent!).pipe(
-        tap(() => console.log(`Opponent ${opponent!.name} updated in database from subscription`))
-      ))
-    ).subscribe();
+      // used to reduce the number of updates to the opponent
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+    ).subscribe(opponent => {
+      if (opponent) {
+        this._manageOpponentUpdate(opponent);
+      }
+    });
   }
 
   private _subscribeToRequests(): void {
@@ -565,8 +530,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
                   this.playerOne = playerOne;
                   this.playerTwo = playerTwo;
 
-                  this._checkAndUpdatePlayers(playerOne, playerTwo, playerId, currentTime, 'gameInProgress - checkAndUpdatePlayers called');
-                  this._checkAndUpdatePlayers(playerTwo, playerOne, playerId, currentTime, 'gameInProgress - checkAndUpdatePlayers called');
+                  this._checkAndUpdatePlayers(playerOne, playerTwo, playerId, currentTime);
                 }
               }, error => {
                 this.loading = false;
