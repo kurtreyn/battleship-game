@@ -263,7 +263,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
         this._updateWinner(opponent);
       } else if (this._hasPlayerChanged(player)) {
         this.loading = true;
-        this._gameService.updatePlayer(player);
+        this._gameService.updatePlayer(player, '_handlePlayerUpdate - gameService.updatePlayer called');
         this.loading = false;
         this._lastPlayerUpdate = player;
       }
@@ -275,12 +275,13 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     const playerData = JSON.stringify(player);
     const lastUpdateData = JSON.stringify(lastUpdate);
     if (lastUpdate) {
-      console.log('_hasPlayerChanged, lastUpdate:', lastUpdate.isTurn);
-      console.log(`_hasPlayerChanged, playerData:`);
-      console.log(`_hasPlayerChanged, lastUpdateData:`);
+      console.log(`_hasPlayerChanged, playerData: Name:${player.name} - isTurn ${player.isTurn}`);
+      console.log(`_hasPlayerChanged, lastUpdateData: Name:${lastUpdate.name} - isTurn: ${lastUpdate.isTurn}`);
     }
+    const hasPlayerChanged = !lastUpdate || playerData !== lastUpdateData;
+    console.log(`_hasPlayerChanged, hasPlayerChanged: ${hasPlayerChanged}`);
 
-    return !lastUpdate || playerData !== lastUpdateData;
+    return hasPlayerChanged;
   }
 
 
@@ -316,8 +317,10 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
       console.log(calledFrom);
     }
     if (playerOne.id === playerId) {
+      console.log('playerOne.id === playerId');
       this._handlePlayerUpdate(playerOne, playerTwo, currentTime);
     } else if (playerTwo.id === playerId) {
+      console.log('playerTwo.id === playerId');
       this._handlePlayerUpdate(playerTwo, playerOne, currentTime);
     }
   }
@@ -544,7 +547,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
                   this.playerOne = playerOne;
                   this.playerTwo = playerTwo;
 
-                  this._checkAndUpdatePlayers(playerOne, playerTwo, playerId, currentTime, 'checkAndUpdatePlayers called');
+                  this._checkAndUpdatePlayers(playerOne, playerTwo, playerId, currentTime, 'gameInProgress - checkAndUpdatePlayers called');
                 }
               }, error => {
                 this.loading = false;
