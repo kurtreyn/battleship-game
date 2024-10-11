@@ -22,7 +22,10 @@ export class GameService {
     this._player.next(player);
   }
 
-  updatePlayer(player: IPlayer): void {
+  updatePlayer(player: IPlayer, calledFrom?: string): void {
+    if (calledFrom) {
+      console.log(calledFrom);
+    }
     try {
       this._player.next(player);
     } catch (error) {
@@ -30,7 +33,10 @@ export class GameService {
     }
   }
 
-  updateOpponent(opponent: IPlayer): void {
+  updateOpponent(opponent: IPlayer, calledFrom?: string): void {
+    if (calledFrom) {
+      console.log(calledFrom);
+    }
     try {
       this._opponent.next(opponent);
     } catch (error) {
@@ -38,7 +44,10 @@ export class GameService {
     }
   }
 
-  updatePlayerAndOpponent(player: IPlayer, opponent: IPlayer): void {
+  updatePlayerAndOpponent(player: IPlayer, opponent: IPlayer, calledFrom?: string): void {
+    if (calledFrom) {
+      console.log(calledFrom);
+    }
     try {
       this._player.next(player);
       this._opponent.next(opponent);
