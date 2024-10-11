@@ -18,6 +18,17 @@ export interface IPlayer {
     boardSetup?: IBoardSetup;
 }
 
+export interface IGame {
+    playerOne?: IPlayer;
+    playerTwo?: IPlayer;
+    requestId?: string;
+    responded?: boolean;
+    accepted?: boolean;
+    gameStarted?: boolean;
+    lastUpdated?: number;
+    gameEnded?: boolean;
+}
+
 export interface IBoard {
     cells: ICell[];
     rows: { [key: string]: ICell[] };

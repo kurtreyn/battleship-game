@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, from, of } from 'rxjs';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { IPlayer } from '../models/game';
+import { IPlayer, IGame } from '../models/game';
 import { map, take, catchError } from 'rxjs/operators';
 
 @Injectable({
@@ -82,7 +82,7 @@ export class DataService {
   }
 
   sendRequests(requestId: string, challengerId: string, challengerName: string, opponentId: string, opponentName: string) {
-    return from(this._afs.collection('/requests').add({
+    return from(this._afs.collection('/games').add({
       requestId,
       challengerId,
       challengerName,
@@ -101,8 +101,17 @@ export class DataService {
     );
   }
 
+  updateGame(requestId: string, game: IGame) {
+    return from(this._afs.doc('/games/' + requestId).update(game)).pipe(
+      catchError(error => {
+        console.error('Error updating game:', error);
+        return of(null); // Return a fallback value or handle the error as needed
+      })
+    );
+  }
+
   sendUpdate(requestId: string, responded: boolean, accepted: boolean, gameStarted?: boolean, lastUpdated?: number, gameEnded?: boolean) {
-    return from(this._afs.doc('/requests/' + requestId).update({
+    return from(this._afs.doc('/games/' + requestId).update({
       responded: responded,
       accepted: accepted,
       gameStarted: gameStarted,
@@ -110,39 +119,39 @@ export class DataService {
       gameEnded: gameEnded
     })).pipe(
       catchError(error => {
-        console.error('Error sending update:', error);
+        console.error('Error sending game update:', error);
         return of(null); // Return a fallback value or handle the error as needed
       })
     );
   }
 
   respondToRequest(requestId: string, responded: boolean, accepted: boolean, gameStarted?: boolean) {
-    return from(this._afs.doc('/requests/' + requestId).update({ responded: responded, accepted: accepted, gameStarted: gameStarted })).pipe(
+    return from(this._afs.doc('/games/' + requestId).update({ responded: responded, accepted: accepted, gameStarted: gameStarted })).pipe(
       catchError(error => {
-        console.error('Error responding to request:', error);
+        console.error('Error responding to game request:', error);
         return of(null); // Return a fallback value or handle the error as needed
       })
     );
   }
 
   getRequests() {
-    return this._afs.collection('/requests').snapshotChanges().pipe(
+    return this._afs.collection('/games').snapshotChanges().pipe(
       map(actions => actions.map(a => {
         const data = a.payload.doc.data() as any;
         const id = a.payload.doc.id;
         return { id, ...data };
       })),
       catchError(error => {
-        console.error('Error fetching requests:', error);
+        console.error('Error fetching game requests:', error);
         return of([]); // Return a fallback value or handle the error as needed
       })
     );
   }
 
   deleteRequest(requestId: string) {
-    return from(this._afs.doc('/requests/' + requestId).delete()).pipe(
+    return from(this._afs.doc('/games/' + requestId).delete()).pipe(
       catchError(error => {
-        console.error('Error deleting request:', error);
+        console.error('Error deleting game request:', error);
         return of(null); // Return a fallback value or handle the error as needed
       })
     );

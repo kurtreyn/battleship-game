@@ -4,7 +4,7 @@ import { GameService } from 'src/app/services/game.service';
 import { DataService } from 'src/app/services/data.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { BoardService } from 'src/app/services/board.service';
-import { IPlayer, ICell } from 'src/app/models/game';
+import { IPlayer, ICell, IGame } from 'src/app/models/game';
 import { Subscription, BehaviorSubject } from 'rxjs';
 import { GAME } from 'src/app/enums/enums';
 import { take, switchMap, filter, distinctUntilChanged } from 'rxjs/operators';
@@ -51,7 +51,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   private _opponentSubscription!: Subscription;
   private _activePlayersSubscription!: Subscription;
   private _currentUserSubscription!: Subscription;
-  private _requestsSubscription!: Subscription;
+  private _gamesSubscription!: Subscription;
   private _playerSubject: BehaviorSubject<IPlayer | null> = new BehaviorSubject<IPlayer | null>(null);
 
 
@@ -65,7 +65,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   ngOnInit(): void {
     this._getCurrentUser();
     this._subscribeToPlayerUpdates();
-    this._subscribeToRequests();
+    this._subscribeToGames();
     this._subscribeToActivePlayers();
   }
 
@@ -74,7 +74,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     this._opponentSubscription.unsubscribe();
     this._activePlayersSubscription.unsubscribe();
     this._currentUserSubscription.unsubscribe();
-    this._requestsSubscription.unsubscribe();
+    this._gamesSubscription.unsubscribe();
   }
 
 
@@ -388,8 +388,8 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     });
   }
 
-  private _subscribeToRequests(): void {
-    this._requestsSubscription = this._playerSubject.pipe(
+  private _subscribeToGames(): void {
+    this._gamesSubscription = this._playerSubject.pipe(
       filter(player => player !== null),
       switchMap(player => {
         this.loading = true;
@@ -501,6 +501,12 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
             const playerId = this.player?.id;
             this.lastUpdated = thisGame?.lastUpdated;
             const currentTime = new Date().getTime();
+            const pOne = thisGame?.playerOne;
+            const pTwo = thisGame?.playerTwo;
+            if (pOne && pTwo) {
+              console.log('pOne:', pOne.name);
+              console.log('pTwo:', pTwo.name);
+            }
 
             if (thisGame) {
               this.requestId = thisGame?.id;
@@ -516,26 +522,11 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
               }, 2000);
             } else {
               this.loading = true;
-              this._dataService.getAllPlayers().pipe(
-                take(1)
-              ).subscribe(players => {
-                this.loading = false;
-                // find the player who initiated the challenge/game and make them player one
-                const playerOne = players.find(player => player.playerId === thisGame?.challengerId);
-
-                // find the player who accepted the challenge/game and make them player two
-                const playerTwo = players.find(player => player.playerId === thisGame?.opponentId);
-
-                if (playerOne && playerTwo && playerOne.id && playerTwo.id && playerId) {
-                  this.playerOne = playerOne;
-                  this.playerTwo = playerTwo;
-
-                  this._checkAndUpdatePlayers(playerOne, playerTwo, playerId, currentTime);
-                }
-              }, error => {
-                this.loading = false;
-                console.error('Error getting players:', error);
-              })
+              if (pOne && pTwo && pOne.id && pTwo.id && playerId) {
+                this.playerOne = pOne;
+                this.playerTwo = pTwo;
+                this._checkAndUpdatePlayers(pOne, pTwo, playerId, currentTime);
+              }
             }
 
 

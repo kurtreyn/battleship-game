@@ -168,6 +168,23 @@ export class BoardComponent extends AbstractGame {
               }
             }
 
+            // update game data
+            if (this.playerOne && this.playerTwo) {
+              if (this.playerOne.playerId === this.player.playerId) {
+                const updatedGameData = {
+                  playerOne: updatedPlayerData,
+                  playerTwo: updatedOpponentData
+                }
+                this.dataService.updateGame(this.requestId, updatedGameData) // update player one
+              } else {
+                const updatedGameData = {
+                  playerOne: updatedOpponentData,
+                  playerTwo: updatedPlayerData
+                }
+                this.dataService.updateGame(this.requestId, updatedGameData) // update player two
+              }
+            }
+
             // update player data
             this.dataService.updatePlayer(updatedPlayerData)
             // update opponent data
