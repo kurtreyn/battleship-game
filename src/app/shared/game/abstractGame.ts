@@ -244,7 +244,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   }
 
 
-  private _handlePlayerUpdate(player: IPlayer, opponent: IPlayer, playerId: string, currentTime: number) {
+  private _handlePlayerUpdate(player: IPlayer, opponent: IPlayer, currentTime: number) {
     const playerScore = player.score;
     const opponentScore = opponent.score;
 
@@ -256,13 +256,15 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     }
 
     if (currentTime > this.lastUpdated) {
+      console.log('_handlePlayerUpdate, currentTime is greater than lastUpdated');
       if (playerScore === GAME.WINNING_SCORE) {
         this._updateWinner(player);
       } else if (opponentScore === GAME.WINNING_SCORE) {
         this._updateWinner(opponent);
       } else if (this._hasPlayerChanged(player)) {
         this.loading = true;
-        this._gameService.updatePlayer(player);
+        this._gameService.updatePlayer(player, '_handlePlayerUpdate - gameService.updatePlayer called');
+        this._dataService.updatePlayer(player, '_handlePlayerUpdate - dataService.updatePlayer'); // Add this line
         this.loading = false;
         this._lastPlayerUpdate = player;
       }
@@ -271,7 +273,16 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
 
   private _hasPlayerChanged(player: IPlayer): boolean {
     const lastUpdate = player.id === this.player?.id ? this._lastPlayerUpdate : this._lastOpponentUpdate;
-    return !lastUpdate || JSON.stringify(player) !== JSON.stringify(lastUpdate);
+    const playerData = JSON.stringify(player);
+    const lastUpdateData = JSON.stringify(lastUpdate);
+    if (lastUpdate) {
+      console.log(`_hasPlayerChanged, playerData: Name:${player.name} - isTurn ${player.isTurn}`);
+      console.log(`_hasPlayerChanged, lastUpdateData: Name:${lastUpdate.name} - isTurn: ${lastUpdate.isTurn}`);
+    }
+    const hasPlayerChanged = !lastUpdate || playerData !== lastUpdateData;
+    console.log(`_hasPlayerChanged, hasPlayerChanged: ${hasPlayerChanged}`);
+
+    return hasPlayerChanged;
   }
 
 
@@ -302,11 +313,16 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   }
 
 
-  private _checkAndUpdatePlayers(playerOne: IPlayer, playerTwo: IPlayer, playerId: string, currentTime: number) {
+  private _checkAndUpdatePlayers(playerOne: IPlayer, playerTwo: IPlayer, playerId: string, currentTime: number, calledFrom: string): void {
+    if (calledFrom) {
+      console.log(calledFrom);
+    }
     if (playerOne.id === playerId) {
-      this._handlePlayerUpdate(playerOne, playerTwo, playerId, currentTime);
+      console.log('playerOne.id === playerId');
+      this._handlePlayerUpdate(playerOne, playerTwo, currentTime);
     } else if (playerTwo.id === playerId) {
-      this._handlePlayerUpdate(playerTwo, playerOne, playerId, currentTime);
+      console.log('playerTwo.id === playerId');
+      this._handlePlayerUpdate(playerTwo, playerOne, currentTime);
     }
   }
 
@@ -324,6 +340,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   }
 
   private _managePlayerUpdate(player: IPlayer): void {
+    console.log('managePlayerUpdate called')
     if (player.isReady) {
       this._initializePlayer(player);
     } else {
@@ -332,6 +349,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   }
 
   private _manageOpponentUpdate(opponent: IPlayer): void {
+    console.log('manageOpponentUpdate called')
     this.opponent = opponent;
   }
 
@@ -375,6 +393,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     ).subscribe(player => {
       if (player) {
         this._managePlayerUpdate(player);
+        this._dataService.updatePlayer(player, '_subscribeToPlayerUpdates - dataService.updatePlayer player'); // Add this line
       }
     });
 
@@ -384,6 +403,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     ).subscribe(opponent => {
       if (opponent) {
         this._manageOpponentUpdate(opponent);
+        this._dataService.updatePlayer(opponent, '_subscribeToPlayerUpdates - dataService.updatePlayer opponent'); // Add this line
       }
     });
   }
@@ -530,7 +550,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
                   this.playerOne = playerOne;
                   this.playerTwo = playerTwo;
 
-                  this._checkAndUpdatePlayers(playerOne, playerTwo, playerId, currentTime);
+                  this._checkAndUpdatePlayers(playerOne, playerTwo, playerId, currentTime, 'gameInProgress - checkAndUpdatePlayers called');
                 }
               }, error => {
                 this.loading = false;
