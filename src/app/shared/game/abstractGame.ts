@@ -5,9 +5,9 @@ import { DataService } from 'src/app/services/data.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { BoardService } from 'src/app/services/board.service';
 import { IPlayer, ICell } from 'src/app/models/game';
-import { Subscription, BehaviorSubject } from 'rxjs';
+import { Subscription, BehaviorSubject, Subject } from 'rxjs';
 import { GAME } from 'src/app/enums/enums';
-import { take, switchMap, filter, distinctUntilChanged } from 'rxjs/operators';
+import { take, switchMap, filter, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { SHIP_NAME } from 'src/app/enums/enums';
 
 @Injectable({
@@ -53,6 +53,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   private _currentUserSubscription!: Subscription;
   private _requestsSubscription!: Subscription;
   private _playerSubject: BehaviorSubject<IPlayer | null> = new BehaviorSubject<IPlayer | null>(null);
+  private _destroy = new Subject<void>();
 
 
   constructor(
@@ -75,6 +76,8 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     this._activePlayersSubscription.unsubscribe();
     this._currentUserSubscription.unsubscribe();
     this._requestsSubscription.unsubscribe();
+    this._destroy.next();
+    this._destroy.complete();
   }
 
 
@@ -255,7 +258,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
       this._lastOpponentUpdate = opponent;
     }
 
-    if (currentTime > this.lastUpdated) {
+    if (currentTime > this.lastUpdated || currentTime > player.lastUpdated! || currentTime > opponent.lastUpdated!) {
       if (playerScore === GAME.WINNING_SCORE) {
         this._updateWinner(player);
       } else if (opponentScore === GAME.WINNING_SCORE) {
@@ -517,7 +520,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
             } else {
               this.loading = true;
               this._dataService.getAllPlayers().pipe(
-                take(1)
+                takeUntil(this._destroy)
               ).subscribe(players => {
                 this.loading = false;
                 // find the player who initiated the challenge/game and make them player one

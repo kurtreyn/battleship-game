@@ -16,6 +16,7 @@ export interface IPlayer {
     shipArray?: string[];
     board?: IBoard;
     boardSetup?: IBoardSetup;
+    lastUpdated?: number;
 }
 
 export interface IBoard {
