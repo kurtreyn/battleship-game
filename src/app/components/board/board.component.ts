@@ -148,7 +148,8 @@ export class BoardComponent extends AbstractGame {
                   return cell;
                 }),
                 rows: this.opponent.board!.rows
-              }
+              },
+              lastUpdated: new Date().getTime()
             };
 
             const updatedPlayerData = {
@@ -165,7 +166,8 @@ export class BoardComponent extends AbstractGame {
                   return cell;
                 }),
                 rows: player.board!.rows
-              }
+              },
+              lastUpdated: new Date().getTime()
             }
 
             // update player data
@@ -189,12 +191,14 @@ export class BoardComponent extends AbstractGame {
                   return cell;
                 }),
                 rows: this.opponent.board!.rows
-              }
+              },
+              lastUpdated: new Date().getTime()
             };
 
             const updatedPlayerData = {
               ...player,
               isTurn: false,
+              lastUpdated: new Date().getTime()
             }
 
             // update player data
