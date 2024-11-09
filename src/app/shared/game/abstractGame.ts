@@ -54,6 +54,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   private _requestsSubscription!: Subscription;
   private _playerSubject: BehaviorSubject<IPlayer | null> = new BehaviorSubject<IPlayer | null>(null);
   private _destroy = new Subject<void>();
+  private _gameEnded = new Subject<boolean>();
 
 
   constructor(
@@ -514,13 +515,14 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
               this.showModal = true;
               this.modalMessage = 'The game has been cancelled by the other player.';
               this.requiresUserAction = false;
+              this._gameEnded.next(true);
               setTimeout(() => {
                 this._resetGame(this.player);
               }, 2000);
             } else {
               this.loading = true;
               this._dataService.getAllPlayers().pipe(
-                takeUntil(this._destroy)
+                takeUntil(this._gameEnded),
               ).subscribe(players => {
                 this.loading = false;
                 // find the player who initiated the challenge/game and make them player one
