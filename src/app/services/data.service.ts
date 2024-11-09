@@ -147,4 +147,16 @@ export class DataService {
       })
     );
   }
+
+  resetPlayer(player: IPlayer) {
+    return from(this._afs.doc('/players/' + player.id).update({
+      isReady: false,
+      readyToEnterGame: false
+    })).pipe(
+      catchError(error => {
+        console.error('Error resetting player:', error);
+        return of(null); // Return a fallback value or handle the error as needed
+      })
+    );
+  }
 }

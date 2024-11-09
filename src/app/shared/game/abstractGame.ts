@@ -164,6 +164,26 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     // TODO: Implement game reset
   }
 
+  public resetPlayer() {
+    const board = this._boardService.createBoard(this.player);
+    const newPlayerData = {
+      ...this.player,
+      readyToEnterGame: false,
+      session: '',
+      score: 0,
+      finishedSetup: false,
+      isReady: false,
+      isWinner: false,
+      isTurn: false,
+      board: board,
+      shipLocations: this._boardService.initializeShipLocations(),
+      boardSetup: this._boardService.initializeBoardSetup(),
+      shipArray: [],
+    }
+    this._dataService.resetPlayer(newPlayerData);
+    this._gameService.updatePlayer(newPlayerData);
+  }
+
   private _resetGame(player: IPlayer): void {
     if (this.requestId) {
       this._dataService.deleteRequest(this.requestId);

@@ -92,6 +92,13 @@
       >
         Cancel Game
       </button>
+      <button
+        *ngIf="gameEnded"
+        class="btn btn-outline-danger cancel-game-btn"
+        (click)="resetPlayer()"
+      >
+        Cancel Game
+      </button>
     </section>
   </ng-template>
 </main>
