@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, from, of } from 'rxjs';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { IPlayer } from '../models/game';
+import { IPlayer, IGame } from '../models/game';
 import { map, take, catchError } from 'rxjs/operators';
 
 @Injectable({
@@ -62,6 +62,23 @@ export class DataService {
     return this._afs.doc('/players/' + player.id).delete()
   }
 
+  resetPlayer(player: IPlayer) {
+    const defaultPlayerValues = {
+      email: player.email,
+      id: player.id,
+      isActive: player.isActive,
+      isReady: false,
+      isTurn: false,
+      isWinner: false,
+      name: player.name,
+      playerId: player.playerId,
+      readyToEnterGame: false,
+      score: 0,
+    } as IPlayer;
+    return this._afs.doc('/players/' + player.id).update(defaultPlayerValues);
+
+  }
+
 
   updatePlayer(player: IPlayer) {
     return from(this._afs.doc('/players/' + player.id).update(player)).pipe(
@@ -101,6 +118,15 @@ export class DataService {
     );
   }
 
+  requestGame(gameDetails: IGame) {
+    return from(this._afs.collection('/games').add(gameDetails)).pipe(
+      catchError(error => {
+        console.error('Error requesting game:', error);
+        return of(null); // Return a fallback value or handle the error as needed
+      })
+    );
+  }
+
   sendUpdate(requestId: string, responded: boolean, accepted: boolean, gameStarted?: boolean, lastUpdated?: number, gameEnded?: boolean) {
     return from(this._afs.doc('/requests/' + requestId).update({
       responded: responded,
@@ -126,14 +152,14 @@ export class DataService {
   }
 
   getRequests() {
-    return this._afs.collection('/requests').snapshotChanges().pipe(
+    return this._afs.collection('/games').snapshotChanges().pipe(
       map(actions => actions.map(a => {
         const data = a.payload.doc.data() as any;
         const id = a.payload.doc.id;
         return { id, ...data };
       })),
       catchError(error => {
-        console.error('Error fetching requests:', error);
+        console.error('Error fetching game requests:', error);
         return of([]); // Return a fallback value or handle the error as needed
       })
     );
@@ -148,15 +174,4 @@ export class DataService {
     );
   }
 
-  resetPlayer(player: IPlayer) {
-    return from(this._afs.doc('/players/' + player.id).update({
-      isReady: false,
-      readyToEnterGame: false
-    })).pipe(
-      catchError(error => {
-        console.error('Error resetting player:', error);
-        return of(null); // Return a fallback value or handle the error as needed
-      })
-    );
-  }
 }

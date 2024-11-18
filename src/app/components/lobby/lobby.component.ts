@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { GameService } from 'src/app/services/game.service';
 import { DataService } from 'src/app/services/data.service';
 import { take } from 'rxjs/operators';
-import { IPlayer } from 'src/app/models/game';
+import { IPlayer, IGame } from 'src/app/models/game';
 
 @Component({
   selector: 'app-lobby',
@@ -61,9 +61,16 @@ export class LobbyComponent implements OnInit, OnDestroy {
           return;
         } else {
           if (this.player) {
-            const challengerId = this.player.playerId;
-            const challengerName = this.player.name;
-            this._dataService.sendRequests(requestId, challengerId, challengerName, opponentId, opponentName);
+            const newGameDetails = {
+              playerOne: this.player,
+              playerOneId: this.player.playerId,
+              playerOneName: this.player.name,
+              playerTwoId: opponentId,
+              playerTwoName: opponentName,
+              requestId: requestId,
+            } as IGame;
+
+            this._dataService.requestGame(newGameDetails);
             alert(`Challenge sent to ${opponentName}. Please wait for their response.`);
           }
         }

@@ -184,6 +184,10 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     this._gameService.updatePlayer(newPlayerData);
   }
 
+  resetToDefaultPlayer(): void {
+    this._dataService.resetPlayer(this.player);
+  }
+
   private _resetGame(player: IPlayer): void {
     if (this.requestId) {
       this._dataService.deleteRequest(this.requestId);
