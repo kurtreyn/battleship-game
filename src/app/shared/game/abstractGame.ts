@@ -353,6 +353,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     ).subscribe(player => {
       if (player) {
         this._managePlayerUpdate(player);
+        console.log('this.game:', this.game);
       }
     });
 
@@ -377,11 +378,9 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
 
 
         if (playerOneRequest) {
-          this.game = playerOneRequest;
           this._handlePlayerRequest(playerOneRequest);
         }
         if (playerTwoRequest) {
-          this.game = playerTwoRequest
           this._handlePlayerRequest(playerTwoRequest);
         }
       }
@@ -398,12 +397,20 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     const pTwoResponded = req.playerTwoResponded;
     const pTwoAccepted = req.playerTwoAccepted;
 
+    this.game = req;
+    console.log('this.game:', this.game);
+
     if (this.player.playerId === playerOneId) {
       if (pTwoResponded && pTwoAccepted) {
         this.showModal = true;
         this.modalMessage = `${playerTwoName} accepted your challenge. Are you ready to setup your board?`;
         this.requiresUserAction = true;
         this.beginSetupMode = true;
+
+        if (req.playerOne && req.playerTwo) {
+          this.opponent = req.playerTwo;
+          console.log('this.opponent:', this.opponent);
+        }
       }
     }
 
@@ -412,6 +419,13 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
         this.showModal = true;
         this.modalMessage = `You have a challenge from ${playerOneName}`;
         this.requiresUserAction = true;
+      }
+
+      if (pTwoResponded && pTwoAccepted) {
+        if (req.playerOne && req.playerTwo) {
+          this.opponent = req.playerOne;
+          console.log('this.opponent:', this.opponent);
+        }
       }
     }
 
