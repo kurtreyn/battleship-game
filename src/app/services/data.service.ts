@@ -8,8 +8,8 @@ import { map, take, catchError } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class DataService {
-  private _requests = new BehaviorSubject<any>(null);
-  requests$: Observable<any> = this._requests.asObservable();
+  private _game = new BehaviorSubject<IGame | null>(null);
+  game$: Observable<IGame | null> = this._game.asObservable();
 
   constructor(
     private _afs: AngularFirestore,
@@ -98,25 +98,25 @@ export class DataService {
     );
   }
 
-  sendRequests(requestId: string, challengerId: string, challengerName: string, opponentId: string, opponentName: string) {
-    return from(this._afs.collection('/requests').add({
-      requestId,
-      challengerId,
-      challengerName,
-      opponentId,
-      opponentName,
-      accepted: false,
-      responded: false,
-      gameStarted: false,
-      lastUpdated: new Date().getTime(),
-      gameEnded: false
-    })).pipe(
-      catchError(error => {
-        console.error('Error sending request:', error);
-        return of(null); // Return a fallback value or handle the error as needed
-      })
-    );
-  }
+  // sendRequests(requestId: string, challengerId: string, challengerName: string, opponentId: string, opponentName: string) {
+  //   return from(this._afs.collection('/requests').add({
+  //     requestId,
+  //     challengerId,
+  //     challengerName,
+  //     opponentId,
+  //     opponentName,
+  //     accepted: false,
+  //     responded: false,
+  //     gameStarted: false,
+  //     lastUpdated: new Date().getTime(),
+  //     gameEnded: false
+  //   })).pipe(
+  //     catchError(error => {
+  //       console.error('Error sending request:', error);
+  //       return of(null); // Return a fallback value or handle the error as needed
+  //     })
+  //   );
+  // }
 
   requestGame(gameDetails: IGame) {
     return from(this._afs.collection('/games').add(gameDetails)).pipe(
@@ -127,8 +127,31 @@ export class DataService {
     );
   }
 
+  updateGame(game: IGame) {
+    return from(this._afs.doc('/games/' + game.requestId).update(game)).pipe(
+      catchError(error => {
+        console.error('Error updating game:', error);
+        return of(null); // Return a fallback value or handle the error as needed
+      })
+    );
+  }
+
+  getGameUpdates() {
+    return this._afs.collection('/games').snapshotChanges().pipe(
+      map(actions => actions.map(a => {
+        const data = a.payload.doc.data() as IGame;
+        const id = a.payload.doc.id;
+        return { id, ...data };
+      })),
+      catchError(error => {
+        console.error('Error fetching game updates:', error);
+        return of([]); // Return a fallback value or handle the error as needed
+      })
+    );
+  }
+
   sendUpdate(requestId: string, responded: boolean, accepted: boolean, gameStarted?: boolean, lastUpdated?: number, gameEnded?: boolean) {
-    return from(this._afs.doc('/requests/' + requestId).update({
+    return from(this._afs.doc('/games/' + requestId).update({
       responded: responded,
       accepted: accepted,
       gameStarted: gameStarted,
@@ -143,7 +166,7 @@ export class DataService {
   }
 
   respondToRequest(requestId: string, responded: boolean, accepted: boolean, gameStarted?: boolean) {
-    return from(this._afs.doc('/requests/' + requestId).update({ responded: responded, accepted: accepted, gameStarted: gameStarted })).pipe(
+    return from(this._afs.doc('/games/' + requestId).update({ responded: responded, accepted: accepted, gameStarted: gameStarted })).pipe(
       catchError(error => {
         console.error('Error responding to request:', error);
         return of(null); // Return a fallback value or handle the error as needed
@@ -166,7 +189,7 @@ export class DataService {
   }
 
   deleteRequest(requestId: string) {
-    return from(this._afs.doc('/requests/' + requestId).delete()).pipe(
+    return from(this._afs.doc('/games/' + requestId).delete()).pipe(
       catchError(error => {
         console.error('Error deleting request:', error);
         return of(null); // Return a fallback value or handle the error as needed

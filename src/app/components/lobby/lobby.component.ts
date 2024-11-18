@@ -67,6 +67,8 @@ export class LobbyComponent implements OnInit, OnDestroy {
               playerOneName: this.player.name,
               playerTwoId: opponentId,
               playerTwoName: opponentName,
+              playerTwoResponded: false,
+              playerTwoAccepted: false,
               requestId: requestId,
             } as IGame;
 

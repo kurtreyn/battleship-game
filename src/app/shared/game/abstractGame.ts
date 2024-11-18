@@ -4,7 +4,7 @@ import { GameService } from 'src/app/services/game.service';
 import { DataService } from 'src/app/services/data.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { BoardService } from 'src/app/services/board.service';
-import { IPlayer, ICell } from 'src/app/models/game';
+import { IPlayer, ICell, IGame } from 'src/app/models/game';
 import { Subscription, BehaviorSubject, Subject } from 'rxjs';
 import { GAME } from 'src/app/enums/enums';
 import { take, switchMap, filter, distinctUntilChanged, takeUntil } from 'rxjs/operators';
@@ -51,8 +51,10 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   private _opponentSubscription!: Subscription;
   private _activePlayersSubscription!: Subscription;
   private _currentUserSubscription!: Subscription;
-  private _requestsSubscription!: Subscription;
+  // private _requestsSubscription!: Subscription;
+  private _gameSubscription!: Subscription;
   private _playerSubject: BehaviorSubject<IPlayer | null> = new BehaviorSubject<IPlayer | null>(null);
+  private _gameSubject: BehaviorSubject<IGame | null> = new BehaviorSubject<IGame | null>(null);
   private _destroy = new Subject<void>();
   private _gameEnded = new Subject<boolean>();
 
@@ -67,8 +69,9 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   ngOnInit(): void {
     this._getCurrentUser();
     this._subscribeToPlayerUpdates();
-    this._subscribeToRequests();
+    // this._subscribeToRequests();
     this._subscribeToActivePlayers();
+    this._subscribeToGameUpdates();
   }
 
   ngOnDestroy(): void {
@@ -76,7 +79,8 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     this._opponentSubscription.unsubscribe();
     this._activePlayersSubscription.unsubscribe();
     this._currentUserSubscription.unsubscribe();
-    this._requestsSubscription.unsubscribe();
+    // this._requestsSubscription.unsubscribe();
+    this._gameSubscription.unsubscribe();
     this._destroy.next();
     this._destroy.complete();
   }
@@ -244,6 +248,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
           this.loading = false;
           const player = players.find(player => player.playerId === user.uid);
           if (player) {
+            console.log('player:', player);
             this._gameService.setPlayer(player);
             this._playerSubject.next(player);
           }
@@ -262,81 +267,81 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     });
   }
 
-  private _isPlayerInGame(player: IPlayer): boolean {
-    if (player.session) {
-      if (player.session !== '') {
-        return true;
-      }
-    }
-    return false;
-  }
+  // private _isPlayerInGame(player: IPlayer): boolean {
+  //   if (player.session) {
+  //     if (player.session !== '') {
+  //       return true;
+  //     }
+  //   }
+  //   return false;
+  // }
 
 
-  private _handlePlayerUpdate(player: IPlayer, opponent: IPlayer, playerId: string, currentTime: number) {
-    const playerScore = player.score;
-    const opponentScore = opponent.score;
+  // private _handlePlayerUpdate(player: IPlayer, opponent: IPlayer, playerId: string, currentTime: number) {
+  //   const playerScore = player.score;
+  //   const opponentScore = opponent.score;
 
-    if (this._hasPlayerChanged(opponent)) {
-      this.loading = true;
-      this._gameService.updateOpponent(opponent);
-      this.loading = false;
-      this._lastOpponentUpdate = opponent;
-    }
+  //   if (this._hasPlayerChanged(opponent)) {
+  //     this.loading = true;
+  //     this._gameService.updateOpponent(opponent);
+  //     this.loading = false;
+  //     this._lastOpponentUpdate = opponent;
+  //   }
 
-    if (currentTime > this.lastUpdated || currentTime > player.lastUpdated! || currentTime > opponent.lastUpdated!) {
-      if (playerScore === GAME.WINNING_SCORE) {
-        this._updateWinner(player);
-      } else if (opponentScore === GAME.WINNING_SCORE) {
-        this._updateWinner(opponent);
-      } else if (this._hasPlayerChanged(player)) {
-        this.loading = true;
-        this._gameService.updatePlayer(player);
-        this.loading = false;
-        this._lastPlayerUpdate = player;
-      }
-    }
-  }
+  //   if (currentTime > this.lastUpdated || currentTime > player.lastUpdated! || currentTime > opponent.lastUpdated!) {
+  //     if (playerScore === GAME.WINNING_SCORE) {
+  //       this._updateWinner(player);
+  //     } else if (opponentScore === GAME.WINNING_SCORE) {
+  //       this._updateWinner(opponent);
+  //     } else if (this._hasPlayerChanged(player)) {
+  //       this.loading = true;
+  //       this._gameService.updatePlayer(player);
+  //       this.loading = false;
+  //       this._lastPlayerUpdate = player;
+  //     }
+  //   }
+  // }
 
-  private _hasPlayerChanged(player: IPlayer): boolean {
-    const lastUpdate = player.id === this.player?.id ? this._lastPlayerUpdate : this._lastOpponentUpdate;
-    return !lastUpdate || JSON.stringify(player) !== JSON.stringify(lastUpdate);
-  }
-
-
-  private _updateWinner(winner: IPlayer) {
-    const updatedWinnerData = {
-      ...winner,
-      isWinner: true
-    } as IPlayer;
-
-    this._dataService.updatePlayer(updatedWinnerData);
-    this._gameService.updatePlayer(updatedWinnerData);
-    this.gameCompleted = true;
-
-    if (this.gameCompleted) {
-      this.showModal = true;
-      this.modalMessage = `${winner.name} has won the game.`;
-      this.requiresUserAction = false;
-
-      setTimeout(() => {
-        if (this.playerOne) {
-          this._resetGame(this.playerOne!);
-        }
-        if (this.playerTwo) {
-          this._resetGame(this.playerTwo!);
-        }
-      }, 4000);
-    }
-  }
+  // private _hasPlayerChanged(player: IPlayer): boolean {
+  //   const lastUpdate = player.id === this.player?.id ? this._lastPlayerUpdate : this._lastOpponentUpdate;
+  //   return !lastUpdate || JSON.stringify(player) !== JSON.stringify(lastUpdate);
+  // }
 
 
-  private _checkAndUpdatePlayers(playerOne: IPlayer, playerTwo: IPlayer, playerId: string, currentTime: number) {
-    if (playerOne.id === playerId) {
-      this._handlePlayerUpdate(playerOne, playerTwo, playerId, currentTime);
-    } else if (playerTwo.id === playerId) {
-      this._handlePlayerUpdate(playerTwo, playerOne, playerId, currentTime);
-    }
-  }
+  // private _updateWinner(winner: IPlayer) {
+  //   const updatedWinnerData = {
+  //     ...winner,
+  //     isWinner: true
+  //   } as IPlayer;
+
+  //   this._dataService.updatePlayer(updatedWinnerData);
+  //   this._gameService.updatePlayer(updatedWinnerData);
+  //   this.gameCompleted = true;
+
+  //   if (this.gameCompleted) {
+  //     this.showModal = true;
+  //     this.modalMessage = `${winner.name} has won the game.`;
+  //     this.requiresUserAction = false;
+
+  //     setTimeout(() => {
+  //       if (this.playerOne) {
+  //         this._resetGame(this.playerOne!);
+  //       }
+  //       if (this.playerTwo) {
+  //         this._resetGame(this.playerTwo!);
+  //       }
+  //     }, 4000);
+  //   }
+  // }
+
+
+  // private _checkAndUpdatePlayers(playerOne: IPlayer, playerTwo: IPlayer, playerId: string, currentTime: number) {
+  //   if (playerOne.id === playerId) {
+  //     this._handlePlayerUpdate(playerOne, playerTwo, playerId, currentTime);
+  //   } else if (playerTwo.id === playerId) {
+  //     this._handlePlayerUpdate(playerTwo, playerOne, playerId, currentTime);
+  //   }
+  // }
 
 
   private _subscribeToActivePlayers(): void {
@@ -351,6 +356,23 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     });
   }
 
+  private _subscribeToGameUpdates(): void {
+    this._gameSubscription = this._playerSubject.pipe(
+      filter(player => player !== null),
+      switchMap(player => this._dataService.getGameUpdates())
+    ).subscribe(games => {
+      if (games) {
+        console.log('games:', games);
+        console.log('this.player:', this.player);
+
+        const playerOneRequest = games.find(game => game.playerOneId === this.player?.playerId);
+        const playerTwoRequest = games.find(game => game.playerTwoId === this.player?.playerId);
+        console.log('playerOneRequest:', playerOneRequest);
+        console.log('playerTwoRequest:', playerTwoRequest);
+      }
+    })
+  }
+
   private _managePlayerUpdate(player: IPlayer): void {
     if (player.isReady) {
       this._initializePlayer(player);
@@ -359,9 +381,9 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     }
   }
 
-  private _manageOpponentUpdate(opponent: IPlayer): void {
-    this.opponent = opponent;
-  }
+  // private _manageOpponentUpdate(opponent: IPlayer): void {
+  //   this.opponent = opponent;
+  // }
 
   private _initializePlayer(player: IPlayer): void {
     this.player = player;
@@ -385,16 +407,8 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     } as IPlayer;
 
     this.player = initPlayerData;
-
-    if (this.player.readyToEnterGame) {
-      this.showLobby = false;
-      this.gameStarted = true;
-    }
-
-    if (this.player.session) {
-      this.sessionId = this.player.session;
-    }
   }
+
 
   private _subscribeToPlayerUpdates(): void {
     this._playerSubscription = this._gameService.player$.pipe(
@@ -406,171 +420,171 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
       }
     });
 
-    this._opponentSubscription = this._gameService.opponent$.pipe(
-      // used to reduce the number of updates to the opponent
-      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
-    ).subscribe(opponent => {
-      if (opponent) {
-        this._manageOpponentUpdate(opponent);
-      }
-    });
+    // this._opponentSubscription = this._gameService.opponent$.pipe(
+    //   // used to reduce the number of updates to the opponent
+    //   distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+    // ).subscribe(opponent => {
+    //   if (opponent) {
+    //     this._manageOpponentUpdate(opponent);
+    //   }
+    // });
   }
 
-  private _subscribeToRequests(): void {
-    this._requestsSubscription = this._playerSubject.pipe(
-      filter(player => player !== null),
-      switchMap(player => {
-        this.loading = true;
-        return this._dataService.getRequests();
-      })
-    ).subscribe(requests => {
-      this.loading = false;
-      if (requests) {
+  // private _subscribeToRequests(): void {
+  //   this._requestsSubscription = this._playerSubject.pipe(
+  //     filter(player => player !== null),
+  //     switchMap(player => {
+  //       this.loading = true;
+  //       return this._dataService.getRequests();
+  //     })
+  //   ).subscribe(requests => {
+  //     this.loading = false;
+  //     if (requests) {
 
-        if (this.player) {
-          const playerId = this.player.playerId;
+  //       if (this.player) {
+  //         const playerId = this.player.playerId;
 
-          // unresponded requests from the opponent's POV
-          const unrespondedRequestFromOpponent = requests.find(request => request.opponentId === playerId && request.accepted === false && request.responded === false && request.gameStarted === false);
+  //         // unresponded requests from the opponent's POV
+  //         const unrespondedRequestFromOpponent = requests.find(request => request.opponentId === playerId && request.accepted === false && request.responded === false && request.gameStarted === false);
 
-          // responded requests from the opponent's POV
-          const respondedRequestFromOpponent = requests.find(request => request.opponentId === playerId && request.accepted === true && request.responded === true && request.gameStarted === false);
+  //         // responded requests from the opponent's POV
+  //         const respondedRequestFromOpponent = requests.find(request => request.opponentId === playerId && request.accepted === true && request.responded === true && request.gameStarted === false);
 
-          // unresponded requests from the challenger's POV
-          const unrespondedRequestFromChallenger = requests.find(request => request.challengerId === playerId && request.accepted === false && request.responded === false && request.gameStarted === false);
+  //         // unresponded requests from the challenger's POV
+  //         const unrespondedRequestFromChallenger = requests.find(request => request.challengerId === playerId && request.accepted === false && request.responded === false && request.gameStarted === false);
 
-          if (unrespondedRequestFromChallenger) {
-            this._dataService.getPlayerById(unrespondedRequestFromChallenger.opponentId).pipe(
-              take(1)
-            ).subscribe(opponent => {
-              if (opponent) {
-                if (this._isPlayerInGame(opponent)) {
-                  this.showModal = true;
-                  this.modalMessage = `${opponent.name} is already in a game. Your challenge request has been cancelled.`;
-                  // Cancel the challenge request
-                  const requestId = unrespondedRequestFromChallenger.id;
-                  this._dataService.deleteRequest(requestId);
-                }
-              }
-            },
-              error => {
-                console.error('Error getting opponent:', error);
-              });
-          }
+  //         if (unrespondedRequestFromChallenger) {
+  //           this._dataService.getPlayerById(unrespondedRequestFromChallenger.opponentId).pipe(
+  //             take(1)
+  //           ).subscribe(opponent => {
+  //             if (opponent) {
+  //               if (this._isPlayerInGame(opponent)) {
+  //                 this.showModal = true;
+  //                 this.modalMessage = `${opponent.name} is already in a game. Your challenge request has been cancelled.`;
+  //                 // Cancel the challenge request
+  //                 const requestId = unrespondedRequestFromChallenger.id;
+  //                 this._dataService.deleteRequest(requestId);
+  //               }
+  //             }
+  //           },
+  //             error => {
+  //               console.error('Error getting opponent:', error);
+  //             });
+  //         }
 
-          // responded requests from the challenger's POV which were declined
-          const declinedRequestFromChallenger = requests.find(request => request.challengerId === playerId && request.accepted === false && request.responded === true && request.gameStarted === false);
+  //         // responded requests from the challenger's POV which were declined
+  //         const declinedRequestFromChallenger = requests.find(request => request.challengerId === playerId && request.accepted === false && request.responded === true && request.gameStarted === false);
 
-          if (declinedRequestFromChallenger) {
-            this.showModal = true;
-            this.modalMessage = `${declinedRequestFromChallenger.opponentName} has declined your challenge request.`;
-            this.requiresUserAction = false;
-            this.requestId = declinedRequestFromChallenger.id;
-            this._dataService.deleteRequest(this.requestId);
-            setTimeout(() => {
-              this._resetGame(this.player);
-            }, 2000);
-          }
+  //         if (declinedRequestFromChallenger) {
+  //           this.showModal = true;
+  //           this.modalMessage = `${declinedRequestFromChallenger.opponentName} has declined your challenge request.`;
+  //           this.requiresUserAction = false;
+  //           this.requestId = declinedRequestFromChallenger.id;
+  //           this._dataService.deleteRequest(this.requestId);
+  //           setTimeout(() => {
+  //             this._resetGame(this.player);
+  //           }, 2000);
+  //         }
 
-          // responded requests from the challenger's POV
-          const respondedRequestFromChallenger = requests.find(request => request.challengerId === playerId && request.accepted === true && request.responded === true && request.gameStarted === false);
+  //         // responded requests from the challenger's POV
+  //         const respondedRequestFromChallenger = requests.find(request => request.challengerId === playerId && request.accepted === true && request.responded === true && request.gameStarted === false);
 
-          const gamesInProgress = requests.filter(request => request.gameStarted === true);
+  //         const gamesInProgress = requests.filter(request => request.gameStarted === true);
 
-          // if the person being challenged is in a game, prevent a new challenge request
-          if (unrespondedRequestFromOpponent) {
-            if (this.sessionId === "" || this.sessionId === undefined) {
-              this.showModal = true;
-              this.modalMessage = `You have a challenge from ${unrespondedRequestFromOpponent.challengerName}`;
-              this.challengerId = unrespondedRequestFromOpponent.challengerId;
-              this.requestId = unrespondedRequestFromOpponent.id;
-              this.requiresUserAction = true;
-            }
-          }
+  //         // if the person being challenged is in a game, prevent a new challenge request
+  //         if (unrespondedRequestFromOpponent) {
+  //           if (this.sessionId === "" || this.sessionId === undefined) {
+  //             this.showModal = true;
+  //             this.modalMessage = `You have a challenge from ${unrespondedRequestFromOpponent.challengerName}`;
+  //             this.challengerId = unrespondedRequestFromOpponent.challengerId;
+  //             this.requestId = unrespondedRequestFromOpponent.id;
+  //             this.requiresUserAction = true;
+  //           }
+  //         }
 
-          if (respondedRequestFromOpponent) {
-            // the challenger is the person who initiated the request
-            const updatedPlayerData = {
-              ...this.player,
-              readyToEnterGame: true,
-              session: respondedRequestFromOpponent.id
-            } as IPlayer;
+  //         if (respondedRequestFromOpponent) {
+  //           // the challenger is the person who initiated the request
+  //           const updatedPlayerData = {
+  //             ...this.player,
+  //             readyToEnterGame: true,
+  //             session: respondedRequestFromOpponent.id
+  //           } as IPlayer;
 
-            this._gameService.updatePlayer(updatedPlayerData);
-          }
+  //           this._gameService.updatePlayer(updatedPlayerData);
+  //         }
 
-          if (respondedRequestFromChallenger) {
-            // here we are getting the player who initiated the request
-            this._dataService.getAllPlayers().pipe(
-              take(1)
-            ).subscribe(players => {
-              this.loading = false;
-              const scopedPlayer = players.find(player => player.playerId === respondedRequestFromChallenger.challengerId);
-              const scopedPlayerId = scopedPlayer?.playerId;
-              this.requestId = respondedRequestFromChallenger.id;
+  //         if (respondedRequestFromChallenger) {
+  //           // here we are getting the player who initiated the request
+  //           this._dataService.getAllPlayers().pipe(
+  //             take(1)
+  //           ).subscribe(players => {
+  //             this.loading = false;
+  //             const scopedPlayer = players.find(player => player.playerId === respondedRequestFromChallenger.challengerId);
+  //             const scopedPlayerId = scopedPlayer?.playerId;
+  //             this.requestId = respondedRequestFromChallenger.id;
 
-              if (scopedPlayerId === this.player?.playerId) {
-                this.beginSetupMode = true;
-                this.showModal = true;
-                this.requiresUserAction = true;
-                this.modalMessage = `${respondedRequestFromChallenger.opponentName} accepted your challenge. Are you ready to setup your board?`;
+  //             if (scopedPlayerId === this.player?.playerId) {
+  //               this.beginSetupMode = true;
+  //               this.showModal = true;
+  //               this.requiresUserAction = true;
+  //               this.modalMessage = `${respondedRequestFromChallenger.opponentName} accepted your challenge. Are you ready to setup your board?`;
 
-              }
-            }, error => {
-              this.loading = false;
-              console.error('Error getting players:', error);
-            });
+  //             }
+  //           }, error => {
+  //             this.loading = false;
+  //             console.error('Error getting players:', error);
+  //           });
 
-          }
+  //         }
 
-          if (gamesInProgress) {
-            // find a game in progress that matches the current session id
-            const thisGame = gamesInProgress.find(game => game.id === this.sessionId);
-            const playerId = this.player?.id;
-            this.lastUpdated = thisGame?.lastUpdated;
-            const currentTime = new Date().getTime();
+  //         if (gamesInProgress) {
+  //           // find a game in progress that matches the current session id
+  //           const thisGame = gamesInProgress.find(game => game.id === this.sessionId);
+  //           const playerId = this.player?.id;
+  //           this.lastUpdated = thisGame?.lastUpdated;
+  //           const currentTime = new Date().getTime();
 
-            if (thisGame) {
-              this.requestId = thisGame?.id;
-            }
+  //           if (thisGame) {
+  //             this.requestId = thisGame?.id;
+  //           }
 
-            if (thisGame && thisGame.gameEnded) {
-              this.gameEnded = true;
-              this.showModal = true;
-              this.modalMessage = 'The game has been cancelled by the other player.';
-              this.requiresUserAction = false;
-              this._gameEnded.next(true);
-              setTimeout(() => {
-                this._resetGame(this.player);
-              }, 2000);
-            } else {
-              this.loading = true;
-              this._dataService.getAllPlayers().pipe(
-                takeUntil(this._gameEnded),
-              ).subscribe(players => {
-                this.loading = false;
-                // find the player who initiated the challenge/game and make them player one
-                const playerOne = players.find(player => player.playerId === thisGame?.challengerId);
+  //           if (thisGame && thisGame.gameEnded) {
+  //             this.gameEnded = true;
+  //             this.showModal = true;
+  //             this.modalMessage = 'The game has been cancelled by the other player.';
+  //             this.requiresUserAction = false;
+  //             this._gameEnded.next(true);
+  //             setTimeout(() => {
+  //               this._resetGame(this.player);
+  //             }, 2000);
+  //           } else {
+  //             this.loading = true;
+  //             this._dataService.getAllPlayers().pipe(
+  //               takeUntil(this._gameEnded),
+  //             ).subscribe(players => {
+  //               this.loading = false;
+  //               // find the player who initiated the challenge/game and make them player one
+  //               const playerOne = players.find(player => player.playerId === thisGame?.challengerId);
 
-                // find the player who accepted the challenge/game and make them player two
-                const playerTwo = players.find(player => player.playerId === thisGame?.opponentId);
+  //               // find the player who accepted the challenge/game and make them player two
+  //               const playerTwo = players.find(player => player.playerId === thisGame?.opponentId);
 
-                if (playerOne && playerTwo && playerOne.id && playerTwo.id && playerId) {
-                  this.playerOne = playerOne;
-                  this.playerTwo = playerTwo;
+  //               if (playerOne && playerTwo && playerOne.id && playerTwo.id && playerId) {
+  //                 this.playerOne = playerOne;
+  //                 this.playerTwo = playerTwo;
 
-                  this._checkAndUpdatePlayers(playerOne, playerTwo, playerId, currentTime);
-                }
-              }, error => {
-                this.loading = false;
-                console.error('Error getting players:', error);
-              })
-            }
+  //                 this._checkAndUpdatePlayers(playerOne, playerTwo, playerId, currentTime);
+  //               }
+  //             }, error => {
+  //               this.loading = false;
+  //               console.error('Error getting players:', error);
+  //             })
+  //           }
 
 
-          }
-        }
-      }
-    });
-  }
+  //         }
+  //       }
+  //     }
+  //   });
+  // }
 }
