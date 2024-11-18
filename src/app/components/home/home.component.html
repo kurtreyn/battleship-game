@@ -53,6 +53,12 @@
         [showModal]="showModal"
         [modalMessage]="modalMessage"
       ></app-lobby>
+      <button
+        class="btn btn-outline-danger cancel-game-btn"
+        (click)="resetToDefaultPlayer()"
+      >
+        Reset Player
+      </button>
     </section>
 
     <section class="game-section" *ngIf="gameStarted && !showLobby">
