@@ -400,12 +400,13 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
       }
 
       if (req.playerOne && req.playerTwo) {
-        this.player = req.playerOne;
-        this.opponent = req.playerTwo;
-        console.log('this.player:', this.player);
-        console.log('this.opponent:', this.opponent);
+        // this.player = req.playerOne;
+        // this.opponent = req.playerTwo;
+        // console.log('this.player:', this.player);
+        // console.log('this.opponent:', this.opponent);
 
         this._handleStartGameSetup(req);
+        this._handleGameInProgress(req);
       }
     }
 
@@ -419,12 +420,13 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
 
       if (pTwoResponded && pTwoAccepted) {
         if (req.playerOne && req.playerTwo) {
-          this.player = req.playerTwo;
-          this.opponent = req.playerOne;
-          console.log('this.player:', this.player);
-          console.log('this.opponent:', this.opponent);
+          // this.player = req.playerTwo;
+          // this.opponent = req.playerOne;
+          // console.log('this.player:', this.player);
+          // console.log('this.opponent:', this.opponent);
 
           this._handleStartGameSetup(req);
+          this._handleGameInProgress(req);
         }
       }
     }
@@ -435,7 +437,20 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
       this.gameStarted = true;
       this.showLobby = false;
     }
+  }
 
+  private _handleGameInProgress(req: IGame) {
+    if (req.gameStarted && req.playerOneFinishedSetup && req.playerTwoFinishedSetup && !req.gameEnded && req.playerOne && req.playerTwo) {
+      if (this.player.playerId === req.playerOne.playerId) {
+        this.player = req.playerOne;
+        this.opponent = req.playerTwo;
+      } else {
+        this.player = req.playerTwo;
+        this.opponent = req.playerOne;
+      }
+      console.log('this.player:', this.player);
+      console.log('this.opponent:', this.opponent);
+    }
   }
 
 

@@ -4,7 +4,7 @@ import { BoardService } from '../../services/board.service';
 import { GameService } from 'src/app/services/game.service';
 import { DataService } from 'src/app/services/data.service';
 import { AuthService } from 'src/app/services/auth.service';
-import { ICell } from '../../models/game';
+import { ICell, IGame } from '../../models/game';
 import { SHIP_LEN, SHIP_NAME } from '../../enums/enums';
 
 @Component({
@@ -284,9 +284,31 @@ export class BoardComponent extends AbstractGame {
         isReady: true,
         shipArray: shipArr
       }
-      this.dataService.updatePlayer(updatedPlayerData);
-      this.gameService.updatePlayer(updatedPlayerData);
-      this._triggerUpdate();
+
+      console.log('this.game:', this.game)
+      console.log('this.player:', this.player)
+
+      if (this.player.playerId === this.game!.playerOneId) {
+        const updatedGameData = {
+          ...this.game,
+          playerOne: updatedPlayerData,
+          playerOneFinishedSetup: true,
+          lastUpdated: new Date().getTime()
+        } as IGame;
+        this.dataService.updateGame(updatedGameData);
+      }
+      if (this.player.playerId === this.game!.playerTwoId) {
+        const updatedGameData = {
+          ...this.game,
+          playerTwo: updatedPlayerData,
+          playerTwoFinishedSetup: true,
+          lastUpdated: new Date().getTime()
+        } as IGame;
+        this.dataService.updateGame(updatedGameData);
+      }
+      // this.dataService.updatePlayer(updatedPlayerData);
+      // this.gameService.updatePlayer(updatedPlayerData);
+      // this._triggerUpdate();
     }
   }
 
