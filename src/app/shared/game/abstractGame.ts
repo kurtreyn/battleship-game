@@ -112,31 +112,10 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
       playerTwo: this.player,
       playerTwoResponded: true,
       playerTwoAccepted: response,
+      sessionId: this.game?.id
     } as IGame
 
-    console.log('playerTwoDetails:', playerTwoDetails);
-
     this._dataService.updateGame(playerTwoDetails);
-
-    // const responded = true;
-    // const gameStarted = false;
-    // if (response) {
-    //   this._dataService.respondToRequest(this.requestId, responded, response, gameStarted);
-
-    //   const updatedPlayerData = {
-    //     ...this.player,
-    //     readyToEnterGame: true,
-    //     session: this.requestId,
-    //     finishedSetup: false,
-    //     isReady: false,
-    //     isTurn: false,
-    //   } as IPlayer;
-    //   this._gameService.updatePlayer(updatedPlayerData);
-    //   this._dataService.updatePlayer(updatedPlayerData);
-
-    // } else {
-    //   this._dataService.respondToRequest(this.requestId, responded, response, gameStarted);
-    // }
   }
 
   onStartBoardSetup(response: boolean): void {
@@ -405,8 +384,6 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
           this.game = playerTwoRequest
           this._handlePlayerRequest(playerTwoRequest);
         }
-
-
       }
     })
   }
@@ -426,6 +403,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
         this.showModal = true;
         this.modalMessage = `${playerTwoName} accepted your challenge. Are you ready to setup your board?`;
         this.requiresUserAction = true;
+        this.beginSetupMode = true;
       }
     }
 

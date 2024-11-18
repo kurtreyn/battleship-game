@@ -31,8 +31,14 @@ export interface IGame {
     playerTwoReady?: boolean;
     playerOneTurn: boolean;
     playerTwoTurn?: boolean;
+    playerOneScore?: number;
+    playerTwoScore?: number;
+    playerOneReadyToSetup: boolean;
+    playerTwoReadyToSetup?: boolean;
+    playerOneFinishedSetup?: boolean;
+    playerTwoFinishedSetup?: boolean;
     lastUpdated?: number;
-    session?: string;
+    sessionId?: string;
     requestId?: string;
     playerTwoResponded?: boolean;
     playerTwoAccepted?: boolean;
