@@ -89,14 +89,14 @@ export class DataService {
     );
   }
 
-  challengePlayer(player: IPlayer) {
-    return from(this._afs.doc('/players/' + player.id).update(player)).pipe(
-      catchError(error => {
-        console.error('Error challenging player:', error);
-        return of(null); // Return a fallback value or handle the error as needed
-      })
-    );
-  }
+  // challengePlayer(player: IPlayer) {
+  //   return from(this._afs.doc('/players/' + player.id).update(player)).pipe(
+  //     catchError(error => {
+  //       console.error('Error challenging player:', error);
+  //       return of(null); // Return a fallback value or handle the error as needed
+  //     })
+  //   );
+  // }
 
   // sendRequests(requestId: string, challengerId: string, challengerName: string, opponentId: string, opponentName: string) {
   //   return from(this._afs.collection('/requests').add({
@@ -128,12 +128,24 @@ export class DataService {
   }
 
   updateGame(game: IGame) {
-    return from(this._afs.doc('/games/' + game.requestId).update(game)).pipe(
+    return from(this._afs.doc('/games/' + game.id).update(game)).pipe(
       catchError(error => {
         console.error('Error updating game:', error);
         return of(null); // Return a fallback value or handle the error as needed
       })
     );
+  }
+
+
+
+  getGameByRequestId(requestId: string): Observable<IGame> {
+    const foundGame = this._afs.collection('games', ref => ref.where('requestId', '==', requestId))
+      .valueChanges()
+      .pipe(
+        take(1),
+        map(games => games[0] as IGame)
+      );
+    return foundGame;
   }
 
   getGameUpdates() {
@@ -150,29 +162,29 @@ export class DataService {
     );
   }
 
-  sendUpdate(requestId: string, responded: boolean, accepted: boolean, gameStarted?: boolean, lastUpdated?: number, gameEnded?: boolean) {
-    return from(this._afs.doc('/games/' + requestId).update({
-      responded: responded,
-      accepted: accepted,
-      gameStarted: gameStarted,
-      lastUpdated: lastUpdated,
-      gameEnded: gameEnded
-    })).pipe(
-      catchError(error => {
-        console.error('Error sending update:', error);
-        return of(null); // Return a fallback value or handle the error as needed
-      })
-    );
-  }
+  // sendUpdate(requestId: string, responded: boolean, accepted: boolean, gameStarted?: boolean, lastUpdated?: number, gameEnded?: boolean) {
+  //   return from(this._afs.doc('/games/' + requestId).update({
+  //     responded: responded,
+  //     accepted: accepted,
+  //     gameStarted: gameStarted,
+  //     lastUpdated: lastUpdated,
+  //     gameEnded: gameEnded
+  //   })).pipe(
+  //     catchError(error => {
+  //       console.error('Error sending update:', error);
+  //       return of(null); // Return a fallback value or handle the error as needed
+  //     })
+  //   );
+  // }
 
-  respondToRequest(requestId: string, responded: boolean, accepted: boolean, gameStarted?: boolean) {
-    return from(this._afs.doc('/games/' + requestId).update({ responded: responded, accepted: accepted, gameStarted: gameStarted })).pipe(
-      catchError(error => {
-        console.error('Error responding to request:', error);
-        return of(null); // Return a fallback value or handle the error as needed
-      })
-    );
-  }
+  // respondToRequest(requestId: string, responded: boolean, accepted: boolean, gameStarted?: boolean) {
+  //   return from(this._afs.doc('/games/' + requestId).update({ responded: responded, accepted: accepted, gameStarted: gameStarted })).pipe(
+  //     catchError(error => {
+  //       console.error('Error responding to request:', error);
+  //       return of(null); // Return a fallback value or handle the error as needed
+  //     })
+  //   );
+  // }
 
   getRequests() {
     return this._afs.collection('/games').snapshotChanges().pipe(
@@ -188,13 +200,22 @@ export class DataService {
     );
   }
 
-  deleteRequest(requestId: string) {
-    return from(this._afs.doc('/games/' + requestId).delete()).pipe(
+  deleteGame(sessionId: string) {
+    return from(this._afs.doc('/games/' + sessionId).delete()).pipe(
       catchError(error => {
-        console.error('Error deleting request:', error);
+        console.error('Error deleting game:', error);
         return of(null); // Return a fallback value or handle the error as needed
       })
     );
   }
+
+  // deleteRequest(requestId: string) {
+  //   return from(this._afs.doc('/games/' + requestId).delete()).pipe(
+  //     catchError(error => {
+  //       console.error('Error deleting request:', error);
+  //       return of(null); // Return a fallback value or handle the error as needed
+  //     })
+  //   );
+  // }
 
 }

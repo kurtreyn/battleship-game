@@ -20,6 +20,7 @@ export interface IPlayer {
 }
 
 export interface IGame {
+    id?: string;
     playerOne: IPlayer;
     playerTwo?: IPlayer;
     playerOneId: string;

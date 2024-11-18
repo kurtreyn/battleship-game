@@ -297,7 +297,7 @@ export class BoardComponent extends AbstractGame {
     const gameStarted = true;
     const gameEnded = false;
     // used to trigger update on opponent's screen
-    this.dataService.sendUpdate(this.requestId, responded, accepted, gameStarted, updatedTime, gameEnded);
+    // this.dataService.sendUpdate(this.requestId, responded, accepted, gameStarted, updatedTime, gameEnded);
   }
 
   private _returnMobileCell(cellElement: HTMLElement) {

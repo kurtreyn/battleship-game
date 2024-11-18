@@ -43,9 +43,10 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   loading: boolean = false;
   playerOne: IPlayer | null = null;
   playerTwo: IPlayer | null = null;
+  game: IGame | null = null;
 
-  private _lastPlayerUpdate: IPlayer | null = null;
-  private _lastOpponentUpdate: IPlayer | null = null;
+  // private _lastPlayerUpdate: IPlayer | null = null;
+  // private _lastOpponentUpdate: IPlayer | null = null;
 
   private _playerSubscription!: Subscription;
   private _opponentSubscription!: Subscription;
@@ -93,7 +94,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     const accepted = true;
     const gameStarted = true;
     const gameEnded = true;
-    this._dataService.sendUpdate(this.requestId, responded, accepted, gameStarted, updatedTime, gameEnded);
+    // this._dataService.sendUpdate(this.requestId, responded, accepted, gameStarted, updatedTime, gameEnded);
     this._resetGame(this.player);
   }
 
@@ -106,25 +107,36 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
 
   onChallengeResponse(response: boolean): void {
     this.showModal = false;
-    const responded = true;
-    const gameStarted = false;
-    if (response) {
-      this._dataService.respondToRequest(this.requestId, responded, response, gameStarted);
+    const playerTwoDetails = {
+      ...this.game,
+      playerTwo: this.player,
+      playerTwoResponded: true,
+      playerTwoAccepted: response,
+    } as IGame
 
-      const updatedPlayerData = {
-        ...this.player,
-        readyToEnterGame: true,
-        session: this.requestId,
-        finishedSetup: false,
-        isReady: false,
-        isTurn: false,
-      } as IPlayer;
-      this._gameService.updatePlayer(updatedPlayerData);
-      this._dataService.updatePlayer(updatedPlayerData);
+    console.log('playerTwoDetails:', playerTwoDetails);
 
-    } else {
-      this._dataService.respondToRequest(this.requestId, responded, response, gameStarted);
-    }
+    this._dataService.updateGame(playerTwoDetails);
+
+    // const responded = true;
+    // const gameStarted = false;
+    // if (response) {
+    //   this._dataService.respondToRequest(this.requestId, responded, response, gameStarted);
+
+    //   const updatedPlayerData = {
+    //     ...this.player,
+    //     readyToEnterGame: true,
+    //     session: this.requestId,
+    //     finishedSetup: false,
+    //     isReady: false,
+    //     isTurn: false,
+    //   } as IPlayer;
+    //   this._gameService.updatePlayer(updatedPlayerData);
+    //   this._dataService.updatePlayer(updatedPlayerData);
+
+    // } else {
+    //   this._dataService.respondToRequest(this.requestId, responded, response, gameStarted);
+    // }
   }
 
   onStartBoardSetup(response: boolean): void {
@@ -144,7 +156,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
       const responded = true;
       const accepted = true;
       const gameStarted = true;
-      this._dataService.respondToRequest(this.requestId, responded, accepted, gameStarted);
+      // this._dataService.respondToRequest(this.requestId, responded, accepted, gameStarted);
     }
   }
 
@@ -193,8 +205,8 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   }
 
   private _resetGame(player: IPlayer): void {
-    if (this.requestId) {
-      this._dataService.deleteRequest(this.requestId);
+    if (this.sessionId) {
+      this._dataService.deleteGame(this.sessionId);
     }
     const board = this._boardService.createBoard(player);
     const updatedPlayerData = {
@@ -214,12 +226,12 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
 
     try {
       if (player) {
-        this._dataService.updatePlayer(updatedPlayerData);
+        // this._dataService.updatePlayer(updatedPlayerData);
       }
     } catch (error) {
       console.error('Error updating player during resetGame:', error);
     }
-    this._gameService.updatePlayer(updatedPlayerData);
+    // this._gameService.updatePlayer(updatedPlayerData);
     this._resetProperties();
   }
 
@@ -248,7 +260,6 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
           this.loading = false;
           const player = players.find(player => player.playerId === user.uid);
           if (player) {
-            console.log('player:', player);
             this._gameService.setPlayer(player);
             this._playerSubject.next(player);
           }
@@ -356,22 +367,79 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     });
   }
 
+  private _subscribeToPlayerUpdates(): void {
+    this._playerSubscription = this._gameService.player$.pipe(
+      // used to reduce the number of updates to the player
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+    ).subscribe(player => {
+      if (player) {
+        this._managePlayerUpdate(player);
+      }
+    });
+
+    this._opponentSubscription = this._gameService.opponent$.pipe(
+      // used to reduce the number of updates to the opponent
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+    ).subscribe(opponent => {
+      if (opponent) {
+        this._manageOpponentUpdate(opponent);
+      }
+    });
+  }
+
   private _subscribeToGameUpdates(): void {
     this._gameSubscription = this._playerSubject.pipe(
       filter(player => player !== null),
       switchMap(player => this._dataService.getGameUpdates())
     ).subscribe(games => {
       if (games) {
-        console.log('games:', games);
-        console.log('this.player:', this.player);
-
         const playerOneRequest = games.find(game => game.playerOneId === this.player?.playerId);
         const playerTwoRequest = games.find(game => game.playerTwoId === this.player?.playerId);
-        console.log('playerOneRequest:', playerOneRequest);
-        console.log('playerTwoRequest:', playerTwoRequest);
+
+
+        if (playerOneRequest) {
+          this.game = playerOneRequest;
+          this._handlePlayerRequest(playerOneRequest);
+        }
+        if (playerTwoRequest) {
+          this.game = playerTwoRequest
+          this._handlePlayerRequest(playerTwoRequest);
+        }
+
+
       }
     })
   }
+
+  private _handlePlayerRequest(req: IGame): void {
+    console.log('req:', req);
+    const requestId = req.requestId;
+    const playerOneId = req.playerOneId;
+    const playerTwoId = req.playerTwoId;
+    const playerOneName = req.playerOneName;
+    const playerTwoName = req.playerTwoName;
+    const pTwoResponded = req.playerTwoResponded;
+    const pTwoAccepted = req.playerTwoAccepted;
+
+    if (this.player.playerId === playerOneId) {
+      if (pTwoResponded && pTwoAccepted) {
+        this.showModal = true;
+        this.modalMessage = `${playerTwoName} accepted your challenge. Are you ready to setup your board?`;
+        this.requiresUserAction = true;
+      }
+    }
+
+    if (this.player.playerId === playerTwoId) {
+      if (!pTwoResponded && !pTwoAccepted) {
+        this.showModal = true;
+        this.modalMessage = `You have a challenge from ${playerOneName}`;
+        this.requiresUserAction = true;
+      }
+    }
+
+  }
+
+
 
   private _managePlayerUpdate(player: IPlayer): void {
     if (player.isReady) {
@@ -381,9 +449,9 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     }
   }
 
-  // private _manageOpponentUpdate(opponent: IPlayer): void {
-  //   this.opponent = opponent;
-  // }
+  private _manageOpponentUpdate(opponent: IPlayer): void {
+    this.opponent = opponent;
+  }
 
   private _initializePlayer(player: IPlayer): void {
     this.player = player;
@@ -410,25 +478,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   }
 
 
-  private _subscribeToPlayerUpdates(): void {
-    this._playerSubscription = this._gameService.player$.pipe(
-      // used to reduce the number of updates to the player
-      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
-    ).subscribe(player => {
-      if (player) {
-        this._managePlayerUpdate(player);
-      }
-    });
 
-    // this._opponentSubscription = this._gameService.opponent$.pipe(
-    //   // used to reduce the number of updates to the opponent
-    //   distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
-    // ).subscribe(opponent => {
-    //   if (opponent) {
-    //     this._manageOpponentUpdate(opponent);
-    //   }
-    // });
-  }
 
   // private _subscribeToRequests(): void {
   //   this._requestsSubscription = this._playerSubject.pipe(
