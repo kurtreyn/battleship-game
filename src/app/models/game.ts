@@ -37,6 +37,8 @@ export interface IGame {
     playerTwoReadyToSetup?: boolean;
     playerOneFinishedSetup?: boolean;
     playerTwoFinishedSetup?: boolean;
+    setupStarted?: boolean;
+    setupFinished?: boolean;
     lastUpdated?: number;
     sessionId?: string;
     requestId?: string;

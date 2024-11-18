@@ -120,23 +120,15 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
 
   onStartBoardSetup(response: boolean): void {
     this.showModal = false;
-    if (response) {
-      const updatedPlayerData = {
-        ...this.player,
-        readyToEnterGame: true,
-        session: this.requestId,
-        finishedSetup: false,
-        isReady: false,
-        isTurn: true,
-      } as IPlayer;
-      this._gameService.updatePlayer(updatedPlayerData);
-      this._dataService.updatePlayer(updatedPlayerData);
-
-      const responded = true;
-      const accepted = true;
-      const gameStarted = true;
-      // this._dataService.respondToRequest(this.requestId, responded, accepted, gameStarted);
-    }
+    const updatedGameData = {
+      ...this.game,
+      playerOneReadyToSetup: response,
+      playerTwoReadyToSetup: response,
+      setupStarted: response,
+      setupFinished: false,
+      lastUpdated: new Date().getTime(),
+    } as IGame;
+    this._dataService.updateGame(updatedGameData);
   }
 
   onResponseEvent(response: boolean): void {
@@ -388,8 +380,6 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   }
 
   private _handlePlayerRequest(req: IGame): void {
-    console.log('req:', req);
-    const requestId = req.requestId;
     const playerOneId = req.playerOneId;
     const playerTwoId = req.playerTwoId;
     const playerOneName = req.playerOneName;
@@ -400,20 +390,26 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     this.game = req;
     console.log('this.game:', this.game);
 
+    // PLAYER ONE
     if (this.player.playerId === playerOneId) {
-      if (pTwoResponded && pTwoAccepted) {
+      if (pTwoResponded && pTwoAccepted && !req.setupStarted && !req.setupFinished) {
         this.showModal = true;
         this.modalMessage = `${playerTwoName} accepted your challenge. Are you ready to setup your board?`;
         this.requiresUserAction = true;
         this.beginSetupMode = true;
+      }
 
-        if (req.playerOne && req.playerTwo) {
-          this.opponent = req.playerTwo;
-          console.log('this.opponent:', this.opponent);
-        }
+      if (req.playerOne && req.playerTwo) {
+        this.player = req.playerOne;
+        this.opponent = req.playerTwo;
+        console.log('this.player:', this.player);
+        console.log('this.opponent:', this.opponent);
+
+        this._handleStartGameSetup(req);
       }
     }
 
+    // PLAYER TWO
     if (this.player.playerId === playerTwoId) {
       if (!pTwoResponded && !pTwoAccepted) {
         this.showModal = true;
@@ -423,10 +419,21 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
 
       if (pTwoResponded && pTwoAccepted) {
         if (req.playerOne && req.playerTwo) {
+          this.player = req.playerTwo;
           this.opponent = req.playerOne;
+          console.log('this.player:', this.player);
           console.log('this.opponent:', this.opponent);
+
+          this._handleStartGameSetup(req);
         }
       }
+    }
+  }
+
+  private _handleStartGameSetup(req: IGame) {
+    if (req.setupStarted && !req.setupFinished) {
+      this.gameStarted = true;
+      this.showLobby = false;
     }
 
   }
