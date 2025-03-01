@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
-import { IPlayer } from '../models/game';
+import { IPlayer, IGame } from '../models/game';
 
 @Injectable({
   providedIn: 'root'
@@ -9,8 +9,10 @@ import { IPlayer } from '../models/game';
 export class GameService {
   private _player = new BehaviorSubject<IPlayer | null>(null);
   private _opponent = new BehaviorSubject<IPlayer | null>(null);
+  private _game = new BehaviorSubject<IGame | null>(null);
   player$: Observable<IPlayer | null> = this._player.asObservable();
   opponent$: Observable<IPlayer | null> = this._opponent.asObservable();
+  game$: Observable<IGame | null> = this._game.asObservable();
 
   constructor() { }
 
@@ -53,5 +55,21 @@ export class GameService {
 
   getOpponent(): IPlayer | null {
     return this._opponent.getValue();
+  }
+
+  setGame(game: IGame): void {
+    this._game.next(game);
+  }
+
+  getGame(): IGame | null {
+    return this._game.getValue();
+  }
+
+  updateGame(game: IGame): void {
+    try {
+      this._game.next(game);
+    } catch (error) {
+      console.error('Error updating game:', error);
+    }
   }
 }

@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, from, of } from 'rxjs';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { IPlayer } from '../models/game';
+import { IPlayer, IGame } from '../models/game';
 import { map, take, catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
-  private _requests = new BehaviorSubject<any>(null);
-  requests$: Observable<any> = this._requests.asObservable();
+  private _game = new BehaviorSubject<IGame | null>(null);
+  game$: Observable<IGame | null> = this._game.asObservable();
 
   constructor(
     private _afs: AngularFirestore,
@@ -62,6 +62,23 @@ export class DataService {
     return this._afs.doc('/players/' + player.id).delete()
   }
 
+  resetPlayer(player: IPlayer) {
+    const defaultPlayerValues = {
+      email: player.email,
+      id: player.id,
+      isActive: player.isActive,
+      isReady: false,
+      isTurn: false,
+      isWinner: false,
+      name: player.name,
+      playerId: player.playerId,
+      readyToEnterGame: false,
+      score: 0,
+    } as IPlayer;
+    return this._afs.doc('/players/' + player.id).update(defaultPlayerValues);
+
+  }
+
 
   updatePlayer(player: IPlayer) {
     return from(this._afs.doc('/players/' + player.id).update(player)).pipe(
@@ -72,91 +89,133 @@ export class DataService {
     );
   }
 
-  challengePlayer(player: IPlayer) {
-    return from(this._afs.doc('/players/' + player.id).update(player)).pipe(
+  // challengePlayer(player: IPlayer) {
+  //   return from(this._afs.doc('/players/' + player.id).update(player)).pipe(
+  //     catchError(error => {
+  //       console.error('Error challenging player:', error);
+  //       return of(null); // Return a fallback value or handle the error as needed
+  //     })
+  //   );
+  // }
+
+  // sendRequests(requestId: string, challengerId: string, challengerName: string, opponentId: string, opponentName: string) {
+  //   return from(this._afs.collection('/requests').add({
+  //     requestId,
+  //     challengerId,
+  //     challengerName,
+  //     opponentId,
+  //     opponentName,
+  //     accepted: false,
+  //     responded: false,
+  //     gameStarted: false,
+  //     lastUpdated: new Date().getTime(),
+  //     gameEnded: false
+  //   })).pipe(
+  //     catchError(error => {
+  //       console.error('Error sending request:', error);
+  //       return of(null); // Return a fallback value or handle the error as needed
+  //     })
+  //   );
+  // }
+
+  requestGame(gameDetails: IGame) {
+    return from(this._afs.collection('/games').add(gameDetails)).pipe(
       catchError(error => {
-        console.error('Error challenging player:', error);
+        console.error('Error requesting game:', error);
         return of(null); // Return a fallback value or handle the error as needed
       })
     );
   }
 
-  sendRequests(requestId: string, challengerId: string, challengerName: string, opponentId: string, opponentName: string) {
-    return from(this._afs.collection('/requests').add({
-      requestId,
-      challengerId,
-      challengerName,
-      opponentId,
-      opponentName,
-      accepted: false,
-      responded: false,
-      gameStarted: false,
-      lastUpdated: new Date().getTime(),
-      gameEnded: false
-    })).pipe(
+  updateGame(game: IGame) {
+    return from(this._afs.doc('/games/' + game.id).update(game)).pipe(
       catchError(error => {
-        console.error('Error sending request:', error);
+        console.error('Error updating game:', error);
         return of(null); // Return a fallback value or handle the error as needed
       })
     );
   }
 
-  sendUpdate(requestId: string, responded: boolean, accepted: boolean, gameStarted?: boolean, lastUpdated?: number, gameEnded?: boolean) {
-    return from(this._afs.doc('/requests/' + requestId).update({
-      responded: responded,
-      accepted: accepted,
-      gameStarted: gameStarted,
-      lastUpdated: lastUpdated,
-      gameEnded: gameEnded
-    })).pipe(
+
+
+  getGameByRequestId(requestId: string): Observable<IGame> {
+    const foundGame = this._afs.collection('games', ref => ref.where('requestId', '==', requestId))
+      .valueChanges()
+      .pipe(
+        take(1),
+        map(games => games[0] as IGame)
+      );
+    return foundGame;
+  }
+
+  getGameUpdates() {
+    return this._afs.collection('/games').snapshotChanges().pipe(
+      map(actions => actions.map(a => {
+        const data = a.payload.doc.data() as IGame;
+        const id = a.payload.doc.id;
+        return { id, ...data };
+      })),
       catchError(error => {
-        console.error('Error sending update:', error);
-        return of(null); // Return a fallback value or handle the error as needed
+        console.error('Error fetching game updates:', error);
+        return of([]); // Return a fallback value or handle the error as needed
       })
     );
   }
 
-  respondToRequest(requestId: string, responded: boolean, accepted: boolean, gameStarted?: boolean) {
-    return from(this._afs.doc('/requests/' + requestId).update({ responded: responded, accepted: accepted, gameStarted: gameStarted })).pipe(
-      catchError(error => {
-        console.error('Error responding to request:', error);
-        return of(null); // Return a fallback value or handle the error as needed
-      })
-    );
-  }
+  // sendUpdate(requestId: string, responded: boolean, accepted: boolean, gameStarted?: boolean, lastUpdated?: number, gameEnded?: boolean) {
+  //   return from(this._afs.doc('/games/' + requestId).update({
+  //     responded: responded,
+  //     accepted: accepted,
+  //     gameStarted: gameStarted,
+  //     lastUpdated: lastUpdated,
+  //     gameEnded: gameEnded
+  //   })).pipe(
+  //     catchError(error => {
+  //       console.error('Error sending update:', error);
+  //       return of(null); // Return a fallback value or handle the error as needed
+  //     })
+  //   );
+  // }
+
+  // respondToRequest(requestId: string, responded: boolean, accepted: boolean, gameStarted?: boolean) {
+  //   return from(this._afs.doc('/games/' + requestId).update({ responded: responded, accepted: accepted, gameStarted: gameStarted })).pipe(
+  //     catchError(error => {
+  //       console.error('Error responding to request:', error);
+  //       return of(null); // Return a fallback value or handle the error as needed
+  //     })
+  //   );
+  // }
 
   getRequests() {
-    return this._afs.collection('/requests').snapshotChanges().pipe(
+    return this._afs.collection('/games').snapshotChanges().pipe(
       map(actions => actions.map(a => {
         const data = a.payload.doc.data() as any;
         const id = a.payload.doc.id;
         return { id, ...data };
       })),
       catchError(error => {
-        console.error('Error fetching requests:', error);
+        console.error('Error fetching game requests:', error);
         return of([]); // Return a fallback value or handle the error as needed
       })
     );
   }
 
-  deleteRequest(requestId: string) {
-    return from(this._afs.doc('/requests/' + requestId).delete()).pipe(
+  deleteGame(sessionId: string) {
+    return from(this._afs.doc('/games/' + sessionId).delete()).pipe(
       catchError(error => {
-        console.error('Error deleting request:', error);
+        console.error('Error deleting game:', error);
         return of(null); // Return a fallback value or handle the error as needed
       })
     );
   }
 
-  resetPlayer(player: IPlayer) {
-    return from(this._afs.doc('/players/' + player.id).update({
-      isReady: false,
-      readyToEnterGame: false
-    })).pipe(
-      catchError(error => {
-        console.error('Error resetting player:', error);
-        return of(null); // Return a fallback value or handle the error as needed
-      })
-    );
-  }
+  // deleteRequest(requestId: string) {
+  //   return from(this._afs.doc('/games/' + requestId).delete()).pipe(
+  //     catchError(error => {
+  //       console.error('Error deleting request:', error);
+  //       return of(null); // Return a fallback value or handle the error as needed
+  //     })
+  //   );
+  // }
+
 }

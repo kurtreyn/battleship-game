@@ -19,6 +19,36 @@ export interface IPlayer {
     lastUpdated?: number;
 }
 
+export interface IGame {
+    id?: string;
+    playerOne: IPlayer;
+    playerTwo?: IPlayer;
+    playerOneId: string;
+    playerTwoId: string;
+    playerOneName?: string;
+    playerTwoName?: string;
+    playerOneReady?: boolean;
+    playerTwoReady?: boolean;
+    playerOneTurn: boolean;
+    playerTwoTurn?: boolean;
+    playerOneScore?: number;
+    playerTwoScore?: number;
+    playerOneReadyToSetup: boolean;
+    playerTwoReadyToSetup?: boolean;
+    playerOneFinishedSetup?: boolean;
+    playerTwoFinishedSetup?: boolean;
+    setupStarted?: boolean;
+    setupFinished?: boolean;
+    lastUpdated?: number;
+    sessionId?: string;
+    requestId?: string;
+    playerTwoResponded?: boolean;
+    playerTwoAccepted?: boolean;
+    gameStarted?: boolean;
+    gameEnded?: boolean;
+
+}
+
 export interface IBoard {
     cells: ICell[];
     rows: { [key: string]: ICell[] };
