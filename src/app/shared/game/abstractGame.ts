@@ -5,7 +5,7 @@ import { DataService } from 'src/app/services/data.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { BoardService } from 'src/app/services/board.service';
 import { IPlayer, ICell } from 'src/app/models/game';
-import { Subscription, BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { GAME } from 'src/app/enums/enums';
 import { take, switchMap, filter, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { SHIP_NAME } from 'src/app/enums/enums';
@@ -23,6 +23,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   gameEnded: boolean = false;
   alreadyInGame: boolean = false;
   winningScore: number = GAME.WINNING_SCORE;
+  private _isResetting: boolean = false;
   beginSetupMode: boolean = false;
   challengerId: string = '';
   requestId: string = '';
@@ -47,11 +48,6 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   private _lastPlayerUpdate: IPlayer | null = null;
   private _lastOpponentUpdate: IPlayer | null = null;
 
-  private _playerSubscription!: Subscription;
-  private _opponentSubscription!: Subscription;
-  private _activePlayersSubscription!: Subscription;
-  private _currentUserSubscription!: Subscription;
-  private _requestsSubscription!: Subscription;
   private _playerSubject: BehaviorSubject<IPlayer | null> = new BehaviorSubject<IPlayer | null>(null);
   private _destroy = new Subject<void>();
   private _gameEnded = new Subject<boolean>();
@@ -72,11 +68,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this._playerSubscription.unsubscribe();
-    this._opponentSubscription.unsubscribe();
-    this._activePlayersSubscription.unsubscribe();
-    this._currentUserSubscription.unsubscribe();
-    this._requestsSubscription.unsubscribe();
+    // Signal all subscriptions to unsubscribe
     this._destroy.next();
     this._destroy.complete();
   }
@@ -116,7 +108,9 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
         isTurn: false,
       } as IPlayer;
       this._gameService.updatePlayer(updatedPlayerData);
-      this._dataService.updatePlayer(updatedPlayerData);
+      this._dataService.updatePlayer(updatedPlayerData).subscribe({
+        error: (error) => console.error('Error updating player in onStartBoardSetup:', error)
+      });
 
     } else {
       this._dataService.respondToRequest(this.requestId, responded, response, gameStarted);
@@ -135,7 +129,9 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
         isTurn: true,
       } as IPlayer;
       this._gameService.updatePlayer(updatedPlayerData);
-      this._dataService.updatePlayer(updatedPlayerData);
+      this._dataService.updatePlayer(updatedPlayerData).subscribe({
+        error: (error) => console.error('Error updating player in challenger setup:', error)
+      });
 
       const responded = true;
       const accepted = true;
@@ -185,39 +181,14 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   }
 
   private _resetGame(player: IPlayer): void {
-    if (this.requestId) {
-      this._dataService.deleteRequest(this.requestId);
-    }
-    const board = this._boardService.createBoard(player);
-    const updatedPlayerData = {
-      ...player,
-      board: board,
-      shipLocations: this._boardService.initializeShipLocations(),
-      boardSetup: this._boardService.initializeBoardSetup(),
-      shipArray: [],
-      readyToEnterGame: false,
-      session: '',
-      score: 0,
-      finishedSetup: false,
-      isReady: false,
-      isWinner: false,
-      isTurn: false,
-    } as IPlayer;
-
-    try {
-      if (player) {
-        this._dataService.updatePlayer(updatedPlayerData);
-      }
-    } catch (error) {
-      console.error('Error updating player during resetGame:', error);
-    }
-    this._gameService.updatePlayer(updatedPlayerData);
-    this._resetProperties();
+    // Delegate to the new centralized reset method
+    this._performGameReset();
   }
 
   private _resetProperties(): void {
     this.gameStarted = false;
     this.gameCompleted = false;
+    this.gameEnded = false;
     this.sessionId = '';
     this.requestId = '';
     this.modalMessage = '';
@@ -226,11 +197,17 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     this.showLobby = true;
     this.showModal = false;
     this.requiresUserAction = false;
+    this.playerOne = null;
+    this.playerTwo = null;
+    this._lastPlayerUpdate = null;
+    this._lastOpponentUpdate = null;
   }
 
   private _getCurrentUser(): void {
     this.loading = true;
-    this._currentUserSubscription = this._authService.getCurrentUser().subscribe(user => {
+    this._authService.getCurrentUser().pipe(
+      takeUntil(this._destroy)
+    ).subscribe(user => {
       if (user) {
         this.isLoggedIn = true;
         this.showLobby = true;
@@ -269,6 +246,11 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
 
 
   private _handlePlayerUpdate(player: IPlayer, opponent: IPlayer, playerId: string, currentTime: number) {
+    // Prevent processing updates during reset to avoid UI flickering
+    if (this._isResetting) {
+      return;
+    }
+
     const playerScore = player.score;
     const opponentScore = opponent.score;
 
@@ -300,12 +282,19 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
 
 
   private _updateWinner(winner: IPlayer) {
+    // Prevent multiple simultaneous winner updates
+    if (this.gameCompleted || this._isResetting) {
+      return;
+    }
+
     const updatedWinnerData = {
       ...winner,
       isWinner: true
     } as IPlayer;
 
-    this._dataService.updatePlayer(updatedWinnerData);
+    this._dataService.updatePlayer(updatedWinnerData).subscribe({
+      error: (error) => console.error('Error updating winner:', error)
+    });
     this._gameService.updatePlayer(updatedWinnerData);
     this.gameCompleted = true;
 
@@ -315,13 +304,83 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
       this.requiresUserAction = false;
 
       setTimeout(() => {
-        if (this.playerOne) {
-          this._resetGame(this.playerOne!);
-        }
-        if (this.playerTwo) {
-          this._resetGame(this.playerTwo!);
-        }
+        this._performGameReset();
       }, 4000);
+    }
+  }
+
+  private _performGameReset(): void {
+    // Prevent multiple simultaneous resets
+    if (this._isResetting) {
+      return;
+    }
+
+    this._isResetting = true;
+
+    // Delete the Firebase request first
+    if (this.requestId) {
+      this._dataService.deleteRequest(this.requestId).subscribe({
+        error: (error) => console.error('Error deleting request during game reset:', error)
+      });
+    }
+
+    // Reset both players' data in Firebase
+    if (this.playerOne) {
+      this._resetPlayerData(this.playerOne);
+    }
+    if (this.playerTwo) {
+      this._resetPlayerData(this.playerTwo);
+    }
+
+    // Reset the current player's local state immediately to prevent UI issues
+    if (this.player) {
+      const resetCurrentPlayer = {
+        ...this.player,
+        readyToEnterGame: false,
+        session: '',
+        score: 0,
+        finishedSetup: false,
+        isReady: false,
+        isWinner: false,
+        isTurn: false,
+        lastUpdated: Date.now()
+      } as IPlayer;
+      this._gameService.updatePlayer(resetCurrentPlayer);
+    }
+
+    // Reset local UI state
+    this._resetProperties();
+    this._isResetting = false;
+  } private _resetPlayerData(player: IPlayer): void {
+    const board = this._boardService.createBoard(player);
+    const updatedPlayerData = {
+      ...player,
+      board: board,
+      shipLocations: this._boardService.initializeShipLocations(),
+      boardSetup: this._boardService.initializeBoardSetup(),
+      shipArray: [],
+      readyToEnterGame: false,
+      session: '',
+      score: 0,
+      finishedSetup: false,
+      isReady: false,
+      isWinner: false,
+      isTurn: false,
+      lastUpdated: Date.now()
+    } as IPlayer;
+
+    try {
+      // Update Firebase - this will trigger the subscription to update local state
+      this._dataService.updatePlayer(updatedPlayerData).subscribe({
+        next: () => {
+          console.log(`Player ${player.name} reset successfully`);
+        },
+        error: (error) => {
+          console.error('Error updating player during reset:', error);
+        }
+      });
+    } catch (error) {
+      console.error('Error updating player during reset:', error);
     }
   }
 
@@ -336,9 +395,10 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
 
 
   private _subscribeToActivePlayers(): void {
-    this._activePlayersSubscription = this._playerSubject.pipe(
+    this._playerSubject.pipe(
       filter(player => player !== null),
-      switchMap(player => this._dataService.getAllPlayers())
+      switchMap(player => this._dataService.getAllPlayers()),
+      takeUntil(this._destroy)
     ).subscribe(players => {
       if (players) {
         const activePlayers = players.filter(player => player.isActive === true && player.playerId !== this.player?.playerId);
@@ -348,6 +408,11 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   }
 
   private _managePlayerUpdate(player: IPlayer): void {
+    // Prevent managing updates during reset to avoid UI flickering
+    if (this._isResetting || this.gameCompleted) {
+      return;
+    }
+
     if (player.isReady) {
       this._initializePlayer(player);
     } else {
@@ -393,18 +458,20 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   }
 
   private _subscribeToPlayerUpdates(): void {
-    this._playerSubscription = this._gameService.player$.pipe(
+    this._gameService.player$.pipe(
       // used to reduce the number of updates to the player
-      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+      takeUntil(this._destroy)
     ).subscribe(player => {
       if (player) {
         this._managePlayerUpdate(player);
       }
     });
 
-    this._opponentSubscription = this._gameService.opponent$.pipe(
+    this._gameService.opponent$.pipe(
       // used to reduce the number of updates to the opponent
-      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+      takeUntil(this._destroy)
     ).subscribe(opponent => {
       if (opponent) {
         this._manageOpponentUpdate(opponent);
@@ -413,12 +480,13 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   }
 
   private _subscribeToRequests(): void {
-    this._requestsSubscription = this._playerSubject.pipe(
+    this._playerSubject.pipe(
       filter(player => player !== null),
       switchMap(player => {
         this.loading = true;
         return this._dataService.getRequests();
-      })
+      }),
+      takeUntil(this._destroy)
     ).subscribe(requests => {
       this.loading = false;
       if (requests) {
@@ -445,7 +513,9 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
                   this.modalMessage = `${opponent.name} is already in a game. Your challenge request has been cancelled.`;
                   // Cancel the challenge request
                   const requestId = unrespondedRequestFromChallenger.id;
-                  this._dataService.deleteRequest(requestId);
+                  this._dataService.deleteRequest(requestId).subscribe({
+                    error: (error) => console.error('Error deleting challenge request:', error)
+                  });
                 }
               }
             },
@@ -462,7 +532,9 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
             this.modalMessage = `${declinedRequestFromChallenger.opponentName} has declined your challenge request.`;
             this.requiresUserAction = false;
             this.requestId = declinedRequestFromChallenger.id;
-            this._dataService.deleteRequest(this.requestId);
+            this._dataService.deleteRequest(this.requestId).subscribe({
+              error: (error) => console.error('Error deleting declined request:', error)
+            });
             setTimeout(() => {
               this._resetGame(this.player);
             }, 2000);
