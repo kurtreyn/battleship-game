@@ -182,40 +182,8 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
   }
 
   private _resetGame(player: IPlayer): void {
-<<<<<<< HEAD
     // Delegate to the new centralized reset method
     this._performGameReset();
-=======
-    if (this.requestId) {
-      this._dataService.deleteRequest(this.requestId);
-    }
-    const board = this._boardService.createBoard(player);
-    const updatedPlayerData = {
-      ...player,
-      board: board,
-      shipLocations: this._boardService.initializeShipLocations(),
-      boardSetup: this._boardService.initializeBoardSetup(),
-      shipArray: [],
-      readyToEnterGame: false,
-      session: '',
-      score: 0,
-      finishedSetup: false,
-      isReady: false,
-      isWinner: false,
-      isTurn: false,
-      lastUpdated: new Date().getTime()
-    } as IPlayer;
-
-    try {
-      if (player) {
-        this._dataService.updatePlayer(updatedPlayerData);
-      }
-    } catch (error) {
-      console.error('Error updating player during resetGame:', error);
-    }
-    this._gameService.updatePlayer(updatedPlayerData);
-    this._resetProperties();
->>>>>>> 9327efccca01d7bd4a7ccec02d209812a785cd38
   }
 
   private _resetProperties(): void {
@@ -339,22 +307,7 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
       this.requiresUserAction = false;
 
       setTimeout(() => {
-<<<<<<< HEAD
         this._performGameReset();
-=======
-        // Delete the game request from Firebase
-        if (this.requestId) {
-          this._dataService.deleteRequest(this.requestId);
-        }
-
-        // Reset both players properly
-        if (this.playerOne) {
-          this._resetGame(this.playerOne!);
-        }
-        if (this.playerTwo) {
-          this._resetGame(this.playerTwo!);
-        }
->>>>>>> 9327efccca01d7bd4a7ccec02d209812a785cd38
       }, 4000);
     }
   }
