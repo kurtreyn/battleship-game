@@ -175,14 +175,47 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
       shipLocations: this._boardService.initializeShipLocations(),
       boardSetup: this._boardService.initializeBoardSetup(),
       shipArray: [],
+      lastUpdated: new Date().getTime()
     }
-    this._dataService.resetPlayer(newPlayerData);
+    this._dataService.updatePlayer(newPlayerData);
     this._gameService.updatePlayer(newPlayerData);
   }
 
   private _resetGame(player: IPlayer): void {
+<<<<<<< HEAD
     // Delegate to the new centralized reset method
     this._performGameReset();
+=======
+    if (this.requestId) {
+      this._dataService.deleteRequest(this.requestId);
+    }
+    const board = this._boardService.createBoard(player);
+    const updatedPlayerData = {
+      ...player,
+      board: board,
+      shipLocations: this._boardService.initializeShipLocations(),
+      boardSetup: this._boardService.initializeBoardSetup(),
+      shipArray: [],
+      readyToEnterGame: false,
+      session: '',
+      score: 0,
+      finishedSetup: false,
+      isReady: false,
+      isWinner: false,
+      isTurn: false,
+      lastUpdated: new Date().getTime()
+    } as IPlayer;
+
+    try {
+      if (player) {
+        this._dataService.updatePlayer(updatedPlayerData);
+      }
+    } catch (error) {
+      console.error('Error updating player during resetGame:', error);
+    }
+    this._gameService.updatePlayer(updatedPlayerData);
+    this._resetProperties();
+>>>>>>> 9327efccca01d7bd4a7ccec02d209812a785cd38
   }
 
   private _resetProperties(): void {
@@ -254,7 +287,8 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
     const playerScore = player.score;
     const opponentScore = opponent.score;
 
-    if (this._hasPlayerChanged(opponent)) {
+    // Only update the opponent if their data has changed and they are different from current player
+    if (this._hasPlayerChanged(opponent) && opponent.id !== this.player?.id) {
       this.loading = true;
       this._gameService.updateOpponent(opponent);
       this.loading = false;
@@ -266,7 +300,8 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
         this._updateWinner(player);
       } else if (opponentScore === GAME.WINNING_SCORE) {
         this._updateWinner(opponent);
-      } else if (this._hasPlayerChanged(player)) {
+      } else if (this._hasPlayerChanged(player) && player.id === this.player?.id) {
+        // Only update the current player's data if it's actually their own data
         this.loading = true;
         this._gameService.updatePlayer(player);
         this.loading = false;
@@ -304,7 +339,22 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
       this.requiresUserAction = false;
 
       setTimeout(() => {
+<<<<<<< HEAD
         this._performGameReset();
+=======
+        // Delete the game request from Firebase
+        if (this.requestId) {
+          this._dataService.deleteRequest(this.requestId);
+        }
+
+        // Reset both players properly
+        if (this.playerOne) {
+          this._resetGame(this.playerOne!);
+        }
+        if (this.playerTwo) {
+          this._resetGame(this.playerTwo!);
+        }
+>>>>>>> 9327efccca01d7bd4a7ccec02d209812a785cd38
       }, 4000);
     }
   }
@@ -386,9 +436,10 @@ export abstract class AbstractGame implements OnInit, OnDestroy {
 
 
   private _checkAndUpdatePlayers(playerOne: IPlayer, playerTwo: IPlayer, playerId: string, currentTime: number) {
-    if (playerOne.id === playerId) {
+    // Only process updates for the current logged-in player to prevent cross-contamination
+    if (playerOne.playerId === this.player?.playerId) {
       this._handlePlayerUpdate(playerOne, playerTwo, playerId, currentTime);
-    } else if (playerTwo.id === playerId) {
+    } else if (playerTwo.playerId === this.player?.playerId) {
       this._handlePlayerUpdate(playerTwo, playerOne, playerId, currentTime);
     }
   }
