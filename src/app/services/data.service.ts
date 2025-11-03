@@ -151,7 +151,17 @@ export class DataService {
   resetPlayer(player: IPlayer) {
     return from(this._afs.doc('/players/' + player.id).update({
       isReady: false,
-      readyToEnterGame: false
+      readyToEnterGame: false,
+      finishedSetup: false,
+      session: '',
+      score: 0,
+      isWinner: false,
+      isTurn: false,
+      board: player.board,
+      shipLocations: player.shipLocations,
+      boardSetup: player.boardSetup,
+      shipArray: player.shipArray,
+      lastUpdated: player.lastUpdated
     })).pipe(
       catchError(error => {
         console.error('Error resetting player:', error);
