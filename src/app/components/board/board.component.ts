@@ -282,7 +282,8 @@ export class BoardComponent extends AbstractGame {
         session: this.sessionId,
         finishedSetup: true,
         isReady: true,
-        shipArray: shipArr
+        shipArray: shipArr,
+        lastUpdated: new Date().getTime()
       }
       this.dataService.updatePlayer(updatedPlayerData);
       this.gameService.updatePlayer(updatedPlayerData);
